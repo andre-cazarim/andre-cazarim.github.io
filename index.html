@@ -3,921 +3,852 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Prompt Guide</title>
+<title>MUSE — Montador de Prompts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Playfair+Display:ital,wght@0,500;1,500;1,600&display=swap" rel="stylesheet">
 <style>
+  /* ------------------------------------------------------------
+     Quando os arquivos da LORINE chegarem, descomente o bloco
+     abaixo, coloque os arquivos na mesma pasta deste HTML, e
+     troque --font-title de "Anton" para "Lorine".
+  ------------------------------------------------------------
+  @font-face{
+    font-family:"Lorine";
+    src:url("Lorine-Regular.woff2") format("woff2"),
+        url("Lorine-Regular.otf") format("opentype");
+    font-weight:400; font-style:normal;
+  }
+  ------------------------------------------------------------ */
+
   :root{
-    --bg:#F5F5F7;
-    --card:#FFFFFF;
-    --ink:#1D1D1F;
-    --ink-soft:#6E6E73;
-    --ink-faint:#AEAEB2;
-    --accent:#0071E3;
-    --line:#D2D2D7;
-    --code-bg:#FBFBFD;
-    --radius:24px;
-    --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    --mono: "SF Mono", "Menlo", "Consolas", monospace;
-  }
+    --bg:#212121;
+    --bg-card:#2A2A2C;
+    --bg-card-hover:#313133;
+    --ink:#EEF2F4;
+    --ink-soft:#9C9C9F;
+    --ink-faint:#6C6C6F;
+    --accent:#E7FF87;
+    --accent-ink:#1A1A1A;
+    --line:rgba(238,242,244,0.12);
+    --line-strong:rgba(238,242,244,0.22);
+    --code-bg:#232325;
 
+    --font-title:"Anton", "Helvetica Neue", Arial, sans-serif;
+    --font-sub:"Playfair Display", Georgia, serif;
+    --font-body: Helvetica, "Helvetica Neue", Arial, sans-serif;
+    --mono:"SF Mono","Menlo","Consolas",monospace;
+    --radius:18px;
+  }
   *{ box-sizing:border-box; margin:0; padding:0; }
-
-  html{
-    scroll-snap-type: y mandatory;
-    scroll-behavior: smooth;
-  }
-
+  html{ background:var(--bg); }
   body{
-    font-family: var(--font);
-    background: var(--bg);
-    color: var(--ink);
-    -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
+    font-family:var(--font-body); background:var(--bg); color:var(--ink);
+    -webkit-font-smoothing:antialiased;
   }
+  .wrap{ max-width:1360px; margin:0 auto; padding:0 40px; }
 
-  @media (prefers-reduced-motion: reduce){
-    html{ scroll-behavior:auto; }
-    *{ animation-duration:0.001ms !important; transition-duration:0.001ms !important; }
-  }
+  a{ color:inherit; }
+  ::selection{ background:var(--accent); color:var(--accent-ink); }
 
-  /* ============ TOP PROGRESS ============ */
-  .progress-rail{
-    position:fixed; top:0; left:0; right:0; height:2px;
-    background:transparent; z-index:500;
-  }
-  .progress-fill{
-    height:100%; width:0%;
-    background:var(--accent);
-    transition:width .15s linear;
-  }
+  /* ============ MUSE MARK ============ */
+  .muse-mark{ width:22px; height:22px; flex-shrink:0; }
+  .muse-mark path{ fill:var(--accent); }
 
-  .page-counter{
-    position:fixed; top:36px; right:48px; z-index:400;
-    font-size:13px; letter-spacing:.04em; color:var(--ink-soft);
-    font-variant-numeric: tabular-nums;
-    display:flex; align-items:center; gap:6px;
+  /* ============ HERO ============ */
+  .hero{
+    padding:64px 0 56px; border-bottom:1px solid var(--line);
   }
-  .page-counter .cur{ color:var(--ink); font-weight:600; }
-
-  /* ============ APERTURE NAV (signature element) ============ */
-  .aperture-nav{
-    position:fixed; left:28px; top:50%; transform:translateY(-50%);
-    z-index:400; display:flex; flex-direction:column; align-items:flex-start;
-    opacity:0; pointer-events:none;
-    transition:opacity .45s ease;
+  .hero-brand{
+    display:flex; align-items:center; gap:10px; margin-bottom:40px;
   }
-  .aperture-nav.visible{ opacity:1; pointer-events:auto; }
-
-  .nav-track{
-    position:relative; display:flex; flex-direction:column; gap:0;
-    padding-left:2px;
+  .hero-brand span{
+    font-family:var(--font-title); font-size:15px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--ink-soft);
   }
-  .nav-track::before{
-    content:''; position:absolute; left:5px; top:6px; bottom:6px; width:1px;
-    background:var(--line);
-  }
-  .nav-dot{
-    position:relative; display:flex; align-items:center; gap:14px;
-    height:28px; cursor:pointer; background:none; border:none;
-    font-family:var(--font); text-align:left;
-  }
-  .nav-dot .mark{
-    width:11px; height:11px; border-radius:50%;
-    background:var(--bg); border:1.4px solid var(--ink-faint);
-    transition:all .3s ease; flex-shrink:0; z-index:1;
-  }
-  .nav-dot .label{
-    font-size:11.5px; color:var(--ink-soft); white-space:nowrap;
-    opacity:0; transform:translateX(-4px); pointer-events:none;
-    transition:all .2s ease;
-    position:absolute; left:calc(100% + 4px); top:50%; margin-top:-9px;
-    background:var(--bg); padding:3px 8px; border-radius:6px;
-  }
-  .nav-dot:hover .label{ opacity:1; transform:translateX(0); }
-  .nav-dot.active .mark{
-    border-color:var(--accent); background:var(--accent);
-    transform:scale(1.25);
-  }
-
-  /* ============ PAGE / SLIDE STRUCTURE ============ */
-  main{ width:100%; }
-
-  .page{
-    width:100%; min-height:100vh; height:100vh;
-    scroll-snap-align:start; scroll-snap-stop:always;
-    position:relative; overflow:hidden;
-    display:flex; flex-direction:column;
-    justify-content:center;
-    padding:0 clamp(48px, 8vw, 160px);
-  }
-
   .eyebrow{
-    font-size:14px; letter-spacing:.14em; text-transform:uppercase;
-    color:var(--accent); font-weight:600; margin-bottom:20px;
-    display:flex; align-items:center; gap:10px;
+    font-family:var(--font-sub); font-style:italic; font-weight:500;
+    font-size:19px; color:var(--accent); margin-bottom:14px;
   }
-  .eyebrow .n{ color:var(--ink-faint); font-weight:500; }
-
   h1.title{
-    font-size:clamp(40px, 4.6vw, 80px);
-    font-weight:650; letter-spacing:-0.02em; line-height:1.05;
-    color:var(--ink);
+    font-family:var(--font-title); text-transform:uppercase;
+    font-size:clamp(38px,5vw,68px); line-height:1.02; letter-spacing:.005em;
+    font-weight:400;
   }
-  .subtitle{
-    font-size:clamp(18px, 1.6vw, 26px);
-    color:var(--ink-soft); font-weight:400; line-height:1.5;
-    margin-top:18px; max-width:760px;
+  .lede{
+    font-size:16.5px; color:var(--ink-soft); margin-top:18px; max-width:600px; line-height:1.6;
   }
 
-  .chapter-head{ margin-bottom:clamp(28px,3.4vw,56px); }
-  .chapter-icon{
-    width:56px; height:56px; border-radius:16px;
-    background:var(--card); display:flex; align-items:center; justify-content:center;
-    margin-bottom:24px; box-shadow:0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.05);
+  /* ============ SECTION LABELS ============ */
+  .section{ padding:64px 0; }
+  .section-head{ margin-bottom:36px; }
+  .section-eyebrow{
+    font-family:var(--font-title); font-size:12.5px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--accent); margin-bottom:10px;
   }
-  .chapter-icon svg{ width:28px; height:28px; stroke:var(--ink); }
-
-  .mini-icon{
-    width:38px; height:38px; border-radius:11px;
-    background:var(--code-bg); display:flex; align-items:center; justify-content:center;
-    margin-bottom:16px; color:var(--ink);
+  h2.section-title{
+    font-family:var(--font-title); text-transform:uppercase; font-weight:400;
+    font-size:clamp(26px,2.6vw,38px); letter-spacing:.01em;
   }
-  .mini-icon svg{ width:19px; height:19px; }
-
-  /* ============ CARD GRID ============ */
-  .grid{
-    display:grid; gap:20px;
-    grid-template-columns:repeat(2, 1fr);
-  }
-  .grid.g3{ grid-template-columns:repeat(3,1fr); }
-  .grid.g4{ grid-template-columns:repeat(4,1fr); }
-  .grid.g5{ grid-template-columns:repeat(5,1fr); }
-
-  .card{
-    background:var(--card); border-radius:var(--radius);
-    padding:clamp(22px,2vw,32px);
-    box-shadow:0 1px 2px rgba(0,0,0,.03), 0 12px 28px rgba(0,0,0,.045);
-  }
-  .card h3{
-    font-size:clamp(15px,1vw,18px); font-weight:650; margin-bottom:14px;
-    letter-spacing:-0.01em;
-  }
-  .card p{
-    font-size:clamp(14px,.95vw,16px); color:var(--ink-soft); line-height:1.6;
+  .section-sub{
+    font-family:var(--font-sub); font-style:italic; font-weight:500;
+    font-size:17px; color:var(--ink-soft); margin-top:10px; max-width:640px;
   }
 
-  .chips{ display:flex; flex-wrap:wrap; gap:8px; }
-  .chip{
-    font-size:13px; padding:7px 14px; border-radius:100px;
+  /* ============ GRID OF CATEGORY FIELDS ============ */
+  .field-grid{
+    display:grid; grid-template-columns:repeat(4, 1fr); gap:14px;
+  }
+  .field{
+    position:relative;
+    background:var(--bg-card); border:1.4px solid var(--line); border-radius:14px;
+    padding:18px 18px 16px; cursor:pointer; user-select:none;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .field:hover{ border-color:var(--line-strong); background:var(--bg-card-hover); }
+  .field.filled{ border-color:var(--accent); }
+  .field.open{ border-color:var(--accent); }
+
+  .field .num{
+    font-family:var(--mono); font-size:11px; color:var(--ink-faint); letter-spacing:.04em;
+  }
+  .field .dot{
+    position:absolute; top:16px; right:16px; width:8px; height:8px; border-radius:50%;
+    background:var(--accent); opacity:0; transform:scale(.4); transition:all .2s ease;
+  }
+  .field.filled .dot{ opacity:1; transform:scale(1); }
+  .field .label{
+    font-size:15px; font-weight:700; margin-top:6px; letter-spacing:-0.01em;
+  }
+  .field .preview{
+    font-size:12.5px; color:var(--ink-soft); margin-top:6px; line-height:1.45;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+  }
+  .field .preview.empty{ color:var(--ink-faint); }
+
+  /* ============ OVERLAY + POPOVER ============ */
+  .overlay{ position:fixed; inset:0; z-index:60; background:rgba(0,0,0,.35); display:none; }
+  .overlay.active{ display:block; }
+
+  .popover{
+    position:absolute; z-index:70; width:400px; max-width:92vw;
+    background:#2E2E30; border:1px solid var(--line-strong); border-radius:16px;
+    box-shadow:0 24px 60px rgba(0,0,0,.5);
+    padding:20px; max-height:70vh; overflow-y:auto;
+    display:none;
+  }
+  .popover.active{ display:block; }
+
+  .pop-title{ font-size:15.5px; font-weight:700; margin-bottom:2px; }
+  .pop-sub{ font-size:12.5px; color:var(--ink-soft); margin-bottom:16px; }
+
+  .subgroup{ margin-bottom:18px; }
+  .subgroup:last-of-type{ margin-bottom:14px; }
+  .subgroup-label{
+    font-size:11px; text-transform:uppercase; letter-spacing:.08em;
+    color:var(--ink-soft); font-weight:700; margin-bottom:9px;
+  }
+  .opt-list{ display:flex; flex-wrap:wrap; gap:7px; }
+  .opt{
+    font-size:12.5px; padding:7px 13px; border-radius:100px;
     background:var(--code-bg); border:1px solid var(--line);
-    color:var(--ink); font-weight:500;
-    display:inline-flex; align-items:center; gap:6px;
+    color:var(--ink); font-weight:500; cursor:pointer;
+    transition:all .12s ease;
   }
-  .chip svg{ width:14px; height:14px; flex-shrink:0; color:var(--ink-soft); }
-
-  .codeblock{
-    background:var(--code-bg); border:1px solid var(--line);
-    border-radius:14px; padding:16px 18px;
-    font-family:var(--mono); font-size:13.5px; line-height:1.65;
-    color:var(--ink); white-space:pre-wrap;
+  .opt:hover{ border-color:var(--line-strong); }
+  .opt.selected{
+    background:var(--accent); border-color:var(--accent); color:var(--accent-ink); font-weight:700;
   }
-  .codeblock + .codeblock{ margin-top:10px; }
 
-  .errlist{ display:flex; flex-direction:column; gap:10px; }
-  .errlist .err{
+  .free-text{ margin-top:10px; display:flex; flex-direction:column; gap:6px; }
+  .free-text .row{ display:flex; gap:8px; }
+  .free-text input{
+    flex:1; font-family:var(--font-body); font-size:13px; padding:9px 12px;
+    border:1px solid var(--line); border-radius:10px; background:var(--code-bg);
+    color:var(--ink); outline:none;
+  }
+  .free-text input:focus{ border-color:var(--accent); }
+  .free-text input::placeholder{ color:var(--ink-faint); }
+  .free-text button{
+    font-family:var(--font-body); font-size:13px; font-weight:700; padding:9px 14px;
+    border:none; border-radius:10px; background:var(--accent); color:var(--accent-ink); cursor:pointer;
+  }
+  .free-text .hint{ font-size:11px; color:var(--ink-faint); }
+
+  .pop-actions{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-top:16px; padding-top:14px; border-top:1px solid var(--line);
+  }
+  .link-btn{
+    font-size:12.5px; color:var(--ink-soft); background:none; border:none; cursor:pointer;
+    text-decoration:underline; text-underline-offset:2px;
+  }
+  .link-btn:hover{ color:var(--ink); }
+  .done-btn{
+    font-family:var(--font-body); font-size:13px; font-weight:700; padding:9px 16px;
+    border:none; border-radius:10px; background:var(--accent); color:var(--accent-ink); cursor:pointer;
+  }
+
+  /* ============ ACTION BAR ============ */
+  .action-bar{ margin-top:28px; display:flex; align-items:center; gap:18px; flex-wrap:wrap; }
+  .generate-btn{
+    font-family:var(--font-title); text-transform:uppercase; letter-spacing:.04em;
+    font-size:14.5px; font-weight:400; padding:15px 30px;
+    border:none; border-radius:100px; background:var(--accent); color:var(--accent-ink); cursor:pointer;
+    transition:transform .1s ease;
+  }
+  .generate-btn:active{ transform:scale(.97); }
+  .reset-btn{
+    font-family:var(--font-body); font-size:13.5px; color:var(--ink-soft); background:none;
+    border:none; cursor:pointer; text-decoration:underline; text-underline-offset:2px;
+  }
+  .reset-btn:hover{ color:var(--ink); }
+  .dirty-note{ font-size:13px; color:var(--ink-soft); }
+  .dirty-note b{ color:var(--accent); }
+
+  /* ============ OUTPUT ============ */
+  .output{
+    margin-top:28px; background:var(--bg-card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:26px; display:none;
+  }
+  .output.active{ display:block; }
+  .output-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+  .output-head h3{ font-size:14.5px; font-weight:700; }
+  .output-head .lang-tag{
+    font-family:var(--mono); font-size:10.5px; color:var(--ink-faint); letter-spacing:.06em;
+    text-transform:uppercase; margin-left:8px;
+  }
+  .copy-btn{
+    font-family:var(--font-body); font-size:12.5px; font-weight:700; padding:8px 14px;
+    border:1px solid var(--line-strong); border-radius:10px; background:var(--code-bg);
+    color:var(--ink); cursor:pointer; display:flex; align-items:center; gap:6px;
+  }
+  .copy-btn:hover{ border-color:var(--accent); }
+  .copy-btn svg{ width:14px; height:14px; }
+  .output textarea{
+    width:100%; min-height:140px; resize:vertical;
+    font-family:var(--mono); font-size:14px; line-height:1.7; color:var(--ink);
+    background:var(--code-bg); border:1px solid var(--line); border-radius:12px;
+    padding:16px; outline:none;
+  }
+  .output textarea:focus{ border-color:var(--accent); }
+
+  /* ============ CONDENSED GUIDE ============ */
+  .guide-section{
+    padding:64px 0 96px; border-top:1px solid var(--line);
+  }
+  .guide-grid{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:16px;
+  }
+  .guide-card{
+    background:var(--bg-card); border:1px solid var(--line); border-radius:16px;
+    padding:22px;
+  }
+  .guide-card .num{
+    font-family:var(--mono); font-size:11px; color:var(--accent); letter-spacing:.04em; margin-bottom:8px;
+  }
+  .guide-card h3{ font-size:16px; font-weight:700; margin-bottom:8px; }
+  .guide-card p{ font-size:13.5px; color:var(--ink-soft); line-height:1.6; margin-bottom:12px; }
+  .guide-card .ex-label{
+    font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-faint);
+    margin-bottom:6px; font-weight:700;
+  }
+  .guide-card .ex-chips{ display:flex; flex-wrap:wrap; gap:6px; }
+  .guide-card .ex-chip{
+    font-size:11.5px; padding:4px 10px; border-radius:100px;
+    background:var(--code-bg); border:1px solid var(--line); color:var(--ink-soft);
+  }
+
+  footer{
+    padding:36px 0 60px; border-top:1px solid var(--line);
     display:flex; align-items:center; gap:10px;
-    font-size:14.5px; color:var(--ink-soft);
-    font-family:var(--mono);
   }
-  .errlist .err::before{
-    content:'×'; color:#C7372F; font-weight:700; font-size:16px; font-family:var(--font);
-  }
+  footer span{ font-size:12px; color:var(--ink-faint); letter-spacing:.04em; }
 
-  .oklist{ display:flex; flex-direction:column; gap:10px; }
-  .oklist .ok{
-    display:flex; align-items:flex-start; gap:10px;
-    font-size:14.5px; color:var(--ink); line-height:1.5;
+  @media (max-width:1100px){
+    .field-grid{ grid-template-columns:repeat(2,1fr); }
+    .guide-grid{ grid-template-columns:repeat(2,1fr); }
   }
-  .oklist .ok::before{
-    content:'✓'; color:var(--accent); font-weight:700; flex-shrink:0;
-  }
-
-  .tipbar{
-    margin-top:clamp(20px,2.4vw,36px);
-    display:flex; align-items:center; gap:12px;
-    font-size:15px; color:var(--ink-soft);
-  }
-  .tipbar .bulb{ display:flex; color:var(--accent); flex-shrink:0; }
-  .tipbar .bulb svg{ width:19px; height:19px; }
-  .tipbar b{ color:var(--ink); font-weight:600; }
-
-  /* ============ COVER ============ */
-  .cover{ align-items:center; text-align:center; }
-  .cover .iris-wrap{
-    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-    z-index:0; opacity:.5;
-  }
-  .cover .content{ position:relative; z-index:1; }
-  .cover h1{
-    font-size:clamp(48px,6.2vw,104px); font-weight:650; letter-spacing:-0.03em;
-    line-height:1.02;
-  }
-  .cover .subtitle{ margin:26px auto 0; }
-  .cover .year{
-    position:absolute; bottom:56px; left:0; right:0; text-align:center;
-    font-size:14px; color:var(--ink-faint); letter-spacing:.08em;
-  }
-  .cover-blade{ fill:none; stroke:var(--line); stroke-width:1; }
-
-  /* ============ INTRO ============ */
-  .intro-grid{
-    display:grid; grid-template-columns:1fr 1fr 1fr; gap:28px;
-    margin-top:clamp(30px,3.6vw,56px);
-  }
-  .intro-block h3{
-    font-size:14px; text-transform:uppercase; letter-spacing:.1em;
-    color:var(--accent); font-weight:650; margin-bottom:14px;
-  }
-  .intro-block p{ font-size:16px; color:var(--ink-soft); line-height:1.7; }
-  .flow{
-    display:flex; flex-direction:column; gap:0; margin-top:6px;
-  }
-  .flow-step{
-    font-family:var(--mono); font-size:12.5px; letter-spacing:.06em;
-    color:var(--ink); padding:6px 0; display:flex; align-items:center; gap:10px;
-  }
-  .flow-step .dash{ color:var(--ink-faint); }
-
-  /* ============ LIGHT CARDS ============ */
-  .light-card{ position:relative; overflow:hidden; }
-  .light-bar{ height:5px; border-radius:4px; margin-bottom:18px; }
-  .light-card p{ margin-top:6px; }
-
-  /* ============ ANGLE / FRAMING DIAGRAMS ============ */
-  .diagram-card{ text-align:center; }
-  .diagram-card svg{ width:100%; height:120px; margin-bottom:14px; }
-  .diagram-card h3{ margin-bottom:6px; }
-  .diagram-card p{ font-size:13px; }
-
-  /* ============ TABLE ============ */
-  table.lens-table{
-    width:100%; border-collapse:collapse; margin-top:18px;
-    font-size:14px;
-  }
-  table.lens-table th{
-    text-align:left; color:var(--ink-soft); font-weight:500; font-size:12.5px;
-    text-transform:uppercase; letter-spacing:.06em; padding-bottom:10px;
-    border-bottom:1px solid var(--line);
-  }
-  table.lens-table td{
-    padding:12px 0; border-bottom:1px solid var(--line);
-  }
-  table.lens-table td:first-child{ font-family:var(--mono); font-weight:600; }
-
-  /* ============ QUALITY COMPARISON ============ */
-  .quality-compare{
-    display:flex; align-items:center; gap:24px; margin-bottom:8px;
-  }
-  .quality-swatch{
-    flex:1; height:90px; border-radius:16px;
-    display:flex; align-items:center; justify-content:center;
-    font-size:13px; font-weight:600; letter-spacing:.04em;
-  }
-  .quality-swatch.low{ background:repeating-linear-gradient(45deg,#e4e4e6,#e4e4e6 4px,#ececee 4px,#ececee 8px); color:var(--ink-soft); }
-  .quality-swatch.high{ background:linear-gradient(135deg,#1D1D1F,#3a3a3d); color:#fff; }
-  .quality-arrow{ color:var(--ink-faint); font-size:20px; }
-
-  /* ============ PARAMS DASHBOARD ============ */
-  .param-card{ text-align:center; }
-  .param-card .val{ font-family:var(--mono); font-size:clamp(24px,2vw,32px); font-weight:600; margin-bottom:6px; }
-  .param-card .lbl{ font-size:12.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft); }
-
-  /* ============ ASSEMBLE ============ */
-  .formula{
-    display:flex; flex-wrap:wrap; gap:10px; align-items:center;
-    margin:clamp(24px,3vw,40px) 0;
-  }
-  .formula .block{
-    font-family:var(--mono); font-size:13px; font-weight:600;
-    background:var(--card); border:1px solid var(--line);
-    padding:10px 16px; border-radius:10px; color:var(--ink);
-  }
-  .formula .plus{ color:var(--ink-faint); font-size:15px; }
-  .assemble-example{
-    background:var(--card); border-radius:var(--radius);
-    padding:clamp(26px,2.6vw,40px);
-    box-shadow:0 1px 2px rgba(0,0,0,.03), 0 12px 28px rgba(0,0,0,.045);
-    font-family:var(--mono); font-size:clamp(14px,1.05vw,17px); line-height:1.8;
-    color:var(--ink); max-width:1100px;
-  }
-
-  /* ============ CHECKLIST ============ */
-  .checklist-wrap{
-    max-width:820px; margin-top:clamp(24px,3vw,40px);
-    display:flex; flex-direction:column; gap:2px;
-  }
-  .check-item{
-    display:flex; align-items:center; gap:16px;
-    padding:16px 4px; border-bottom:1px solid var(--line);
-    cursor:pointer; user-select:none;
-  }
-  .check-item .box{
-    width:22px; height:22px; border-radius:7px; flex-shrink:0;
-    border:1.6px solid var(--ink-faint); position:relative;
-    transition:all .2s ease;
-  }
-  .check-item .box::after{
-    content:''; position:absolute; inset:0; display:flex;
-  }
-  .check-item.checked .box{ background:var(--accent); border-color:var(--accent); }
-  .check-item.checked .box svg{ display:block; }
-  .check-item .box svg{
-    display:none; width:14px; height:14px; stroke:#fff; stroke-width:2.4;
-    position:absolute; top:3px; left:3px;
-  }
-  .check-item span.txt{
-    font-size:17px; color:var(--ink); transition:color .2s ease;
-  }
-  .check-item.checked span.txt{ color:var(--ink-soft); text-decoration:line-through; text-decoration-color:var(--line); }
-
-  /* ============ TEMPLATE ============ */
-  .template-box{
-    display:grid; grid-template-columns:repeat(4,1fr); gap:14px;
-    margin-top:clamp(22px,2.6vw,34px);
-  }
-  .template-field{
-    border:1.4px dashed var(--line); border-radius:12px;
-    padding:14px 16px; font-family:var(--mono); font-size:12.5px;
-    color:var(--ink-soft); letter-spacing:.04em; text-transform:uppercase;
-    text-align:center;
-  }
-  .template-model{
-    margin-top:clamp(26px,2.8vw,40px);
-    background:var(--card); border-radius:var(--radius);
-    padding:clamp(24px,2.4vw,34px);
-    box-shadow:0 1px 2px rgba(0,0,0,.03), 0 12px 28px rgba(0,0,0,.045);
-    font-family:var(--mono); font-size:clamp(13px,.95vw,15.5px); line-height:1.85;
-    color:var(--ink);
-  }
-  .template-model .fill{ color:var(--accent); font-weight:600; }
-
-  /* ============ TWO COLUMN (header + content split for chapters) ============ */
-  .chapter-body{
-    display:flex; flex-direction:column; gap:0;
-  }
-
-  /* footer year mark on chapter pages */
-  .page-foot{
-    position:absolute; bottom:40px; left:clamp(48px,8vw,160px);
-    font-size:12px; color:var(--ink-faint); letter-spacing:.06em;
-  }
-
-  ::selection{ background:var(--accent); color:#fff; }
-
-  /* ============ RESPONSIVE (mobile stacking) ============ */
-  @media (max-width:900px){
-    .aperture-nav{ display:none; }
-    .page{ height:auto; min-height:100vh; padding:80px 28px; }
-    .grid, .grid.g3, .grid.g4, .grid.g5{ grid-template-columns:1fr; }
-    .intro-grid{ grid-template-columns:1fr; }
-    .template-box{ grid-template-columns:repeat(2,1fr); }
-    .page-counter{ right:24px; top:20px; }
+  @media (max-width:640px){
+    .wrap{ padding:0 22px; }
+    .field-grid{ grid-template-columns:1fr; }
+    .guide-grid{ grid-template-columns:1fr; }
+    .popover{ width:320px; }
   }
 </style>
 </head>
 <body>
 
-<div class="progress-rail"><div class="progress-fill" id="progressFill"></div></div>
-<div class="page-counter"><span class="cur" id="curPage">01</span>&nbsp;/&nbsp;16</div>
-
-<nav class="aperture-nav" id="apertureNav">
-  <div class="nav-track" id="navTrack"></div>
-</nav>
-
-<main id="scrollArea">
-
-  <!-- PAGE 1 — COVER -->
-  <section class="page cover" id="p0">
-    <div class="iris-wrap">
-      <svg viewBox="0 0 800 800" width="700" height="700">
-        <g id="coverIris"></g>
-      </svg>
+<div class="wrap">
+  <header class="hero">
+    <div class="hero-brand">
+      <svg class="muse-mark" viewBox="0 0 100 100"><path d="M50 4c5 0 7 8 11 10s12-3 16 1-1 12 1 16 11 4 11 11-8 7-10 11 3 12-1 16-12-1-16 1-4 11-11 11-7-8-11-10-12 3-16-1 1-12-1-16-11-4-11-11 8-7 10-11-3-12 1-16 12 1 16-1 4-11 11-11z"/></svg>
+      <span>MUSE Mídia</span>
     </div>
-    <div class="content">
-      <h1>Guia de Composição<br>para Prompts</h1>
-      <p class="subtitle">Um guia para criar prompts claros, completos e consistentes<br>para geração de imagens por IA.</p>
-    </div>
-    <div class="year">2026</div>
-  </section>
+    <div class="eyebrow">Ferramenta interna</div>
+    <h1 class="title">Montador de<br>Prompts</h1>
+    <p class="lede">Escolha as opções em qualquer ordem — categorias em branco são ignoradas. As opções aparecem em português, mas o prompt final é sempre gerado em inglês.</p>
+  </header>
 
-  <!-- PAGE 2 — INTRODUÇÃO -->
-  <section class="page" id="p1">
-    <div class="eyebrow">Introdução</div>
-    <h1 class="title">Antes de começar</h1>
-    <div class="intro-grid">
-      <div class="intro-block">
-        <h3>O objetivo</h3>
-        <p>Um bom prompt não é apenas uma descrição da imagem. Ele funciona como um briefing fotográfico — indica exatamente o que aparece em cena, como é enquadrado e qual sensação a imagem precisa transmitir.</p>
+  <section class="section" id="builder">
+    <div class="field-grid" id="fieldGrid"></div>
+
+    <div class="action-bar">
+      <button class="generate-btn" id="generateBtn">Gerar prompt</button>
+      <button class="reset-btn" id="resetBtn">Limpar tudo</button>
+      <span class="dirty-note" id="dirtyNote" style="display:none;">Isso vai <b>substituir</b> o texto atual.</span>
+    </div>
+
+    <div class="output" id="output">
+      <div class="output-head">
+        <h3>Prompt final <span class="lang-tag">EN</span></h3>
+        <button class="copy-btn" id="copyBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+          Copiar
+        </button>
       </div>
-      <div class="intro-block">
-        <h3>Como usar</h3>
-        <p>Cada capítulo representa um componente da composição. Use todos ou apenas os que importam para a sua imagem. Quanto mais específico o prompt, menor o espaço para interpretações inesperadas da IA.</p>
-      </div>
-      <div class="intro-block">
-        <h3>O fluxo</h3>
-        <div class="flow" id="introFlow"></div>
-      </div>
+      <textarea id="outputText" spellcheck="false"></textarea>
     </div>
   </section>
 
-  <!-- PAGE 3 — SUJEITO -->
-  <section class="page" id="p2" data-chapter="1">
-    <div class="chapter-head">
-      <div class="eyebrow"><span class="n">01 / 11</span> Composição</div>
-      <div class="chapter-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="8" r="3.4"></circle><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"></path></svg>
-      </div>
-      <h1 class="title">Sujeito</h1>
-      <p class="subtitle">O elemento principal da imagem — quem, ou o que, será fotografado.</p>
+  <section class="guide-section" id="guide">
+    <div class="section-head">
+      <div class="section-eyebrow">Referência rápida</div>
+      <h2 class="section-title">Guia de composição</h2>
+      <p class="section-sub">Um resumo do que cada categoria significa, para quem ainda está pegando o jeito dos termos.</p>
     </div>
-    <div class="grid g4">
-      <div class="card">
-        <h3>O que definir</h3>
-        <div class="chips">
-          <span class="chip">idade</span><span class="chip">gênero</span><span class="chip">aparência</span>
-          <span class="chip">roupa</span><span class="chip">profissão</span><span class="chip">traços físicos</span><span class="chip">acessórios</span>
-        </div>
-      </div>
-      <div class="card">
-        <h3>Boas práticas</h3>
-        <div class="oklist">
-          <div class="ok">Seja específico.</div>
-          <div class="ok">Evite termos genéricos.</div>
-          <div class="ok">Descreva como um fotógrafo descreveria a cena.</div>
-        </div>
-      </div>
-      <div class="card">
-        <h3>Exemplos</h3>
-        <div class="codeblock">Retratando uma mulher de 30 anos,
-cabelos cacheados,
-jaqueta de couro preta.</div>
-        <div class="codeblock">Com foco em um carro esportivo
-vermelho dos anos 80.</div>
-      </div>
-      <div class="card">
-        <h3>Erros comuns</h3>
-        <div class="errlist">
-          <div class="err">"uma pessoa"</div>
-          <div class="err">"um carro"</div>
-          <div class="err">"uma mulher bonita"</div>
-        </div>
-      </div>
-    </div>
-    <div class="tipbar"><span class="bulb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.45 1 1.15 1 1.9V16h5v-.2c0-.75.4-1.45 1-1.9A6 6 0 0 0 12 3z"/></svg></span><span><b>Quanto mais específico o sujeito</b>, menor a liberdade de interpretação da IA.</span></div>
+    <div class="guide-grid" id="guideGrid"></div>
   </section>
 
-  <!-- PAGE 4 — AÇÃO / POSE -->
-  <section class="page" id="p3" data-chapter="2">
-    <div class="chapter-head">
-      <div class="eyebrow"><span class="n">02 / 11</span> Composição</div>
-      <div class="chapter-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round"><path d="M13 4l-2 6 3 2-1 8"></path><circle cx="14" cy="3" r="1.6"></circle><path d="M9 22l2-8-3-3 1-5"></path></svg>
-      </div>
-      <h1 class="title">Ação / Pose</h1>
-      <p class="subtitle">O momento congelado da imagem — o que o sujeito está fazendo.</p>
-    </div>
-    <div class="grid g4">
-      <div class="card">
-        <h3>Exemplos de ação</h3>
-        <div class="chips">
-          <span class="chip">caminhando</span><span class="chip">correndo</span><span class="chip">sentado</span>
-          <span class="chip">olhando para trás</span><span class="chip">segurando um objeto</span><span class="chip">braços cruzados</span>
-        </div>
-      </div>
-      <div class="card">
-        <h3>Boas práticas</h3>
-        <div class="oklist">
-          <div class="ok">Descreva uma postura, não apenas um estado.</div>
-          <div class="ok">Ligue a ação ao contexto da cena.</div>
-        </div>
-      </div>
-      <div class="card">
-        <h3>Exemplos de prompt</h3>
-        <div class="codeblock">Enquanto caminha em direção
-à câmera.</div>
-        <div class="codeblock">Em pose confiante,
-com os braços cruzados.</div>
-      </div>
-      <div class="card">
-        <h3>Erros comuns</h3>
-        <div class="errlist">
-          <div class="err">"parado"</div>
-          <div class="err">"posando"</div>
-        </div>
-      </div>
-    </div>
-    <div class="tipbar"><span class="bulb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.45 1 1.15 1 1.9V16h5v-.2c0-.75.4-1.45 1-1.9A6 6 0 0 0 12 3z"/></svg></span><span>Evite simplesmente dizer <b>"parado"</b> — prefira descrever uma postura.</span></div>
-  </section>
+  <footer>
+    <svg class="muse-mark" viewBox="0 0 100 100" style="width:16px;height:16px;"><path d="M50 4c5 0 7 8 11 10s12-3 16 1-1 12 1 16 11 4 11 11-8 7-10 11 3 12-1 16-12-1-16 1-4 11-11 11-7-8-11-10-12 3-16-1 1-12-1-16-11-4-11-11 8-7 10-11-3-12 1-16 12 1 16-1 4-11 11-11z"/></svg>
+    <span>MUSE Mídia — Montador de Prompts, uso interno</span>
+  </footer>
+</div>
 
-  <!-- PAGE 5 — EXPRESSÃO -->
-  <section class="page" id="p4" data-chapter="3">
-    <div class="chapter-head">
-      <div class="eyebrow"><span class="n">03 / 11</span> Composição</div>
-      <div class="chapter-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 14.5c1 1 2.2 1.5 3.5 1.5s2.5-.5 3.5-1.5"></path><path d="M9 9.5h.01M15 9.5h.01"></path></svg>
-      </div>
-      <h1 class="title">Expressão</h1>
-      <p class="subtitle">A emoção transmitida pelo rosto ou pela linguagem corporal do sujeito.</p>
-    </div>
-    <div class="grid g4">
-      <div class="card">
-        <h3>Emoções comuns</h3>
-        <div class="chips">
-          <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 14c1 1 2.2 1.5 3.5 1.5s2.5-.5 3.5-1.5"/><path d="M9 9.5h.01M15 9.5h.01"/></svg>serena</span>
-          <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 15.5h7"/><path d="M9 9.5h.01M15 9.5h.01"/></svg>neutra</span>
-          <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 16c1-1 2.2-1.5 3.5-1.5s2.5.5 3.5 1.5"/><path d="M8.3 9.8l1.8.7M15.7 9.8l-1.8.7"/></svg>tensa</span>
-          <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 16.5c1-1 2.2-1.5 3.5-1.5s2.5.5 3.5 1.5"/><path d="M9 10h.01M15 10h.01"/></svg>melancólica</span>
-          <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="15" rx="1.6" ry="2"/><path d="M9 9.5h.01M15 9.5h.01"/></svg>surpresa</span>
-        </div>
-      </div>
-      <div class="card">
-        <h3>Boas práticas</h3>
-        <div class="oklist">
-          <div class="ok">Conecte a expressão ao contexto da cena.</div>
-          <div class="ok">Prefira nuance a rótulos genéricos como "feliz".</div>
-        </div>
-      </div>
-      <div class="card">
-        <h3>Exemplos de prompt</h3>
-        <div class="codeblock">Com um olhar sereno e distante,
-quase pensativo.</div>
-        <div class="codeblock">Sorriso contido, olhos
-levemente semicerrados.</div>
-      </div>
-      <div class="card">
-        <h3>Erros comuns</h3>
-        <div class="errlist">
-          <div class="err">"expressão normal"</div>
-          <div class="err">"cara feliz"</div>
-        </div>
-      </div>
-    </div>
-    <div class="tipbar"><span class="bulb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.45 1 1.15 1 1.9V16h5v-.2c0-.75.4-1.45 1-1.9A6 6 0 0 0 12 3z"/></svg></span><span>A expressão é o que dá <b>alma</b> à cena — evite descrições vagas.</span></div>
-  </section>
-
-  <!-- PAGE 6 — AMBIENTE -->
-  <section class="page" id="p5" data-chapter="4">
-    <div class="chapter-head">
-      <div class="eyebrow"><span class="n">04 / 11</span> Composição</div>
-      <div class="chapter-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round"><path d="M3 20V10l9-6 9 6v10"></path><path d="M9 20v-6h6v6"></path></svg>
-      </div>
-      <h1 class="title">Ambiente</h1>
-      <p class="subtitle">O cenário onde a cena acontece — o pano de fundo que contextualiza tudo.</p>
-    </div>
-    <div class="grid g4">
-      <div class="card">
-        <div class="mini-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V9l5-4v16M13 21V4l7 3v14"/><path d="M4 21h16M8 12h.01M8 16h.01M17 11h.01M17 15h.01"/></svg></div>
-        <h3>Urbano</h3><p>Ruas, arquitetura, vida em movimento.</p>
-      </div>
-      <div class="card">
-        <div class="mini-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c2.5 0 5 2.5 5 5.5S14.5 13 12 13s-5-2-5-4.5S9.5 3 12 3z"/><path d="M12 13v8M9 21h6"/></svg></div>
-        <h3>Natureza</h3><p>Paisagens abertas, luz natural, elementos orgânicos.</p>
-      </div>
-      <div class="card">
-        <div class="mini-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg></div>
-        <h3>Interior</h3><p>Espaços fechados, controle total sobre luz e textura.</p>
-      </div>
-      <div class="card">
-        <div class="mini-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c2 2 3.2 5 3.2 8.5 0 2-.4 3.5-1 5l-2.2 3-2.2-3c-.6-1.5-1-3-1-5C8.8 7 10 4 12 2z"/><path d="M9 15.5l-2.5 2M15 15.5l2.5 2M10.5 19l-.7 3M13.5 19l.7 3"/></svg></div>
-        <h3>Futurista</h3><p>Ambientes especulativos, materiais e formas inéditas.</p>
-      </div>
-    </div>
-    <div class="tipbar"><span class="bulb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.45 1 1.15 1 1.9V16h5v-.2c0-.75.4-1.45 1-1.9A6 6 0 0 0 12 3z"/></svg></span><span>O ambiente <b>não é pano de fundo</b> — é parte da narrativa da imagem.</span></div>
-  </section>
-
-  <!-- PAGE 7 — LUZ -->
-  <section class="page" id="p6" data-chapter="5">
-    <div class="chapter-head">
-      <div class="eyebrow"><span class="n">05 / 11</span> Composição</div>
-      <div class="chapter-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"></circle><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"></path></svg>
-      </div>
-      <h1 class="title">Luz</h1>
-      <p class="subtitle">O elemento que mais define o clima de uma imagem.</p>
-    </div>
-    <div class="grid g4">
-      <div class="card light-card"><div class="light-bar" style="background:linear-gradient(90deg,#E8A33D,#F2C879)"></div><h3>Golden Hour</h3><p>Luz quente e rasante, logo após o nascer ou antes do pôr do sol.</p></div>
-      <div class="card light-card"><div class="light-bar" style="background:linear-gradient(90deg,#3D5A80,#7FA6C9)"></div><h3>Blue Hour</h3><p>Tons frios e difusos, no crepúsculo — atmosfera contemplativa.</p></div>
-      <div class="card light-card"><div class="light-bar" style="background:linear-gradient(90deg,#8E8E93,#C7C7CC)"></div><h3>Studio</h3><p>Luz artificial controlada, sombras previsíveis e nítidas.</p></div>
-      <div class="card light-card"><div class="light-bar" style="background:linear-gradient(90deg,#3A3A3C,#1D1D1F)"></div><h3>Backlight</h3><p>Fonte de luz atrás do sujeito, criando contorno e silhueta.</p></div>
-    </div>
-    <div class="tipbar"><span class="bulb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.45 1 1.15 1 1.9V16h5v-.2c0-.75.4-1.45 1-1.9A6 6 0 0 0 12 3z"/></svg></span><span>Nomear o tipo de luz é mais eficaz do que descrever <b>"boa iluminação"</b>.</span></div>
-  </section>
-
-  <!-- PAGE 8 — ÂNGULO -->
-  <section class="page" id="p7" data-chapter="6">
-    <div class="chapter-head">
-      <div class="eyebrow"><span class="n">06 / 11</span> Composição</div>
-      <div class="chapter-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round"><path d="M4 12h16M12 4v16"></path><circle cx="12" cy="12" r="2.2"></circle></svg>
-      </div>
-      <h1 class="title">Ângulo</h1>
-      <p class="subtitle">A posição da câmera em relação ao sujeito muda completamente a leitura da cena.</p>
-    </div>
-    <div class="grid g3">
-      <div class="card diagram-card">
-        <svg viewBox="0 0 200 120"><line x1="20" y1="60" x2="180" y2="60" stroke="var(--line)" stroke-width="1.5"/><circle cx="100" cy="60" r="9" fill="var(--ink)"/><circle cx="30" cy="60" r="4" fill="none" stroke="var(--ink-soft)" stroke-width="1.6"/></svg>
-        <h3>Eye Level</h3><p>Câmera na altura dos olhos — neutra, natural.</p>
-      </div>
-      <div class="card diagram-card">
-        <svg viewBox="0 0 200 120"><line x1="100" y1="20" x2="100" y2="90" stroke="var(--line)" stroke-width="1.5"/><ellipse cx="100" cy="95" rx="18" ry="6" fill="var(--ink)"/><circle cx="100" cy="24" r="4" fill="none" stroke="var(--ink-soft)" stroke-width="1.6"/></svg>
-        <h3>High Angle</h3><p>Câmera acima do sujeito — transmite vulnerabilidade.</p>
-      </div>
-      <div class="card diagram-card">
-        <svg viewBox="0 0 200 120"><line x1="100" y1="30" x2="100" y2="100" stroke="var(--line)" stroke-width="1.5"/><ellipse cx="100" cy="35" rx="18" ry="6" fill="var(--ink)"/><circle cx="100" cy="96" r="4" fill="none" stroke="var(--ink-soft)" stroke-width="1.6"/></svg>
-        <h3>Low Angle</h3><p>Câmera abaixo do sujeito — transmite poder, imponência.</p>
-      </div>
-    </div>
-    <div class="tipbar"><span class="bulb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.45 1 1.15 1 1.9V16h5v-.2c0-.75.4-1.45 1-1.9A6 6 0 0 0 12 3z"/></svg></span><span>O ângulo comunica <b>relação de poder</b> entre câmera e sujeito.</span></div>
-  </section>
-
-  <!-- PAGE 9 — ENQUADRAMENTO -->
-  <section class="page" id="p8" data-chapter="7">
-    <div class="chapter-head">
-      <div class="eyebrow"><span class="n">07 / 11</span> Composição</div>
-      <div class="chapter-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M3 9h18"></path></svg>
-      </div>
-      <h1 class="title">Enquadramento</h1>
-      <p class="subtitle">Quanto do sujeito — e do ambiente ao redor — entra na imagem.</p>
-    </div>
-    <div class="grid g5">
-      <div class="card diagram-card"><svg viewBox="0 0 100 120"><rect x="10" y="10" width="80" height="100" fill="none" stroke="var(--line)"/><circle cx="50" cy="55" r="8" fill="var(--ink)"/><rect x="42" y="65" width="16" height="35" fill="var(--ink)"/></svg><h3>Plano Geral</h3></div>
-      <div class="card diagram-card"><svg viewBox="0 0 100 120"><rect x="10" y="10" width="80" height="100" fill="none" stroke="var(--line)"/><circle cx="50" cy="35" r="12" fill="var(--ink)"/><rect x="36" y="49" width="28" height="55" fill="var(--ink)"/></svg><h3>Plano Americano</h3></div>
-      <div class="card diagram-card"><svg viewBox="0 0 100 120"><rect x="10" y="10" width="80" height="100" fill="none" stroke="var(--line)"/><circle cx="50" cy="30" r="16" fill="var(--ink)"/><rect x="28" y="48" width="44" height="62" fill="var(--ink)"/></svg><h3>Plano Médio</h3></div>
-      <div class="card diagram-card"><svg viewBox="0 0 100 120"><rect x="10" y="10" width="80" height="100" fill="none" stroke="var(--line)"/><circle cx="50" cy="55" r="34" fill="var(--ink)"/></svg><h3>Close-up</h3></div>
-      <div class="card diagram-card"><svg viewBox="0 0 100 120"><rect x="10" y="10" width="80" height="100" fill="none" stroke="var(--line)"/><circle cx="50" cy="60" r="50" fill="var(--ink)"/></svg><h3>Extreme Close-up</h3></div>
-    </div>
-    <div class="tipbar"><span class="bulb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.45 1 1.15 1 1.9V16h5v-.2c0-.75.4-1.45 1-1.9A6 6 0 0 0 12 3z"/></svg></span><span>Menos moldura, mais <b>intimidade</b> com o sujeito.</span></div>
-  </section>
-
-  <!-- PAGE 10 — EQUIPAMENTO -->
-  <section class="page" id="p9" data-chapter="8">
-    <div class="chapter-head">
-      <div class="eyebrow"><span class="n">08 / 11</span> Composição</div>
-      <div class="chapter-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round"><rect x="2" y="7" width="20" height="13" rx="2"></rect><circle cx="12" cy="13.5" r="4.2"></circle><path d="M7 7l1.5-3h7L17 7"></path></svg>
-      </div>
-      <h1 class="title">Equipamento</h1>
-      <p class="subtitle">A lente escolhida define perspectiva, compressão e a relação sujeito–fundo.</p>
-    </div>
-    <div class="grid g4" style="margin-bottom:22px;">
-      <div class="card"><h3 style="font-family:var(--mono)">35mm</h3><p>Grande angular — mais ambiente em cena.</p></div>
-      <div class="card"><h3 style="font-family:var(--mono)">50mm</h3><p>Perspectiva natural, próxima da visão humana.</p></div>
-      <div class="card"><h3 style="font-family:var(--mono)">85mm</h3><p>Padrão para retrato — comprime suavemente o fundo.</p></div>
-      <div class="card"><h3 style="font-family:var(--mono)">200mm</h3><p>Teleobjetiva — forte compressão, fundo isolado.</p></div>
-    </div>
-    <table class="lens-table">
-      <tr><th>Lente</th><th>Resultado</th></tr>
-      <tr><td>35mm</td><td>Mais ambiente</td></tr>
-      <tr><td>50mm</td><td>Natural</td></tr>
-      <tr><td>85mm</td><td>Retrato</td></tr>
-      <tr><td>200mm</td><td>Compressão</td></tr>
-    </table>
-  </section>
-
-  <!-- PAGE 11 — ESTILO -->
-  <section class="page" id="p10" data-chapter="9">
-    <div class="chapter-head">
-      <div class="eyebrow"><span class="n">09 / 11</span> Composição</div>
-      <div class="chapter-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round"><path d="M12 3l2.6 5.9L21 10l-4.8 4 1.4 6.4L12 17.3 6.4 20.4 7.8 14 3 10l6.4-1.1L12 3z"></path></svg>
-      </div>
-      <h1 class="title">Estilo</h1>
-      <p class="subtitle">A referência visual e cultural que orienta o tratamento da imagem.</p>
-    </div>
-    <div class="grid g3">
-      <div class="card"><h3>Editorial</h3><p>Composição limpa, intencional — como capa de revista.</p></div>
-      <div class="card"><h3>Documental</h3><p>Espontâneo, sem encenação aparente, cru.</p></div>
-      <div class="card"><h3>Cyberpunk</h3><p>Neon, alto contraste, estética urbana futurista.</p></div>
-      <div class="card"><h3>Vintage</h3><p>Cores desbotadas, grão, textura de filme antigo.</p></div>
-      <div class="card"><h3>Minimalista</h3><p>Poucos elementos, muito espaço negativo.</p></div>
-      <div class="card"><h3>Fine Art</h3><p>Tratamento pictórico, foco em atmosfera e forma.</p></div>
-    </div>
-  </section>
-
-  <!-- PAGE 12 — QUALIDADE -->
-  <section class="page" id="p11" data-chapter="10">
-    <div class="chapter-head">
-      <div class="eyebrow"><span class="n">10 / 11</span> Composição</div>
-      <div class="chapter-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round"><path d="M4 4h16v16H4z"></path><path d="M4 14l5-5 4 4 7-7"></path></svg>
-      </div>
-      <h1 class="title">Qualidade</h1>
-      <p class="subtitle">A precisão técnica exigida da imagem final.</p>
-    </div>
-    <div class="quality-compare">
-      <div class="quality-swatch low">Baixa qualidade</div>
-      <span class="quality-arrow">→</span>
-      <div class="quality-swatch high">Alta qualidade</div>
-    </div>
-    <div class="chips" style="margin-top:20px;">
-      <span class="chip">nitidez</span><span class="chip">resolução</span><span class="chip">textura</span><span class="chip">detalhes</span>
-    </div>
-    <div class="tipbar"><span class="bulb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.45 1 1.15 1 1.9V16h5v-.2c0-.75.4-1.45 1-1.9A6 6 0 0 0 12 3z"/></svg></span><span>Especifique o nível de <b>detalhe</b> — não presuma que a IA vai adivinhar.</span></div>
-  </section>
-
-  <!-- PAGE 13 — PARÂMETROS TÉCNICOS -->
-  <section class="page" id="p12" data-chapter="11">
-    <div class="chapter-head">
-      <div class="eyebrow"><span class="n">11 / 11</span> Composição</div>
-      <div class="chapter-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="3"></circle></svg>
-      </div>
-      <h1 class="title">Parâmetros Técnicos</h1>
-      <p class="subtitle">Os últimos ajustes finos — o painel de câmera do seu prompt.</p>
-    </div>
-    <div class="grid g4">
-      <div class="card param-card"><div class="val">f/1.4</div><div class="lbl">Abertura</div></div>
-      <div class="card param-card"><div class="val">100</div><div class="lbl">ISO</div></div>
-      <div class="card param-card"><div class="val">1/500</div><div class="lbl">Shutter</div></div>
-      <div class="card param-card"><div class="val">5600K</div><div class="lbl">Balanço de branco</div></div>
-    </div>
-    <div class="tipbar"><span class="bulb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.45 1 1.15 1 1.9V16h5v-.2c0-.75.4-1.45 1-1.9A6 6 0 0 0 12 3z"/></svg></span><span>Use parâmetros técnicos apenas quando forem <b>relevantes</b> para o resultado.</span></div>
-  </section>
-
-  <!-- PAGE 14 — MONTANDO O PROMPT -->
-  <section class="page" id="p13">
-    <div class="eyebrow">Síntese</div>
-    <h1 class="title">Montando o prompt</h1>
-    <div class="formula" id="formulaRow"></div>
-    <div class="assemble-example" id="assembleExample"></div>
-  </section>
-
-  <!-- PAGE 15 — CHECKLIST -->
-  <section class="page" id="p14">
-    <div class="eyebrow">Revisão</div>
-    <h1 class="title">Checklist</h1>
-    <div class="checklist-wrap" id="checklistWrap"></div>
-  </section>
-
-  <!-- PAGE 16 — TEMPLATE -->
-  <section class="page" id="p15">
-    <div class="eyebrow">Referência</div>
-    <h1 class="title">Template</h1>
-    <div class="template-box" id="templateBox"></div>
-    <div class="template-model" id="templateModel"></div>
-  </section>
-
-</main>
+<div class="overlay" id="overlay"></div>
+<div class="popover" id="popover"></div>
 
 <script>
-/* ---------- data ---------- */
-const flowSteps = ["SUJEITO","AÇÃO","EXPRESSÃO","AMBIENTE","LUZ","ÂNGULO","ENQUADRAMENTO","EQUIPAMENTO","ESTILO","QUALIDADE","PARÂMETROS"];
-const chapters = [
-  {n:"01", label:"Sujeito", sel:"#p2"},
-  {n:"02", label:"Ação / Pose", sel:"#p3"},
-  {n:"03", label:"Expressão", sel:"#p4"},
-  {n:"04", label:"Ambiente", sel:"#p5"},
-  {n:"05", label:"Luz", sel:"#p6"},
-  {n:"06", label:"Ângulo", sel:"#p7"},
-  {n:"07", label:"Enquadramento", sel:"#p8"},
-  {n:"08", label:"Equipamento", sel:"#p9"},
-  {n:"09", label:"Estilo", sel:"#p10"},
-  {n:"10", label:"Qualidade", sel:"#p11"},
-  {n:"11", label:"Parâmetros", sel:"#p12"},
+/* ============================================================
+   HELPERS
+============================================================ */
+function opt(pt, en){ return { pt, en: en || pt }; }
+function opts(list){ return list.map(([pt,en]) => opt(pt,en)); }
+
+/* ============================================================
+   DATA — every option holds { pt, en }. UI shows pt, prompt uses en.
+============================================================ */
+const categories = [
+  { key:'sujeito', num:'01', label:'Sujeito',
+    clause:v=>`portraying ${v}`, allowFreeText:true,
+    guide:{ desc:'O elemento central da imagem — quem, ou o que, será fotografado. Combine idade, gênero, etnia, roupa e acessórios para montar uma descrição rica.', examples:['jovem adulto','óculos','jaqueta de couro'] },
+    subgroups:[
+      { key:'idade', label:'Idade', multi:false, options:opts([
+        ['criança','child'],['adolescente','teenager'],['jovem adulto','young adult in their twenties'],
+        ['adulto','adult'],['meia-idade','middle-aged adult'],['idoso','elderly person'],['muito idoso','very elderly person'],
+      ])},
+      { key:'genero', label:'Gênero', multi:false, options:opts([
+        ['masculino','male'],['feminino','female'],
+      ])},
+      { key:'etnia', label:'Etnia', multi:false, options:opts([
+        ['asiático','Asian'],['negro','Black'],['branco','White'],['indígena','Indigenous'],
+        ['árabe','Middle Eastern'],['latino','Latino'],['sul-asiático','South Asian'],
+      ])},
+      { key:'peca_roupa', label:'Peça de roupa', multi:false, options:opts([
+        ['blusa','blouse'],['camiseta','t-shirt'],['vestido','dress'],['jaqueta de couro','leather jacket'],
+        ['terno social','formal suit'],['roupa casual','casual streetwear'],['uniforme de trabalho','work uniform'],
+        ['roupa esportiva','athletic wear'],['casaco','coat'],['saia','skirt'],
+      ])},
+      { key:'cor_roupa', label:'Cor da roupa', multi:false, options:opts([
+        ['preta','black'],['branca','white'],['vermelha','red'],['azul','blue'],['verde','green'],
+        ['amarela','yellow'],['bege','beige'],['cinza','gray'],['rosa','pink'],['roxa','purple'],
+      ])},
+      { key:'profissao', label:'Profissão', multi:false, options:opts([
+        ['médico(a)','doctor'],['artista','artist'],['empresário(a)','entrepreneur'],
+        ['estudante','student'],['chef','chef'],['atleta','athlete'],
+      ])},
+      { key:'caracteristicas', label:'Características físicas', multi:true, options:opts([
+        ['alto','tall'],['magro','slim'],['atlético','athletic build'],
+        ['tatuagens visíveis','visible tattoos'],['cicatriz marcante','a notable scar'],
+      ])},
+      { key:'acessorios', label:'Acessórios', multi:true, options:opts([
+        ['relógio','a watch'],['óculos','glasses'],['pulseira','a bracelet'],['bracelete','a bangle'],
+        ['brinco','earrings'],['piercing','a piercing'],['colar','a necklace'],['chapéu','a hat'],['cachecol','a scarf'],
+      ])},
+    ]
+  },
+  { key:'acao', num:'02', label:'Ação / Pose', type:'single', clause:v=>v, allowFreeText:true,
+    guide:{ desc:'O momento congelado da imagem — o que o sujeito está fazendo fisicamente.', examples:['caminhando','braços cruzados','dançando'] },
+    options:opts([
+      ['caminhando em direção à câmera','walking toward the camera'],['correndo','running'],['sentado','sitting'],
+      ['olhando para trás','looking back over the shoulder'],['segurando um objeto','holding an object'],
+      ['com os braços cruzados','with arms crossed'],['dançando','dancing'],['pulando','jumping'],
+      ['apoiado em uma parede','leaning against a wall'],['em movimento dinâmico','in dynamic motion'],
+    ])},
+  { key:'expressao', num:'03', label:'Expressão', type:'single', clause:v=>v, allowFreeText:true,
+    guide:{ desc:'A emoção ou gesto do rosto e das mãos — o que dá alma à cena.', examples:['sorriso contido','mão no rosto','determinada'] },
+    options:opts([
+      ['serena e distante','with a serene, distant expression'],['neutra','with a neutral expression'],
+      ['tensa','with a tense expression'],['melancólica','with a melancholic expression'],
+      ['de surpresa','with a surprised expression'],['sorriso contido','with a subtle, restrained smile'],
+      ['determinada','with a determined expression'],['pensativa','with a thoughtful expression'],
+      ['confiante','with a confident expression'],['sorrindo com os dentes à mostra','smiling broadly with teeth showing'],
+      ['cobrindo o rosto com uma mão','covering the face with one hand'],
+      ['uma mão na lateral do rosto','resting one hand on the side of the face'],
+    ])},
+  { key:'ambiente', num:'04', label:'Ambiente', type:'single', clause:v=>`in ${v}`, allowFreeText:true,
+    guide:{ desc:'O cenário onde a cena acontece — contextualiza toda a narrativa da imagem.', examples:['escritório','praia','biblioteca'] },
+    options:opts([
+      ['urbano, rua movimentada','a busy urban street'],['natureza aberta','an open natural landscape'],
+      ['interior aconchegante','a cozy interior'],['futurista','a futuristic setting'],
+      ['praia ao entardecer','a beach at sunset'],['deserto árido','an arid desert'],
+      ['floresta densa','a dense forest'],['estúdio vazio','an empty studio'],
+      ['escritório','an office'],['praia','a beach'],['oceano','the open ocean'],
+      ['campo de futebol','a soccer field'],['biblioteca','a library'],['cafeteria','a café'],
+      ['academia','a gym'],['quarto','a bedroom'],['jardim','a garden'],['aeroporto','an airport'],
+    ])},
+  { key:'luz', num:'05', label:'Luz', type:'single', clause:v=>`lit by ${v}`, allowFreeText:true,
+    guide:{ desc:'O elemento que mais define o clima da imagem — vale mais nomear o tipo de luz do que descrever "boa iluminação".', examples:['golden hour','backlight','ring light'] },
+    options:opts([
+      ['golden hour','warm, low-angle golden hour light'],['blue hour','the cool, diffused tones of blue hour'],
+      ['luz de estúdio','controlled studio lighting'],['contraluz (backlight)','backlighting'],
+      ['luz de neon urbana','urban neon light'],['luz difusa de janela','soft, diffused window light'],
+      ['luz dura de meio-dia','harsh midday sunlight'],['velas','warm candlelight'],
+      ['luz de anel (ring light)','a ring light'],['softbox','softbox lighting'],
+      ['dia nublado difuso','soft, overcast daylight'],['contorno (rim light)','rim lighting'],
+      ['baixa-luz dramática','dramatic low-key lighting'],['alta-luz clara','bright high-key lighting'],
+    ])},
+  { key:'angulo', num:'06', label:'Ângulo', type:'single', clause:v=>`shot at ${v}`, allowFreeText:true,
+    guide:{ desc:'A posição da câmera em relação ao sujeito — comunica poder, vulnerabilidade ou neutralidade.', examples:['low angle','vista aérea','perfil lateral'] },
+    options:opts([
+      ['eye level','eye level'],['high angle (câmera acima)','a high angle'],['low angle (câmera abaixo)','a low angle'],
+      ['dutch angle (câmera inclinada)','a dutch angle'],['plano aéreo (vista de cima)','an aerial top-down view'],
+      ['por cima do ombro','an over-the-shoulder angle'],['visão rasteira extrema','an extreme low ground-level angle'],
+      ['três quartos','a three-quarter angle'],['perfil lateral','a side profile angle'],
+    ])},
+  { key:'enquadramento', num:'07', label:'Enquadramento', type:'single', clause:v=>`framed as ${v}`, allowFreeText:true,
+    guide:{ desc:'Quanto do sujeito — e do ambiente ao redor — entra na imagem.', examples:['close-up','plano geral','plano médio'] },
+    options:opts([
+      ['plano geral','a wide shot'],['plano americano','a medium-long shot'],['plano médio','a medium shot'],
+      ['close-up','a close-up'],['extreme close-up','an extreme close-up'],['plano detalhe','a detail insert shot'],
+    ])},
+  { key:'equipamento', num:'08', label:'Equipamento', clause:v=>`using ${v}`, allowFreeText:true,
+    guide:{ desc:'A câmera e a lente escolhidas definem perspectiva, compressão e a relação entre sujeito e fundo.', examples:['Canon EOS R5','85mm','Leica Q2'] },
+    subgroups:[
+      { key:'camera', label:'Câmera', multi:false, options:opts([
+        ['Canon EOS R5','a Canon EOS R5'],['Canon EOS R3','a Canon EOS R3'],['Nikon Z9','a Nikon Z9'],
+        ['Nikon D850','a Nikon D850'],['Sony Alpha A7 IV','a Sony Alpha A7 IV'],['Sony Alpha A1','a Sony Alpha A1'],
+        ['Fujifilm X-T5','a Fujifilm X-T5'],['Leica Q2','a Leica Q2'],['Hasselblad X2D','a Hasselblad X2D'],
+      ])},
+      { key:'lente', label:'Lente', multi:false, options:opts([
+        ['35mm','35mm'],['50mm','50mm'],['85mm','85mm'],['135mm','135mm'],['200mm','200mm'],
+        ['macro','macro'],['grande angular 24mm','24mm wide-angle'],['olho de peixe','fisheye'],
+      ])},
+    ]
+  },
+  { key:'estilo', num:'09', label:'Estilo', type:'single', clause:v=>`in ${v} style`, allowFreeText:true,
+    guide:{ desc:'A referência visual e cultural que orienta o tratamento geral da imagem.', examples:['editorial','cyberpunk','fine art'] },
+    options:opts([
+      ['editorial','editorial'],['documental','documentary'],['cyberpunk','cyberpunk'],['vintage','vintage'],
+      ['minimalista','minimalist'],['fine art','fine art'],['noir','noir'],['alta-costura','haute couture'],
+    ])},
+  { key:'qualidade', num:'10', label:'Qualidade', type:'single', clause:v=>v, allowFreeText:true,
+    guide:{ desc:'A precisão técnica exigida do resultado final — especifique, não presuma.', examples:['8K','textura realista','grão de filme'] },
+    options:opts([
+      ['alta qualidade, nítida e detalhada','high quality, sharp and detailed'],
+      ['ultra detalhada em 8K','ultra-detailed, 8K resolution'],
+      ['textura realista de pele e tecido','realistic skin and fabric texture'],
+      ['foco suave artístico','soft artistic focus'],['grão de filme sutil','subtle film grain'],
+    ])},
+  { key:'parametros', num:'11', label:'Parâmetros Técnicos', clause:v=>`technical parameters: ${v}`, allowFreeText:true,
+    guide:{ desc:'Os ajustes finos de câmera — use apenas quando forem relevantes para o resultado.', examples:['f/1.4','ISO 100','1/500'] },
+    subgroups:[
+      { key:'abertura', label:'Abertura', multi:false, options:opts([['f/1.4'],['f/2.8'],['f/4'],['f/5.6'],['f/11']])},
+      { key:'iso', label:'ISO', multi:false, options:opts([['ISO 100'],['ISO 200'],['ISO 400'],['ISO 800'],['ISO 1600']])},
+      { key:'obturador', label:'Obturador', multi:false, options:opts([
+        ['1/125','a 1/125s shutter speed'],['1/250','a 1/250s shutter speed'],['1/500','a 1/500s shutter speed'],
+        ['1/1000','a 1/1000s shutter speed'],['1/4000','a 1/4000s shutter speed'],
+      ])},
+      { key:'wb', label:'Balanço de branco', multi:false, options:opts([
+        ['3200K (tungstênio)','a 3200K tungsten white balance'],['5600K (luz do dia)','a 5600K daylight white balance'],
+        ['7000K (nublado)','a 7000K overcast white balance'],
+      ])},
+    ]
+  },
 ];
 
-/* ---------- intro flow ---------- */
-const introFlow = document.getElementById('introFlow');
-flowSteps.forEach((s,i)=>{
-  const div = document.createElement('div');
-  div.className='flow-step';
-  div.innerHTML = `<span class="dash">${String(i+1).padStart(2,'0')}</span><span>${s}</span>`;
-  introFlow.appendChild(div);
-});
+/* ============================================================
+   STATE
+============================================================ */
+const STORAGE_KEY = 'muse-prompt-builder-v1';
+let state = loadState();
 
-/* ---------- formula row (page 14) ---------- */
-const formulaRow = document.getElementById('formulaRow');
-flowSteps.forEach((s,i)=>{
-  if(i>0){
-    const plus = document.createElement('span');
-    plus.className='plus'; plus.textContent='+';
-    formulaRow.appendChild(plus);
-  }
-  const b = document.createElement('span');
-  b.className='block'; b.textContent=s;
-  formulaRow.appendChild(b);
-});
-document.getElementById('assembleExample').innerHTML =
-`Retratando uma mulher de 30 anos, cabelos cacheados, jaqueta de couro preta,
-caminhando em direção à câmera, com olhar sereno e distante,
-em uma rua molhada de uma cidade à noite,
-iluminada por letreiros neon (backlight),
-fotografada em eye level, plano médio,
-com lente 85mm, em estilo cyberpunk editorial,
-alta qualidade, nítida e detalhada,
-f/1.4, ISO 100, 1/500, 5600K.`;
+function defaultState(){
+  const s = { selections:{}, generated:false, dirty:false, finalText:'' };
+  categories.forEach(c=>{
+    if(c.subgroups){
+      s.selections[c.key] = { subgroups:{}, custom:'' };
+      c.subgroups.forEach(sg=> s.selections[c.key].subgroups[sg.key] = []);
+    } else {
+      s.selections[c.key] = { values:[], custom:'' };
+    }
+  });
+  return s;
+}
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return defaultState();
+    const parsed = JSON.parse(raw);
+    const base = defaultState();
+    return Object.assign(base, parsed, { selections: Object.assign(base.selections, parsed.selections||{}) });
+  }catch(e){ return defaultState(); }
+}
+function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 
-/* ---------- checklist (page 15) ---------- */
-const checks = [
-  "O sujeito está claro?",
-  "Existe uma ação?",
-  "A expressão foi definida?",
-  "O ambiente faz sentido?",
-  "A iluminação foi escolhida?",
-  "O ângulo está definido?",
-  "O enquadramento foi pensado?",
-  "O estilo está claro?",
-  "A qualidade foi especificada?",
-  "Os parâmetros técnicos são necessários?"
-];
-const checklistWrap = document.getElementById('checklistWrap');
-checks.forEach(txt=>{
-  const item = document.createElement('div');
-  item.className='check-item';
-  item.innerHTML = `<div class="box"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l6 6L20 6"/></svg></div><span class="txt">${txt}</span>`;
-  item.addEventListener('click', ()=> item.classList.toggle('checked'));
-  checklistWrap.appendChild(item);
-});
-
-/* ---------- template (page 16) ---------- */
-const templateBox = document.getElementById('templateBox');
-flowSteps.concat(["TÉCNICOS"]).slice(0,11).forEach(s=>{
-  const f = document.createElement('div');
-  f.className='template-field'; f.textContent=s;
-  templateBox.appendChild(f);
-});
-document.getElementById('templateModel').innerHTML =
-`Retratando <span class="fill">[SUJEITO]</span> em <span class="fill">[AÇÃO]</span>,
-com expressão <span class="fill">[EXPRESSÃO]</span>,
-em um ambiente <span class="fill">[AMBIENTE]</span>,
-iluminado por <span class="fill">[LUZ]</span>,
-fotografado em <span class="fill">[ÂNGULO]</span>
-com enquadramento <span class="fill">[ENQUADRAMENTO]</span>,
-utilizando <span class="fill">[EQUIPAMENTO]</span>,
-em estilo <span class="fill">[ESTILO]</span>,
-com qualidade <span class="fill">[QUALIDADE]</span>
-e parâmetros técnicos <span class="fill">[PARÂMETROS]</span>.`;
-
-/* ---------- aperture nav (signature element) ---------- */
-const navTrack = document.getElementById('navTrack');
-chapters.forEach((c,i)=>{
-  const btn = document.createElement('button');
-  btn.className='nav-dot'; btn.dataset.sel=c.sel;
-  btn.innerHTML = `<span class="mark"></span><span class="label">${c.n} — ${c.label}</span>`;
-  btn.addEventListener('click', ()=> document.querySelector(c.sel).scrollIntoView({behavior:'smooth'}));
-  navTrack.appendChild(btn);
-});
-
-/* cover iris — decorative radial lines */
-const coverIris = document.getElementById('coverIris');
-const COVER_BLADES = 12;
-for(let i=0;i<COVER_BLADES;i++){
-  const angle=(360/COVER_BLADES)*i;
-  const path=document.createElementNS('http://www.w3.org/2000/svg','path');
-  path.setAttribute('class','cover-blade');
-  path.setAttribute('d','M400 400 L400 60 A340 340 0 0 1 570 140 Z');
-  path.setAttribute('transform', `rotate(${angle} 400 400)`);
-  coverIris.appendChild(path);
+/* ============================================================
+   PT -> EN lookup
+============================================================ */
+function findOption(cat, subgroupKey, ptValue){
+  const list = cat.subgroups ? cat.subgroups.find(s=>s.key===subgroupKey).options : cat.options;
+  return list.find(o=>o.pt===ptValue);
+}
+function translateArr(cat, subgroupKey, ptArr){
+  return (ptArr||[]).map(pt=>{
+    const o = findOption(cat, subgroupKey, pt);
+    return o ? o.en : pt;
+  });
 }
 
-/* ---------- scroll spy ---------- */
-const pages = Array.from(document.querySelectorAll('.page'));
-const apertureNav = document.getElementById('apertureNav');
-const progressFill = document.getElementById('progressFill');
-const curPage = document.getElementById('curPage');
+/* ============================================================
+   TEXT BUILDING (always assembled in English)
+============================================================ */
+function categoryText(cat){
+  const sel = state.selections[cat.key];
 
-function onScroll(){
-  const scrollArea = document.getElementById('scrollArea');
-  const scrollTop = window.scrollY;
-  const winH = window.innerHeight;
-  let activeIndex = 0;
-  pages.forEach((p,i)=>{
-    const rect = p.getBoundingClientRect();
-    if(rect.top <= winH*0.5 && rect.bottom >= winH*0.5){ activeIndex = i; }
+  if(cat.key === 'sujeito'){
+    const bits = [];
+    const idade = translateArr(cat,'idade', sel.subgroups.idade);
+    const genero = translateArr(cat,'genero', sel.subgroups.genero);
+    const etnia = translateArr(cat,'etnia', sel.subgroups.etnia);
+    if(idade.length || genero.length){
+      bits.push(`a ${[...genero, ...idade].filter(Boolean).join(' ')}`);
+    }
+    if(etnia.length) bits.push(etnia.join(', '));
+    const peca = translateArr(cat,'peca_roupa', sel.subgroups.peca_roupa);
+    const cor = translateArr(cat,'cor_roupa', sel.subgroups.cor_roupa);
+    if(peca.length && cor.length) bits.push(`wearing a ${cor[0]} ${peca[0]}`);
+    else if(peca.length) bits.push(`wearing a ${peca[0]}`);
+    else if(cor.length) bits.push(`wearing ${cor[0]} clothing`);
+    const prof = translateArr(cat,'profissao', sel.subgroups.profissao);
+    if(prof.length) bits.push(prof.join(', '));
+    const carac = translateArr(cat,'caracteristicas', sel.subgroups.caracteristicas);
+    if(carac.length) bits.push(carac.join(', '));
+    const acess = translateArr(cat,'acessorios', sel.subgroups.acessorios);
+    if(acess.length) bits.push(`wearing ${acess.join(', ')}`);
+    if(sel.custom && sel.custom.trim()) bits.push(sel.custom.trim());
+    return bits.length ? bits.filter(Boolean).join(', ') : null;
+  }
+
+  if(cat.key === 'equipamento'){
+    const camera = translateArr(cat,'camera', sel.subgroups.camera);
+    const lente = translateArr(cat,'lente', sel.subgroups.lente);
+    const article = s => /^8/.test(s) ? 'an' : 'a';
+    const bits = [];
+    if(camera.length && lente.length) bits.push(`${camera[0]} with ${article(lente[0])} ${lente[0]} lens`);
+    else if(camera.length) bits.push(camera[0]);
+    else if(lente.length) bits.push(`${article(lente[0])} ${lente[0]} lens`);
+    if(sel.custom && sel.custom.trim()) bits.push(sel.custom.trim());
+    return bits.length ? bits.join(', ') : null;
+  }
+
+  if(cat.subgroups){
+    const parts = [];
+    cat.subgroups.forEach(sg=>{
+      const vals = translateArr(cat, sg.key, sel.subgroups[sg.key]);
+      if(vals.length) parts.push(vals.join(', '));
+    });
+    if(sel.custom && sel.custom.trim()) parts.push(sel.custom.trim());
+    return parts.length ? parts.join(', ') : null;
+  }
+
+  const vals = translateArr(cat, null, sel.values);
+  const parts = [...vals];
+  if(sel.custom && sel.custom.trim()) parts.push(sel.custom.trim());
+  return parts.length ? parts.join(', ') : null;
+}
+
+function buildFinalPrompt(){
+  const clauses = [];
+  categories.forEach(cat=>{
+    const text = categoryText(cat);
+    if(text) clauses.push(cat.clause(text));
   });
+  if(!clauses.length) return '';
+  let out = clauses.join(', ');
+  out = out.charAt(0).toUpperCase() + out.slice(1);
+  if(!/[.!?]$/.test(out)) out += '.';
+  return out;
+}
 
-  curPage.textContent = String(activeIndex+1).padStart(2,'0');
-
-  const totalH = document.documentElement.scrollHeight - winH;
-  const pct = totalH>0 ? (scrollTop/totalH)*100 : 0;
-  progressFill.style.width = pct+'%';
-
-  const activePage = pages[activeIndex];
-  const chNum = activePage.dataset.chapter;
-  if(chNum){
-    apertureNav.classList.add('visible');
-    document.querySelectorAll('.nav-dot').forEach((d,i)=>{
-      d.classList.toggle('active', i === (parseInt(chNum)-1));
+/* PT preview text (shown on the card itself, before generating) */
+function categoryPreviewPt(cat){
+  const sel = state.selections[cat.key];
+  const parts = [];
+  if(cat.subgroups){
+    cat.subgroups.forEach(sg=>{
+      const vals = sel.subgroups[sg.key] || [];
+      if(vals.length) parts.push(vals.join(', '));
     });
   } else {
-    apertureNav.classList.remove('visible');
+    parts.push(...(sel.values||[]));
   }
+  if(sel.custom && sel.custom.trim()) parts.push(sel.custom.trim());
+  return parts.length ? parts.join(' · ') : null;
 }
-window.addEventListener('scroll', onScroll, {passive:true});
-window.addEventListener('resize', onScroll);
-onScroll();
+
+/* ============================================================
+   RENDER — FIELD GRID
+============================================================ */
+const fieldGrid = document.getElementById('fieldGrid');
+
+function renderGrid(){
+  fieldGrid.innerHTML = '';
+  categories.forEach(cat=>{
+    const preview = categoryPreviewPt(cat);
+    const filled = !!preview;
+    const el = document.createElement('div');
+    el.className = 'field' + (filled ? ' filled' : '') + (state.openKey===cat.key ? ' open' : '');
+    el.dataset.key = cat.key;
+    el.innerHTML = `
+      <span class="dot"></span>
+      <div class="num">${cat.num}</div>
+      <div class="label">${cat.label}</div>
+      <div class="preview ${filled ? '' : 'empty'}">${filled ? preview : 'Toque para escolher'}</div>
+    `;
+    el.addEventListener('click', ()=> openPopover(cat.key, el));
+    fieldGrid.appendChild(el);
+  });
+}
+
+/* ============================================================
+   POPOVER
+============================================================ */
+const overlay = document.getElementById('overlay');
+const popover = document.getElementById('popover');
+
+function openPopover(key, anchorEl){
+  state.openKey = key;
+  renderGrid();
+  const cat = categories.find(c=>c.key===key);
+  popover.innerHTML = renderPopoverContent(cat);
+  attachPopoverEvents(cat);
+
+  overlay.classList.add('active');
+  popover.classList.add('active');
+
+  const rect = anchorEl.getBoundingClientRect();
+  const scrollY = window.scrollY, scrollX = window.scrollX;
+  let top = rect.bottom + scrollY + 8;
+  let left = rect.left + scrollX;
+  const popW = 400;
+  if(left + popW > window.scrollX + document.documentElement.clientWidth - 24){
+    left = rect.right + scrollX - popW;
+  }
+  popover.style.top = top + 'px';
+  popover.style.left = left + 'px';
+}
+
+function closePopover(){
+  state.openKey = null;
+  overlay.classList.remove('active');
+  popover.classList.remove('active');
+  renderGrid();
+}
+overlay.addEventListener('click', closePopover);
+
+function renderPopoverContent(cat){
+  let html = `<div class="pop-title">${cat.label}</div>`;
+  if(cat.subgroups){
+    html += `<div class="pop-sub">Selecione o que for relevante em cada grupo.</div>`;
+    cat.subgroups.forEach(sg=>{
+      const selected = state.selections[cat.key].subgroups[sg.key] || [];
+      html += `<div class="subgroup" data-subgroup="${sg.key}">
+        <div class="subgroup-label">${sg.label}</div>
+        <div class="opt-list">
+          ${sg.options.map(o=>`<span class="opt${selected.includes(o.pt)?' selected':''}" data-value="${escapeAttr(o.pt)}">${o.pt}</span>`).join('')}
+        </div>
+      </div>`;
+    });
+  } else {
+    html += `<div class="pop-sub">Escolha uma opção — selecionar outra substitui a anterior.</div>`;
+    const selected = state.selections[cat.key].values || [];
+    html += `<div class="subgroup" data-subgroup="__single">
+      <div class="opt-list">
+        ${cat.options.map(o=>`<span class="opt${selected.includes(o.pt)?' selected':''}" data-value="${escapeAttr(o.pt)}">${o.pt}</span>`).join('')}
+      </div>
+    </div>`;
+  }
+  if(cat.allowFreeText){
+    const customVal = state.selections[cat.key].custom || '';
+    html += `<div class="free-text">
+      <div class="row">
+        <input type="text" id="customInput" placeholder="Outro... (em inglês, se possível)" value="${escapeAttr(customVal)}">
+        <button id="customAdd">OK</button>
+      </div>
+      <div class="hint">O prompt final sai em inglês — escreva o texto livre já em inglês para manter consistência.</div>
+    </div>`;
+  }
+  html += `<div class="pop-actions">
+    <button class="link-btn" id="clearBtn">Limpar seleção</button>
+    <button class="done-btn" id="doneBtn">Concluir</button>
+  </div>`;
+  return html;
+}
+
+function attachPopoverEvents(cat){
+  popover.querySelectorAll('.opt').forEach(optEl=>{
+    optEl.addEventListener('click', ()=>{
+      const subgroupKey = optEl.closest('.subgroup').dataset.subgroup;
+      const value = optEl.dataset.value;
+
+      if(cat.subgroups){
+        const sg = cat.subgroups.find(s=>s.key===subgroupKey);
+        const arr = state.selections[cat.key].subgroups[subgroupKey];
+        const idx = arr.indexOf(value);
+        if(sg.multi){
+          if(idx>-1) arr.splice(idx,1); else arr.push(value);
+        } else {
+          state.selections[cat.key].subgroups[subgroupKey] = (idx>-1) ? [] : [value];
+        }
+      } else {
+        const arr = state.selections[cat.key].values;
+        const idx = arr.indexOf(value);
+        state.selections[cat.key].values = (idx>-1) ? [] : [value];
+      }
+      markDirtyIfNeeded();
+      popover.innerHTML = renderPopoverContent(cat);
+      attachPopoverEvents(cat);
+      renderGrid();
+      saveState();
+    });
+  });
+
+  const customInput = popover.querySelector('#customInput');
+  const customAdd = popover.querySelector('#customAdd');
+  if(customAdd){
+    customAdd.addEventListener('click', ()=>{
+      state.selections[cat.key].custom = customInput.value;
+      markDirtyIfNeeded();
+      renderGrid();
+      saveState();
+    });
+    customInput.addEventListener('keydown', (e)=>{
+      if(e.key==='Enter'){ e.preventDefault(); customAdd.click(); }
+    });
+  }
+
+  popover.querySelector('#clearBtn').addEventListener('click', ()=>{
+    if(cat.subgroups){
+      cat.subgroups.forEach(sg=> state.selections[cat.key].subgroups[sg.key] = []);
+    } else {
+      state.selections[cat.key].values = [];
+    }
+    state.selections[cat.key].custom = '';
+    markDirtyIfNeeded();
+    popover.innerHTML = renderPopoverContent(cat);
+    attachPopoverEvents(cat);
+    renderGrid();
+    saveState();
+  });
+
+  popover.querySelector('#doneBtn').addEventListener('click', closePopover);
+}
+
+function escapeAttr(str){ return String(str).replace(/"/g,'&quot;'); }
+
+function markDirtyIfNeeded(){
+  if(state.generated) state.dirty = true;
+  updateActionBar();
+}
+
+/* ============================================================
+   GENERATE / OUTPUT
+============================================================ */
+const generateBtn = document.getElementById('generateBtn');
+const dirtyNote = document.getElementById('dirtyNote');
+const output = document.getElementById('output');
+const outputText = document.getElementById('outputText');
+const copyBtn = document.getElementById('copyBtn');
+const resetBtn = document.getElementById('resetBtn');
+
+function updateActionBar(){
+  generateBtn.textContent = (state.generated && state.dirty) ? 'Gerar novamente' : 'Gerar prompt';
+  dirtyNote.style.display = (state.generated && state.dirty) ? 'inline' : 'none';
+}
+
+generateBtn.addEventListener('click', ()=>{
+  const text = buildFinalPrompt();
+  state.finalText = text;
+  state.generated = true;
+  state.dirty = false;
+  outputText.value = text || 'Nenhuma opção selecionada ainda.';
+  output.classList.add('active');
+  updateActionBar();
+  saveState();
+  output.scrollIntoView({behavior:'smooth', block:'nearest'});
+});
+
+outputText.addEventListener('input', ()=>{
+  state.finalText = outputText.value;
+  saveState();
+});
+
+copyBtn.addEventListener('click', ()=>{
+  navigator.clipboard.writeText(outputText.value).then(()=>{
+    const original = copyBtn.innerHTML;
+    copyBtn.innerHTML = 'Copiado ✓';
+    setTimeout(()=> copyBtn.innerHTML = original, 1500);
+  });
+});
+
+resetBtn.addEventListener('click', ()=>{
+  if(!confirm('Limpar todas as seleções e o prompt gerado?')) return;
+  state = defaultState();
+  outputText.value = '';
+  output.classList.remove('active');
+  updateActionBar();
+  renderGrid();
+  saveState();
+});
+
+/* ============================================================
+   CONDENSED GUIDE
+============================================================ */
+const guideGrid = document.getElementById('guideGrid');
+categories.forEach(cat=>{
+  const card = document.createElement('div');
+  card.className = 'guide-card';
+  card.innerHTML = `
+    <div class="num">${cat.num} / 11</div>
+    <h3>${cat.label}</h3>
+    <p>${cat.guide.desc}</p>
+    <div class="ex-label">Exemplos</div>
+    <div class="ex-chips">${cat.guide.examples.map(e=>`<span class="ex-chip">${e}</span>`).join('')}</div>
+  `;
+  guideGrid.appendChild(card);
+});
+
+/* ============================================================
+   INIT
+============================================================ */
+renderGrid();
+updateActionBar();
+if(state.generated){
+  outputText.value = state.finalText;
+  output.classList.add('active');
+}
 </script>
 
 </body>
