@@ -1,0 +1,928 @@
+layout: page
+title: "PROMPT-GUIDE"
+permalink: /prompt-guide
+[guia-composicao-prompts.html](https://github.com/user-attachments/files/30635285/guia-composicao-prompts.html)
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guia de Composição para Prompts</title>
+<style>
+  :root{
+    --bg:#F5F5F7;
+    --card:#FFFFFF;
+    --ink:#1D1D1F;
+    --ink-soft:#6E6E73;
+    --ink-faint:#AEAEB2;
+    --accent:#0071E3;
+    --line:#D2D2D7;
+    --code-bg:#FBFBFD;
+    --radius:24px;
+    --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --mono: "SF Mono", "Menlo", "Consolas", monospace;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  html{
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+  }
+
+  body{
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    *{ animation-duration:0.001ms !important; transition-duration:0.001ms !important; }
+  }
+
+  /* ============ TOP PROGRESS ============ */
+  .progress-rail{
+    position:fixed; top:0; left:0; right:0; height:2px;
+    background:transparent; z-index:500;
+  }
+  .progress-fill{
+    height:100%; width:0%;
+    background:var(--accent);
+    transition:width .15s linear;
+  }
+
+  .page-counter{
+    position:fixed; top:36px; right:48px; z-index:400;
+    font-size:13px; letter-spacing:.04em; color:var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+    display:flex; align-items:center; gap:6px;
+  }
+  .page-counter .cur{ color:var(--ink); font-weight:600; }
+
+  /* ============ APERTURE NAV (signature element) ============ */
+  .aperture-nav{
+    position:fixed; left:28px; top:50%; transform:translateY(-50%);
+    z-index:400; display:flex; flex-direction:column; align-items:flex-start;
+    opacity:0; pointer-events:none;
+    transition:opacity .45s ease;
+  }
+  .aperture-nav.visible{ opacity:1; pointer-events:auto; }
+
+  .nav-track{
+    position:relative; display:flex; flex-direction:column; gap:0;
+    padding-left:2px;
+  }
+  .nav-track::before{
+    content:''; position:absolute; left:5px; top:6px; bottom:6px; width:1px;
+    background:var(--line);
+  }
+  .nav-dot{
+    position:relative; display:flex; align-items:center; gap:14px;
+    height:28px; cursor:pointer; background:none; border:none;
+    font-family:var(--font); text-align:left;
+  }
+  .nav-dot .mark{
+    width:11px; height:11px; border-radius:50%;
+    background:var(--bg); border:1.4px solid var(--ink-faint);
+    transition:all .3s ease; flex-shrink:0; z-index:1;
+  }
+  .nav-dot .label{
+    font-size:11.5px; color:var(--ink-soft); white-space:nowrap;
+    opacity:0; transform:translateX(-4px); pointer-events:none;
+    transition:all .2s ease;
+    position:absolute; left:calc(100% + 4px); top:50%; margin-top:-9px;
+    background:var(--bg); padding:3px 8px; border-radius:6px;
+  }
+  .nav-dot:hover .label{ opacity:1; transform:translateX(0); }
+  .nav-dot.active .mark{
+    border-color:var(--accent); background:var(--accent);
+    transform:scale(1.25);
+  }
+
+  /* ============ PAGE / SLIDE STRUCTURE ============ */
+  main{ width:100%; }
+
+  .page{
+    width:100%; min-height:100vh; height:100vh;
+    scroll-snap-align:start; scroll-snap-stop:always;
+    position:relative; overflow:hidden;
+    display:flex; flex-direction:column;
+    justify-content:center;
+    padding:0 clamp(48px, 8vw, 160px);
+  }
+
+  .eyebrow{
+    font-size:14px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--accent); font-weight:600; margin-bottom:20px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow .n{ color:var(--ink-faint); font-weight:500; }
+
+  h1.title{
+    font-size:clamp(40px, 4.6vw, 80px);
+    font-weight:650; letter-spacing:-0.02em; line-height:1.05;
+    color:var(--ink);
+  }
+  .subtitle{
+    font-size:clamp(18px, 1.6vw, 26px);
+    color:var(--ink-soft); font-weight:400; line-height:1.5;
+    margin-top:18px; max-width:760px;
+  }
+
+  .chapter-head{ margin-bottom:clamp(28px,3.4vw,56px); }
+  .chapter-icon{
+    width:56px; height:56px; border-radius:16px;
+    background:var(--card); display:flex; align-items:center; justify-content:center;
+    margin-bottom:24px; box-shadow:0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.05);
+  }
+  .chapter-icon svg{ width:28px; height:28px; stroke:var(--ink); }
+
+  .mini-icon{
+    width:38px; height:38px; border-radius:11px;
+    background:var(--code-bg); display:flex; align-items:center; justify-content:center;
+    margin-bottom:16px; color:var(--ink);
+  }
+  .mini-icon svg{ width:19px; height:19px; }
+
+  /* ============ CARD GRID ============ */
+  .grid{
+    display:grid; gap:20px;
+    grid-template-columns:repeat(2, 1fr);
+  }
+  .grid.g3{ grid-template-columns:repeat(3,1fr); }
+  .grid.g4{ grid-template-columns:repeat(4,1fr); }
+  .grid.g5{ grid-template-columns:repeat(5,1fr); }
+
+  .card{
+    background:var(--card); border-radius:var(--radius);
+    padding:clamp(22px,2vw,32px);
+    box-shadow:0 1px 2px rgba(0,0,0,.03), 0 12px 28px rgba(0,0,0,.045);
+  }
+  .card h3{
+    font-size:clamp(15px,1vw,18px); font-weight:650; margin-bottom:14px;
+    letter-spacing:-0.01em;
+  }
+  .card p{
+    font-size:clamp(14px,.95vw,16px); color:var(--ink-soft); line-height:1.6;
+  }
+
+  .chips{ display:flex; flex-wrap:wrap; gap:8px; }
+  .chip{
+    font-size:13px; padding:7px 14px; border-radius:100px;
+    background:var(--code-bg); border:1px solid var(--line);
+    color:var(--ink); font-weight:500;
+    display:inline-flex; align-items:center; gap:6px;
+  }
+  .chip svg{ width:14px; height:14px; flex-shrink:0; color:var(--ink-soft); }
+
+  .codeblock{
+    background:var(--code-bg); border:1px solid var(--line);
+    border-radius:14px; padding:16px 18px;
+    font-family:var(--mono); font-size:13.5px; line-height:1.65;
+    color:var(--ink); white-space:pre-wrap;
+  }
+  .codeblock + .codeblock{ margin-top:10px; }
+
+  .errlist{ display:flex; flex-direction:column; gap:10px; }
+  .errlist .err{
+    display:flex; align-items:center; gap:10px;
+    font-size:14.5px; color:var(--ink-soft);
+    font-family:var(--mono);
+  }
+  .errlist .err::before{
+    content:'×'; color:#C7372F; font-weight:700; font-size:16px; font-family:var(--font);
+  }
+
+  .oklist{ display:flex; flex-direction:column; gap:10px; }
+  .oklist .ok{
+    display:flex; align-items:flex-start; gap:10px;
+    font-size:14.5px; color:var(--ink); line-height:1.5;
+  }
+  .oklist .ok::before{
+    content:'✓'; color:var(--accent); font-weight:700; flex-shrink:0;
+  }
+
+  .tipbar{
+    margin-top:clamp(20px,2.4vw,36px);
+    display:flex; align-items:center; gap:12px;
+    font-size:15px; color:var(--ink-soft);
+  }
+  .tipbar .bulb{ display:flex; color:var(--accent); flex-shrink:0; }
+  .tipbar .bulb svg{ width:19px; height:19px; }
+  .tipbar b{ color:var(--ink); font-weight:600; }
+
+  /* ============ COVER ============ */
+  .cover{ align-items:center; text-align:center; }
+  .cover .iris-wrap{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    z-index:0; opacity:.5;
+  }
+  .cover .content{ position:relative; z-index:1; }
+  .cover h1{
+    font-size:clamp(48px,6.2vw,104px); font-weight:650; letter-spacing:-0.03em;
+    line-height:1.02;
+  }
+  .cover .subtitle{ margin:26px auto 0; }
+  .cover .year{
+    position:absolute; bottom:56px; left:0; right:0; text-align:center;
+    font-size:14px; color:var(--ink-faint); letter-spacing:.08em;
+  }
+  .cover-blade{ fill:none; stroke:var(--line); stroke-width:1; }
+
+  /* ============ INTRO ============ */
+  .intro-grid{
+    display:grid; grid-template-columns:1fr 1fr 1fr; gap:28px;
+    margin-top:clamp(30px,3.6vw,56px);
+  }
+  .intro-block h3{
+    font-size:14px; text-transform:uppercase; letter-spacing:.1em;
+    color:var(--accent); font-weight:650; margin-bottom:14px;
+  }
+  .intro-block p{ font-size:16px; color:var(--ink-soft); line-height:1.7; }
+  .flow{
+    display:flex; flex-direction:column; gap:0; margin-top:6px;
+  }
+  .flow-step{
+    font-family:var(--mono); font-size:12.5px; letter-spacing:.06em;
+    color:var(--ink); padding:6px 0; display:flex; align-items:center; gap:10px;
+  }
+  .flow-step .dash{ color:var(--ink-faint); }
+
+  /* ============ LIGHT CARDS ============ */
+  .light-card{ position:relative; overflow:hidden; }
+  .light-bar{ height:5px; border-radius:4px; margin-bottom:18px; }
+  .light-card p{ margin-top:6px; }
+
+  /* ============ ANGLE / FRAMING DIAGRAMS ============ */
+  .diagram-card{ text-align:center; }
+  .diagram-card svg{ width:100%; height:120px; margin-bottom:14px; }
+  .diagram-card h3{ margin-bottom:6px; }
+  .diagram-card p{ font-size:13px; }
+
+  /* ============ TABLE ============ */
+  table.lens-table{
+    width:100%; border-collapse:collapse; margin-top:18px;
+    font-size:14px;
+  }
+  table.lens-table th{
+    text-align:left; color:var(--ink-soft); font-weight:500; font-size:12.5px;
+    text-transform:uppercase; letter-spacing:.06em; padding-bottom:10px;
+    border-bottom:1px solid var(--line);
+  }
+  table.lens-table td{
+    padding:12px 0; border-bottom:1px solid var(--line);
+  }
+  table.lens-table td:first-child{ font-family:var(--mono); font-weight:600; }
+
+  /* ============ QUALITY COMPARISON ============ */
+  .quality-compare{
+    display:flex; align-items:center; gap:24px; margin-bottom:8px;
+  }
+  .quality-swatch{
+    flex:1; height:90px; border-radius:16px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:600; letter-spacing:.04em;
+  }
+  .quality-swatch.low{ background:repeating-linear-gradient(45deg,#e4e4e6,#e4e4e6 4px,#ececee 4px,#ececee 8px); color:var(--ink-soft); }
+  .quality-swatch.high{ background:linear-gradient(135deg,#1D1D1F,#3a3a3d); color:#fff; }
+  .quality-arrow{ color:var(--ink-faint); font-size:20px; }
+
+  /* ============ PARAMS DASHBOARD ============ */
+  .param-card{ text-align:center; }
+  .param-card .val{ font-family:var(--mono); font-size:clamp(24px,2vw,32px); font-weight:600; margin-bottom:6px; }
+  .param-card .lbl{ font-size:12.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft); }
+
+  /* ============ ASSEMBLE ============ */
+  .formula{
+    display:flex; flex-wrap:wrap; gap:10px; align-items:center;
+    margin:clamp(24px,3vw,40px) 0;
+  }
+  .formula .block{
+    font-family:var(--mono); font-size:13px; font-weight:600;
+    background:var(--card); border:1px solid var(--line);
+    padding:10px 16px; border-radius:10px; color:var(--ink);
+  }
+  .formula .plus{ color:var(--ink-faint); font-size:15px; }
+  .assemble-example{
+    background:var(--card); border-radius:var(--radius);
+    padding:clamp(26px,2.6vw,40px);
+    box-shadow:0 1px 2px rgba(0,0,0,.03), 0 12px 28px rgba(0,0,0,.045);
+    font-family:var(--mono); font-size:clamp(14px,1.05vw,17px); line-height:1.8;
+    color:var(--ink); max-width:1100px;
+  }
+
+  /* ============ CHECKLIST ============ */
+  .checklist-wrap{
+    max-width:820px; margin-top:clamp(24px,3vw,40px);
+    display:flex; flex-direction:column; gap:2px;
+  }
+  .check-item{
+    display:flex; align-items:center; gap:16px;
+    padding:16px 4px; border-bottom:1px solid var(--line);
+    cursor:pointer; user-select:none;
+  }
+  .check-item .box{
+    width:22px; height:22px; border-radius:7px; flex-shrink:0;
+    border:1.6px solid var(--ink-faint); position:relative;
+    transition:all .2s ease;
+  }
+  .check-item .box::after{
+    content:''; position:absolute; inset:0; display:flex;
+  }
+  .check-item.checked .box{ background:var(--accent); border-color:var(--accent); }
+  .check-item.checked .box svg{ display:block; }
+  .check-item .box svg{
+    display:none; width:14px; height:14px; stroke:#fff; stroke-width:2.4;
+    position:absolute; top:3px; left:3px;
+  }
+  .check-item span.txt{
+    font-size:17px; color:var(--ink); transition:color .2s ease;
+  }
+  .check-item.checked span.txt{ color:var(--ink-soft); text-decoration:line-through; text-decoration-color:var(--line); }
+
+  /* ============ TEMPLATE ============ */
+  .template-box{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:14px;
+    margin-top:clamp(22px,2.6vw,34px);
+  }
+  .template-field{
+    border:1.4px dashed var(--line); border-radius:12px;
+    padding:14px 16px; font-family:var(--mono); font-size:12.5px;
+    color:var(--ink-soft); letter-spacing:.04em; text-transform:uppercase;
+    text-align:center;
+  }
+  .template-model{
+    margin-top:clamp(26px,2.8vw,40px);
+    background:var(--card); border-radius:var(--radius);
+    padding:clamp(24px,2.4vw,34px);
+    box-shadow:0 1px 2px rgba(0,0,0,.03), 0 12px 28px rgba(0,0,0,.045);
+    font-family:var(--mono); font-size:clamp(13px,.95vw,15.5px); line-height:1.85;
+    color:var(--ink);
+  }
+  .template-model .fill{ color:var(--accent); font-weight:600; }
+
+  /* ============ TWO COLUMN (header + content split for chapters) ============ */
+  .chapter-body{
+    display:flex; flex-direction:column; gap:0;
+  }
+
+  /* footer year mark on chapter pages */
+  .page-foot{
+    position:absolute; bottom:40px; left:clamp(48px,8vw,160px);
+    font-size:12px; color:var(--ink-faint); letter-spacing:.06em;
+  }
+
+  ::selection{ background:var(--accent); color:#fff; }
+
+  /* ============ RESPONSIVE (mobile stacking) ============ */
+  @media (max-width:900px){
+    .aperture-nav{ display:none; }
+    .page{ height:auto; min-height:100vh; padding:80px 28px; }
+    .grid, .grid.g3, .grid.g4, .grid.g5{ grid-template-columns:1fr; }
+    .intro-grid{ grid-template-columns:1fr; }
+    .template-box{ grid-template-columns:repeat(2,1fr); }
+    .page-counter{ right:24px; top:20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-rail"><div class="progress-fill" id="progressFill"></div></div>
+<div class="page-counter"><span class="cur" id="curPage">01</span>&nbsp;/&nbsp;16</div>
+
+<nav class="aperture-nav" id="apertureNav">
+  <div class="nav-track" id="navTrack"></div>
+</nav>
+
+<main id="scrollArea">
+
+  <!-- PAGE 1 — COVER -->
+  <section class="page cover" id="p0">
+    <div class="iris-wrap">
+      <svg viewBox="0 0 800 800" width="700" height="700">
+        <g id="coverIris"></g>
+      </svg>
+    </div>
+    <div class="content">
+      <h1>Guia de Composição<br>para Prompts</h1>
+      <p class="subtitle">Um guia para criar prompts claros, completos e consistentes<br>para geração de imagens por IA.</p>
+    </div>
+    <div class="year">2026</div>
+  </section>
+
+  <!-- PAGE 2 — INTRODUÇÃO -->
+  <section class="page" id="p1">
+    <div class="eyebrow">Introdução</div>
+    <h1 class="title">Antes de começar</h1>
+    <div class="intro-grid">
+      <div class="intro-block">
+        <h3>O objetivo</h3>
+        <p>Um bom prompt não é apenas uma descrição da imagem. Ele funciona como um briefing fotográfico — indica exatamente o que aparece em cena, como é enquadrado e qual sensação a imagem precisa transmitir.</p>
+      </div>
+      <div class="intro-block">
+        <h3>Como usar</h3>
+        <p>Cada capítulo representa um componente da composição. Use todos ou apenas os que importam para a sua imagem. Quanto mais específico o prompt, menor o espaço para interpretações inesperadas da IA.</p>
+      </div>
+      <div class="intro-block">
+        <h3>O fluxo</h3>
+        <div class="flow" id="introFlow"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAGE 3 — SUJEITO -->
+  <section class="page" id="p2" data-chapter="1">
+    <div class="chapter-head">
+      <div class="eyebrow"><span class="n">01 / 11</span> Composição</div>
+      <div class="chapter-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="8" r="3.4"></circle><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"></path></svg>
+      </div>
+      <h1 class="title">Sujeito</h1>
+      <p class="subtitle">O elemento principal da imagem — quem, ou o que, será fotografado.</p>
+    </div>
+    <div class="grid g4">
+      <div class="card">
+        <h3>O que definir</h3>
+        <div class="chips">
+          <span class="chip">idade</span><span class="chip">gênero</span><span class="chip">aparência</span>
+          <span class="chip">roupa</span><span class="chip">profissão</span><span class="chip">traços físicos</span><span class="chip">acessórios</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Boas práticas</h3>
+        <div class="oklist">
+          <div class="ok">Seja específico.</div>
+          <div class="ok">Evite termos genéricos.</div>
+          <div class="ok">Descreva como um fotógrafo descreveria a cena.</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Exemplos</h3>
+        <div class="codeblock">Retratando uma mulher de 30 anos,
+cabelos cacheados,
+jaqueta de couro preta.</div>
+        <div class="codeblock">Com foco em um carro esportivo
+vermelho dos anos 80.</div>
+      </div>
+      <div class="card">
+        <h3>Erros comuns</h3>
+        <div class="errlist">
+          <div class="err">"uma pessoa"</div>
+          <div class="err">"um carro"</div>
+          <div class="err">"uma mulher bonita"</div>
+        </div>
+      </div>
+    </div>
+    <div class="tipbar"><span class="bulb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.45 1 1.15 1 1.9V16h5v-.2c0-.75.4-1.45 1-1.9A6 6 0 0 0 12 3z"/></svg></span><span><b>Quanto mais específico o sujeito</b>, menor a liberdade de interpretação da IA.</span></div>
+  </section>
+
+  <!-- PAGE 4 — AÇÃO / POSE -->
+  <section class="page" id="p3" data-chapter="2">
+    <div class="chapter-head">
+      <div class="eyebrow"><span class="n">02 / 11</span> Composição</div>
+      <div class="chapter-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round"><path d="M13 4l-2 6 3 2-1 8"></path><circle cx="14" cy="3" r="1.6"></circle><path d="M9 22l2-8-3-3 1-5"></path></svg>
+      </div>
+      <h1 class="title">Ação / Pose</h1>
+      <p class="subtitle">O momento congelado da imagem — o que o sujeito está fazendo.</p>
+    </div>
+    <div class="grid g4">
+      <div class="card">
+        <h3>Exemplos de ação</h3>
+        <div class="chips">
+          <span class="chip">caminhando</span><span class="chip">correndo</span><span class="chip">sentado</span>
+          <span class="chip">olhando para trás</span><span class="chip">segurando um objeto</span><span class="chip">braços cruzados</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Boas práticas</h3>
+        <div class="oklist">
+          <div class="ok">Descreva uma postura, não apenas um estado.</div>
+          <div class="ok">Ligue a ação ao contexto da cena.</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Exemplos de prompt</h3>
+        <div class="codeblock">Enquanto caminha em direção
+à câmera.</div>
+        <div class="codeblock">Em pose confiante,
+com os braços cruzados.</div>
+      </div>
+      <div class="card">
+        <h3>Erros comuns</h3>
+        <div class="errlist">
+          <div class="err">"parado"</div>
+          <div class="err">"posando"</div>
+        </div>
+      </div>
+    </div>
+    <div class="tipbar"><span class="bulb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.45 1 1.15 1 1.9V16h5v-.2c0-.75.4-1.45 1-1.9A6 6 0 0 0 12 3z"/></svg></span><span>Evite simplesmente dizer <b>"parado"</b> — prefira descrever uma postura.</span></div>
+  </section>
+
+  <!-- PAGE 5 — EXPRESSÃO -->
+  <section class="page" id="p4" data-chapter="3">
+    <div class="chapter-head">
+      <div class="eyebrow"><span class="n">03 / 11</span> Composição</div>
+      <div class="chapter-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 14.5c1 1 2.2 1.5 3.5 1.5s2.5-.5 3.5-1.5"></path><path d="M9 9.5h.01M15 9.5h.01"></path></svg>
+      </div>
+      <h1 class="title">Expressão</h1>
+      <p class="subtitle">A emoção transmitida pelo rosto ou pela linguagem corporal do sujeito.</p>
+    </div>
+    <div class="grid g4">
+      <div class="card">
+        <h3>Emoções comuns</h3>
+        <div class="chips">
+          <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 14c1 1 2.2 1.5 3.5 1.5s2.5-.5 3.5-1.5"/><path d="M9 9.5h.01M15 9.5h.01"/></svg>serena</span>
+          <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 15.5h7"/><path d="M9 9.5h.01M15 9.5h.01"/></svg>neutra</span>
+          <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 16c1-1 2.2-1.5 3.5-1.5s2.5.5 3.5 1.5"/><path d="M8.3 9.8l1.8.7M15.7 9.8l-1.8.7"/></svg>tensa</span>
+          <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 16.5c1-1 2.2-1.5 3.5-1.5s2.5.5 3.5 1.5"/><path d="M9 10h.01M15 10h.01"/></svg>melancólica</span>
+          <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="15" rx="1.6" ry="2"/><path d="M9 9.5h.01M15 9.5h.01"/></svg>surpresa</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Boas práticas</h3>
+        <div class="oklist">
+          <div class="ok">Conecte a expressão ao contexto da cena.</div>
+          <div class="ok">Prefira nuance a rótulos genéricos como "feliz".</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Exemplos de prompt</h3>
+        <div class="codeblock">Com um olhar sereno e distante,
+quase pensativo.</div>
+        <div class="codeblock">Sorriso contido, olhos
+levemente semicerrados.</div>
+      </div>
+      <div class="card">
+        <h3>Erros comuns</h3>
+        <div class="errlist">
+          <div class="err">"expressão normal"</div>
+          <div class="err">"cara feliz"</div>
+        </div>
+      </div>
+    </div>
+    <div class="tipbar"><span class="bulb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.45 1 1.15 1 1.9V16h5v-.2c0-.75.4-1.45 1-1.9A6 6 0 0 0 12 3z"/></svg></span><span>A expressão é o que dá <b>alma</b> à cena — evite descrições vagas.</span></div>
+  </section>
+
+  <!-- PAGE 6 — AMBIENTE -->
+  <section class="page" id="p5" data-chapter="4">
+    <div class="chapter-head">
+      <div class="eyebrow"><span class="n">04 / 11</span> Composição</div>
+      <div class="chapter-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round"><path d="M3 20V10l9-6 9 6v10"></path><path d="M9 20v-6h6v6"></path></svg>
+      </div>
+      <h1 class="title">Ambiente</h1>
+      <p class="subtitle">O cenário onde a cena acontece — o pano de fundo que contextualiza tudo.</p>
+    </div>
+    <div class="grid g4">
+      <div class="card">
+        <div class="mini-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V9l5-4v16M13 21V4l7 3v14"/><path d="M4 21h16M8 12h.01M8 16h.01M17 11h.01M17 15h.01"/></svg></div>
+        <h3>Urbano</h3><p>Ruas, arquitetura, vida em movimento.</p>
+      </div>
+      <div class="card">
+        <div class="mini-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c2.5 0 5 2.5 5 5.5S14.5 13 12 13s-5-2-5-4.5S9.5 3 12 3z"/><path d="M12 13v8M9 21h6"/></svg></div>
+        <h3>Natureza</h3><p>Paisagens abertas, luz natural, elementos orgânicos.</p>
+      </div>
+      <div class="card">
+        <div class="mini-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg></div>
+        <h3>Interior</h3><p>Espaços fechados, controle total sobre luz e textura.</p>
+      </div>
+      <div class="card">
+        <div class="mini-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c2 2 3.2 5 3.2 8.5 0 2-.4 3.5-1 5l-2.2 3-2.2-3c-.6-1.5-1-3-1-5C8.8 7 10 4 12 2z"/><path d="M9 15.5l-2.5 2M15 15.5l2.5 2M10.5 19l-.7 3M13.5 19l.7 3"/></svg></div>
+        <h3>Futurista</h3><p>Ambientes especulativos, materiais e formas inéditas.</p>
+      </div>
+    </div>
+    <div class="tipbar"><span class="bulb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.45 1 1.15 1 1.9V16h5v-.2c0-.75.4-1.45 1-1.9A6 6 0 0 0 12 3z"/></svg></span><span>O ambiente <b>não é pano de fundo</b> — é parte da narrativa da imagem.</span></div>
+  </section>
+
+  <!-- PAGE 7 — LUZ -->
+  <section class="page" id="p6" data-chapter="5">
+    <div class="chapter-head">
+      <div class="eyebrow"><span class="n">05 / 11</span> Composição</div>
+      <div class="chapter-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"></circle><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"></path></svg>
+      </div>
+      <h1 class="title">Luz</h1>
+      <p class="subtitle">O elemento que mais define o clima de uma imagem.</p>
+    </div>
+    <div class="grid g4">
+      <div class="card light-card"><div class="light-bar" style="background:linear-gradient(90deg,#E8A33D,#F2C879)"></div><h3>Golden Hour</h3><p>Luz quente e rasante, logo após o nascer ou antes do pôr do sol.</p></div>
+      <div class="card light-card"><div class="light-bar" style="background:linear-gradient(90deg,#3D5A80,#7FA6C9)"></div><h3>Blue Hour</h3><p>Tons frios e difusos, no crepúsculo — atmosfera contemplativa.</p></div>
+      <div class="card light-card"><div class="light-bar" style="background:linear-gradient(90deg,#8E8E93,#C7C7CC)"></div><h3>Studio</h3><p>Luz artificial controlada, sombras previsíveis e nítidas.</p></div>
+      <div class="card light-card"><div class="light-bar" style="background:linear-gradient(90deg,#3A3A3C,#1D1D1F)"></div><h3>Backlight</h3><p>Fonte de luz atrás do sujeito, criando contorno e silhueta.</p></div>
+    </div>
+    <div class="tipbar"><span class="bulb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.45 1 1.15 1 1.9V16h5v-.2c0-.75.4-1.45 1-1.9A6 6 0 0 0 12 3z"/></svg></span><span>Nomear o tipo de luz é mais eficaz do que descrever <b>"boa iluminação"</b>.</span></div>
+  </section>
+
+  <!-- PAGE 8 — ÂNGULO -->
+  <section class="page" id="p7" data-chapter="6">
+    <div class="chapter-head">
+      <div class="eyebrow"><span class="n">06 / 11</span> Composição</div>
+      <div class="chapter-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round"><path d="M4 12h16M12 4v16"></path><circle cx="12" cy="12" r="2.2"></circle></svg>
+      </div>
+      <h1 class="title">Ângulo</h1>
+      <p class="subtitle">A posição da câmera em relação ao sujeito muda completamente a leitura da cena.</p>
+    </div>
+    <div class="grid g3">
+      <div class="card diagram-card">
+        <svg viewBox="0 0 200 120"><line x1="20" y1="60" x2="180" y2="60" stroke="var(--line)" stroke-width="1.5"/><circle cx="100" cy="60" r="9" fill="var(--ink)"/><circle cx="30" cy="60" r="4" fill="none" stroke="var(--ink-soft)" stroke-width="1.6"/></svg>
+        <h3>Eye Level</h3><p>Câmera na altura dos olhos — neutra, natural.</p>
+      </div>
+      <div class="card diagram-card">
+        <svg viewBox="0 0 200 120"><line x1="100" y1="20" x2="100" y2="90" stroke="var(--line)" stroke-width="1.5"/><ellipse cx="100" cy="95" rx="18" ry="6" fill="var(--ink)"/><circle cx="100" cy="24" r="4" fill="none" stroke="var(--ink-soft)" stroke-width="1.6"/></svg>
+        <h3>High Angle</h3><p>Câmera acima do sujeito — transmite vulnerabilidade.</p>
+      </div>
+      <div class="card diagram-card">
+        <svg viewBox="0 0 200 120"><line x1="100" y1="30" x2="100" y2="100" stroke="var(--line)" stroke-width="1.5"/><ellipse cx="100" cy="35" rx="18" ry="6" fill="var(--ink)"/><circle cx="100" cy="96" r="4" fill="none" stroke="var(--ink-soft)" stroke-width="1.6"/></svg>
+        <h3>Low Angle</h3><p>Câmera abaixo do sujeito — transmite poder, imponência.</p>
+      </div>
+    </div>
+    <div class="tipbar"><span class="bulb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.45 1 1.15 1 1.9V16h5v-.2c0-.75.4-1.45 1-1.9A6 6 0 0 0 12 3z"/></svg></span><span>O ângulo comunica <b>relação de poder</b> entre câmera e sujeito.</span></div>
+  </section>
+
+  <!-- PAGE 9 — ENQUADRAMENTO -->
+  <section class="page" id="p8" data-chapter="7">
+    <div class="chapter-head">
+      <div class="eyebrow"><span class="n">07 / 11</span> Composição</div>
+      <div class="chapter-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M3 9h18"></path></svg>
+      </div>
+      <h1 class="title">Enquadramento</h1>
+      <p class="subtitle">Quanto do sujeito — e do ambiente ao redor — entra na imagem.</p>
+    </div>
+    <div class="grid g5">
+      <div class="card diagram-card"><svg viewBox="0 0 100 120"><rect x="10" y="10" width="80" height="100" fill="none" stroke="var(--line)"/><circle cx="50" cy="55" r="8" fill="var(--ink)"/><rect x="42" y="65" width="16" height="35" fill="var(--ink)"/></svg><h3>Plano Geral</h3></div>
+      <div class="card diagram-card"><svg viewBox="0 0 100 120"><rect x="10" y="10" width="80" height="100" fill="none" stroke="var(--line)"/><circle cx="50" cy="35" r="12" fill="var(--ink)"/><rect x="36" y="49" width="28" height="55" fill="var(--ink)"/></svg><h3>Plano Americano</h3></div>
+      <div class="card diagram-card"><svg viewBox="0 0 100 120"><rect x="10" y="10" width="80" height="100" fill="none" stroke="var(--line)"/><circle cx="50" cy="30" r="16" fill="var(--ink)"/><rect x="28" y="48" width="44" height="62" fill="var(--ink)"/></svg><h3>Plano Médio</h3></div>
+      <div class="card diagram-card"><svg viewBox="0 0 100 120"><rect x="10" y="10" width="80" height="100" fill="none" stroke="var(--line)"/><circle cx="50" cy="55" r="34" fill="var(--ink)"/></svg><h3>Close-up</h3></div>
+      <div class="card diagram-card"><svg viewBox="0 0 100 120"><rect x="10" y="10" width="80" height="100" fill="none" stroke="var(--line)"/><circle cx="50" cy="60" r="50" fill="var(--ink)"/></svg><h3>Extreme Close-up</h3></div>
+    </div>
+    <div class="tipbar"><span class="bulb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.45 1 1.15 1 1.9V16h5v-.2c0-.75.4-1.45 1-1.9A6 6 0 0 0 12 3z"/></svg></span><span>Menos moldura, mais <b>intimidade</b> com o sujeito.</span></div>
+  </section>
+
+  <!-- PAGE 10 — EQUIPAMENTO -->
+  <section class="page" id="p9" data-chapter="8">
+    <div class="chapter-head">
+      <div class="eyebrow"><span class="n">08 / 11</span> Composição</div>
+      <div class="chapter-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round"><rect x="2" y="7" width="20" height="13" rx="2"></rect><circle cx="12" cy="13.5" r="4.2"></circle><path d="M7 7l1.5-3h7L17 7"></path></svg>
+      </div>
+      <h1 class="title">Equipamento</h1>
+      <p class="subtitle">A lente escolhida define perspectiva, compressão e a relação sujeito–fundo.</p>
+    </div>
+    <div class="grid g4" style="margin-bottom:22px;">
+      <div class="card"><h3 style="font-family:var(--mono)">35mm</h3><p>Grande angular — mais ambiente em cena.</p></div>
+      <div class="card"><h3 style="font-family:var(--mono)">50mm</h3><p>Perspectiva natural, próxima da visão humana.</p></div>
+      <div class="card"><h3 style="font-family:var(--mono)">85mm</h3><p>Padrão para retrato — comprime suavemente o fundo.</p></div>
+      <div class="card"><h3 style="font-family:var(--mono)">200mm</h3><p>Teleobjetiva — forte compressão, fundo isolado.</p></div>
+    </div>
+    <table class="lens-table">
+      <tr><th>Lente</th><th>Resultado</th></tr>
+      <tr><td>35mm</td><td>Mais ambiente</td></tr>
+      <tr><td>50mm</td><td>Natural</td></tr>
+      <tr><td>85mm</td><td>Retrato</td></tr>
+      <tr><td>200mm</td><td>Compressão</td></tr>
+    </table>
+  </section>
+
+  <!-- PAGE 11 — ESTILO -->
+  <section class="page" id="p10" data-chapter="9">
+    <div class="chapter-head">
+      <div class="eyebrow"><span class="n">09 / 11</span> Composição</div>
+      <div class="chapter-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round"><path d="M12 3l2.6 5.9L21 10l-4.8 4 1.4 6.4L12 17.3 6.4 20.4 7.8 14 3 10l6.4-1.1L12 3z"></path></svg>
+      </div>
+      <h1 class="title">Estilo</h1>
+      <p class="subtitle">A referência visual e cultural que orienta o tratamento da imagem.</p>
+    </div>
+    <div class="grid g3">
+      <div class="card"><h3>Editorial</h3><p>Composição limpa, intencional — como capa de revista.</p></div>
+      <div class="card"><h3>Documental</h3><p>Espontâneo, sem encenação aparente, cru.</p></div>
+      <div class="card"><h3>Cyberpunk</h3><p>Neon, alto contraste, estética urbana futurista.</p></div>
+      <div class="card"><h3>Vintage</h3><p>Cores desbotadas, grão, textura de filme antigo.</p></div>
+      <div class="card"><h3>Minimalista</h3><p>Poucos elementos, muito espaço negativo.</p></div>
+      <div class="card"><h3>Fine Art</h3><p>Tratamento pictórico, foco em atmosfera e forma.</p></div>
+    </div>
+  </section>
+
+  <!-- PAGE 12 — QUALIDADE -->
+  <section class="page" id="p11" data-chapter="10">
+    <div class="chapter-head">
+      <div class="eyebrow"><span class="n">10 / 11</span> Composição</div>
+      <div class="chapter-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round"><path d="M4 4h16v16H4z"></path><path d="M4 14l5-5 4 4 7-7"></path></svg>
+      </div>
+      <h1 class="title">Qualidade</h1>
+      <p class="subtitle">A precisão técnica exigida da imagem final.</p>
+    </div>
+    <div class="quality-compare">
+      <div class="quality-swatch low">Baixa qualidade</div>
+      <span class="quality-arrow">→</span>
+      <div class="quality-swatch high">Alta qualidade</div>
+    </div>
+    <div class="chips" style="margin-top:20px;">
+      <span class="chip">nitidez</span><span class="chip">resolução</span><span class="chip">textura</span><span class="chip">detalhes</span>
+    </div>
+    <div class="tipbar"><span class="bulb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.45 1 1.15 1 1.9V16h5v-.2c0-.75.4-1.45 1-1.9A6 6 0 0 0 12 3z"/></svg></span><span>Especifique o nível de <b>detalhe</b> — não presuma que a IA vai adivinhar.</span></div>
+  </section>
+
+  <!-- PAGE 13 — PARÂMETROS TÉCNICOS -->
+  <section class="page" id="p12" data-chapter="11">
+    <div class="chapter-head">
+      <div class="eyebrow"><span class="n">11 / 11</span> Composição</div>
+      <div class="chapter-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="3"></circle></svg>
+      </div>
+      <h1 class="title">Parâmetros Técnicos</h1>
+      <p class="subtitle">Os últimos ajustes finos — o painel de câmera do seu prompt.</p>
+    </div>
+    <div class="grid g4">
+      <div class="card param-card"><div class="val">f/1.4</div><div class="lbl">Abertura</div></div>
+      <div class="card param-card"><div class="val">100</div><div class="lbl">ISO</div></div>
+      <div class="card param-card"><div class="val">1/500</div><div class="lbl">Shutter</div></div>
+      <div class="card param-card"><div class="val">5600K</div><div class="lbl">Balanço de branco</div></div>
+    </div>
+    <div class="tipbar"><span class="bulb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.45 1 1.15 1 1.9V16h5v-.2c0-.75.4-1.45 1-1.9A6 6 0 0 0 12 3z"/></svg></span><span>Use parâmetros técnicos apenas quando forem <b>relevantes</b> para o resultado.</span></div>
+  </section>
+
+  <!-- PAGE 14 — MONTANDO O PROMPT -->
+  <section class="page" id="p13">
+    <div class="eyebrow">Síntese</div>
+    <h1 class="title">Montando o prompt</h1>
+    <div class="formula" id="formulaRow"></div>
+    <div class="assemble-example" id="assembleExample"></div>
+  </section>
+
+  <!-- PAGE 15 — CHECKLIST -->
+  <section class="page" id="p14">
+    <div class="eyebrow">Revisão</div>
+    <h1 class="title">Checklist</h1>
+    <div class="checklist-wrap" id="checklistWrap"></div>
+  </section>
+
+  <!-- PAGE 16 — TEMPLATE -->
+  <section class="page" id="p15">
+    <div class="eyebrow">Referência</div>
+    <h1 class="title">Template</h1>
+    <div class="template-box" id="templateBox"></div>
+    <div class="template-model" id="templateModel"></div>
+  </section>
+
+</main>
+
+<script>
+/* ---------- data ---------- */
+const flowSteps = ["SUJEITO","AÇÃO","EXPRESSÃO","AMBIENTE","LUZ","ÂNGULO","ENQUADRAMENTO","EQUIPAMENTO","ESTILO","QUALIDADE","PARÂMETROS"];
+const chapters = [
+  {n:"01", label:"Sujeito", sel:"#p2"},
+  {n:"02", label:"Ação / Pose", sel:"#p3"},
+  {n:"03", label:"Expressão", sel:"#p4"},
+  {n:"04", label:"Ambiente", sel:"#p5"},
+  {n:"05", label:"Luz", sel:"#p6"},
+  {n:"06", label:"Ângulo", sel:"#p7"},
+  {n:"07", label:"Enquadramento", sel:"#p8"},
+  {n:"08", label:"Equipamento", sel:"#p9"},
+  {n:"09", label:"Estilo", sel:"#p10"},
+  {n:"10", label:"Qualidade", sel:"#p11"},
+  {n:"11", label:"Parâmetros", sel:"#p12"},
+];
+
+/* ---------- intro flow ---------- */
+const introFlow = document.getElementById('introFlow');
+flowSteps.forEach((s,i)=>{
+  const div = document.createElement('div');
+  div.className='flow-step';
+  div.innerHTML = `<span class="dash">${String(i+1).padStart(2,'0')}</span><span>${s}</span>`;
+  introFlow.appendChild(div);
+});
+
+/* ---------- formula row (page 14) ---------- */
+const formulaRow = document.getElementById('formulaRow');
+flowSteps.forEach((s,i)=>{
+  if(i>0){
+    const plus = document.createElement('span');
+    plus.className='plus'; plus.textContent='+';
+    formulaRow.appendChild(plus);
+  }
+  const b = document.createElement('span');
+  b.className='block'; b.textContent=s;
+  formulaRow.appendChild(b);
+});
+document.getElementById('assembleExample').innerHTML =
+`Retratando uma mulher de 30 anos, cabelos cacheados, jaqueta de couro preta,
+caminhando em direção à câmera, com olhar sereno e distante,
+em uma rua molhada de uma cidade à noite,
+iluminada por letreiros neon (backlight),
+fotografada em eye level, plano médio,
+com lente 85mm, em estilo cyberpunk editorial,
+alta qualidade, nítida e detalhada,
+f/1.4, ISO 100, 1/500, 5600K.`;
+
+/* ---------- checklist (page 15) ---------- */
+const checks = [
+  "O sujeito está claro?",
+  "Existe uma ação?",
+  "A expressão foi definida?",
+  "O ambiente faz sentido?",
+  "A iluminação foi escolhida?",
+  "O ângulo está definido?",
+  "O enquadramento foi pensado?",
+  "O estilo está claro?",
+  "A qualidade foi especificada?",
+  "Os parâmetros técnicos são necessários?"
+];
+const checklistWrap = document.getElementById('checklistWrap');
+checks.forEach(txt=>{
+  const item = document.createElement('div');
+  item.className='check-item';
+  item.innerHTML = `<div class="box"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l6 6L20 6"/></svg></div><span class="txt">${txt}</span>`;
+  item.addEventListener('click', ()=> item.classList.toggle('checked'));
+  checklistWrap.appendChild(item);
+});
+
+/* ---------- template (page 16) ---------- */
+const templateBox = document.getElementById('templateBox');
+flowSteps.concat(["TÉCNICOS"]).slice(0,11).forEach(s=>{
+  const f = document.createElement('div');
+  f.className='template-field'; f.textContent=s;
+  templateBox.appendChild(f);
+});
+document.getElementById('templateModel').innerHTML =
+`Retratando <span class="fill">[SUJEITO]</span> em <span class="fill">[AÇÃO]</span>,
+com expressão <span class="fill">[EXPRESSÃO]</span>,
+em um ambiente <span class="fill">[AMBIENTE]</span>,
+iluminado por <span class="fill">[LUZ]</span>,
+fotografado em <span class="fill">[ÂNGULO]</span>
+com enquadramento <span class="fill">[ENQUADRAMENTO]</span>,
+utilizando <span class="fill">[EQUIPAMENTO]</span>,
+em estilo <span class="fill">[ESTILO]</span>,
+com qualidade <span class="fill">[QUALIDADE]</span>
+e parâmetros técnicos <span class="fill">[PARÂMETROS]</span>.`;
+
+/* ---------- aperture nav (signature element) ---------- */
+const navTrack = document.getElementById('navTrack');
+chapters.forEach((c,i)=>{
+  const btn = document.createElement('button');
+  btn.className='nav-dot'; btn.dataset.sel=c.sel;
+  btn.innerHTML = `<span class="mark"></span><span class="label">${c.n} — ${c.label}</span>`;
+  btn.addEventListener('click', ()=> document.querySelector(c.sel).scrollIntoView({behavior:'smooth'}));
+  navTrack.appendChild(btn);
+});
+
+/* cover iris — decorative radial lines */
+const coverIris = document.getElementById('coverIris');
+const COVER_BLADES = 12;
+for(let i=0;i<COVER_BLADES;i++){
+  const angle=(360/COVER_BLADES)*i;
+  const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+  path.setAttribute('class','cover-blade');
+  path.setAttribute('d','M400 400 L400 60 A340 340 0 0 1 570 140 Z');
+  path.setAttribute('transform', `rotate(${angle} 400 400)`);
+  coverIris.appendChild(path);
+}
+
+/* ---------- scroll spy ---------- */
+const pages = Array.from(document.querySelectorAll('.page'));
+const apertureNav = document.getElementById('apertureNav');
+const progressFill = document.getElementById('progressFill');
+const curPage = document.getElementById('curPage');
+
+function onScroll(){
+  const scrollArea = document.getElementById('scrollArea');
+  const scrollTop = window.scrollY;
+  const winH = window.innerHeight;
+  let activeIndex = 0;
+  pages.forEach((p,i)=>{
+    const rect = p.getBoundingClientRect();
+    if(rect.top <= winH*0.5 && rect.bottom >= winH*0.5){ activeIndex = i; }
+  });
+
+  curPage.textContent = String(activeIndex+1).padStart(2,'0');
+
+  const totalH = document.documentElement.scrollHeight - winH;
+  const pct = totalH>0 ? (scrollTop/totalH)*100 : 0;
+  progressFill.style.width = pct+'%';
+
+  const activePage = pages[activeIndex];
+  const chNum = activePage.dataset.chapter;
+  if(chNum){
+    apertureNav.classList.add('visible');
+    document.querySelectorAll('.nav-dot').forEach((d,i)=>{
+      d.classList.toggle('active', i === (parseInt(chNum)-1));
+    });
+  } else {
+    apertureNav.classList.remove('visible');
+  }
+}
+window.addEventListener('scroll', onScroll, {passive:true});
+window.addEventListener('resize', onScroll);
+onScroll();
+</script>
+
+</body>
+</html>
