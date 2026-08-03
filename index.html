@@ -47,28 +47,22 @@
     -webkit-font-smoothing:antialiased;
   }
   .wrap{ max-width:1360px; margin:0 auto; padding:0 40px; }
-
   a{ color:inherit; }
   ::selection{ background:var(--accent); color:var(--accent-ink); }
 
   /* ============ HERO ============ */
-  .hero{
-    padding:64px 0 56px; border-bottom:1px solid var(--line);
-  }
+  .hero{ padding:64px 0 56px; border-bottom:1px solid var(--line); }
   .eyebrow{
     font-family:var(--font-sub); font-style:italic; font-weight:500;
     font-size:19px; color:var(--accent); margin-bottom:14px;
   }
   h1.title{
     font-family:var(--font-title); text-transform:uppercase;
-    font-size:clamp(38px,5vw,68px); line-height:1.02; letter-spacing:.005em;
-    font-weight:400;
+    font-size:clamp(38px,5vw,68px); line-height:1.02; letter-spacing:.005em; font-weight:400;
   }
-  .lede{
-    font-size:16.5px; color:var(--ink-soft); margin-top:18px; max-width:600px; line-height:1.6;
-  }
+  .lede{ font-size:16.5px; color:var(--ink-soft); margin-top:18px; max-width:600px; line-height:1.6; }
 
-  /* ============ SECTION LABELS ============ */
+  /* ============ SECTIONS ============ */
   .section{ padding:64px 0; }
   .section-head{ margin-bottom:36px; }
   .section-eyebrow{
@@ -81,37 +75,27 @@
   }
   .section-sub{
     font-family:var(--font-sub); font-style:italic; font-weight:500;
-    font-size:17px; color:var(--ink-soft); margin-top:10px; max-width:640px;
+    font-size:17px; color:var(--ink-soft); margin-top:10px; max-width:660px;
   }
 
-  /* ============ GRID OF CATEGORY FIELDS ============ */
-  .field-grid{
-    display:grid; grid-template-columns:repeat(4, 1fr); gap:14px;
-  }
+  /* ============ FIELD GRID ============ */
+  .field-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; }
   .field{
     position:relative;
     background:var(--bg-card); border:1.4px solid var(--line); border-radius:14px;
     padding:18px 18px 16px; cursor:pointer; user-select:none;
-    transition:border-color .18s ease, background .18s ease, transform .18s ease, box-shadow .18s ease;
+    transition:border-color .18s ease, background .18s ease, transform .18s ease;
   }
-  .field:hover{
-    border-color:var(--line-strong); background:var(--bg-card-hover);
-    transform:translateY(-3px); box-shadow:0 10px 24px rgba(0,0,0,.28);
-  }
+  .field:hover{ border-color:var(--line-strong); background:var(--bg-card-hover); transform:translateY(-3px); }
   .field.filled{ border-color:var(--accent); }
-  .field.open{ border-color:var(--accent); transform:translateY(-1px); }
-
-  .field .num{
-    font-family:var(--mono); font-size:11px; color:var(--ink-faint); letter-spacing:.04em;
-  }
+  .field.open{ border-color:var(--accent); }
+  .field .num{ font-family:var(--mono); font-size:11px; color:var(--ink-faint); letter-spacing:.04em; }
   .field .dot{
     position:absolute; top:16px; right:16px; width:8px; height:8px; border-radius:50%;
     background:var(--accent); opacity:0; transform:scale(.4); transition:all .2s ease;
   }
   .field.filled .dot{ opacity:1; transform:scale(1); }
-  .field .label{
-    font-size:15px; font-weight:700; margin-top:6px; letter-spacing:-0.01em;
-  }
+  .field .label{ font-size:15px; font-weight:700; margin-top:6px; letter-spacing:-0.01em; }
   .field .preview{
     font-size:12.5px; color:var(--ink-soft); margin-top:6px; line-height:1.45;
     display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
@@ -119,18 +103,15 @@
   .field .preview.empty{ color:var(--ink-faint); }
 
   /* ============ OVERLAY + POPOVER ============ */
-  .overlay{ position:fixed; inset:0; z-index:60; background:rgba(0,0,0,.35); display:none; }
+  .overlay{ position:fixed; inset:0; z-index:60; background:rgba(0,0,0,.4); display:none; }
   .overlay.active{ display:block; }
-
   .popover{
     position:absolute; z-index:70; width:400px; max-width:92vw;
     background:#2E2E30; border:1px solid var(--line-strong); border-radius:16px;
     box-shadow:0 24px 60px rgba(0,0,0,.5);
-    padding:20px; max-height:70vh; overflow-y:auto;
-    display:none;
+    padding:20px; max-height:74vh; overflow-y:auto; display:none;
   }
   .popover.active{ display:block; }
-
   .pop-title{ font-size:15.5px; font-weight:700; margin-bottom:2px; }
   .pop-sub{ font-size:12.5px; color:var(--ink-soft); margin-bottom:16px; }
 
@@ -138,43 +119,48 @@
   .subgroup:last-of-type{ margin-bottom:14px; }
   .subgroup-label{
     font-size:11px; text-transform:uppercase; letter-spacing:.08em;
-    color:var(--ink-soft); font-weight:700; margin-bottom:9px;
+    color:var(--ink-soft); font-weight:700; margin-bottom:5px;
   }
-  .subgroup-desc{
-    font-size:12px; color:var(--ink-soft); line-height:1.5; margin:-4px 0 10px;
+  .subgroup-note{
+    font-family:var(--font-sub); font-style:italic; font-size:12px;
+    color:var(--ink-faint); margin-bottom:9px; line-height:1.5;
   }
-  .subgroup-notes{
-    margin-top:10px; padding-top:10px; border-top:1px dashed var(--line);
-    display:flex; flex-direction:column; gap:5px;
-  }
-  .subgroup-notes .note-line{ font-size:11.5px; color:var(--ink-soft); line-height:1.5; }
-  .subgroup-notes .note-line b{ color:var(--ink); }
   .opt-list{ display:flex; flex-wrap:wrap; gap:7px; }
   .opt{
     font-size:12.5px; padding:7px 13px; border-radius:100px;
     background:var(--code-bg); border:1px solid var(--line);
     color:var(--ink); font-weight:500; cursor:pointer;
-    transition:all .15s ease;
+    transition:all .14s ease;
   }
-  .opt:hover{ border-color:var(--accent); transform:translateY(-1px); }
-  .opt.selected{
-    background:var(--accent); border-color:var(--accent); color:var(--accent-ink); font-weight:700;
+  .opt:hover{ border-color:var(--line-strong); transform:translateY(-1px); }
+  .opt.selected{ background:var(--accent); border-color:var(--accent); color:var(--accent-ink); font-weight:700; }
+
+  .opt-card-list{ display:flex; flex-direction:column; gap:8px; }
+  .opt-card{
+    padding:10px 13px; border-radius:10px; background:var(--code-bg);
+    border:1px solid var(--line); cursor:pointer; transition:all .14s ease;
   }
-  .opt.selected:hover{ transform:translateY(-1px); filter:brightness(1.08); }
+  .opt-card:hover{ border-color:var(--line-strong); transform:translateX(3px); }
+  .opt-card.selected{ background:var(--accent); border-color:var(--accent); }
+  .opt-card-title{ font-size:13px; font-weight:700; color:var(--ink); }
+  .opt-card-note{ font-size:11.5px; color:var(--ink-soft); margin-top:2px; line-height:1.4; }
+  .opt-card.selected .opt-card-title, .opt-card.selected .opt-card-note{ color:var(--accent-ink); }
 
   .free-text{ margin-top:10px; display:flex; flex-direction:column; gap:6px; }
   .free-text .row{ display:flex; gap:8px; }
   .free-text input{
     flex:1; font-family:var(--font-body); font-size:13px; padding:9px 12px;
     border:1px solid var(--line); border-radius:10px; background:var(--code-bg);
-    color:var(--ink); outline:none;
+    color:var(--ink); outline:none; transition:border-color .15s ease;
   }
   .free-text input:focus{ border-color:var(--accent); }
   .free-text input::placeholder{ color:var(--ink-faint); }
   .free-text button{
     font-family:var(--font-body); font-size:13px; font-weight:700; padding:9px 14px;
     border:none; border-radius:10px; background:var(--accent); color:var(--accent-ink); cursor:pointer;
+    transition:transform .12s ease;
   }
+  .free-text button:hover{ transform:scale(1.05); }
   .free-text .hint{ font-size:11px; color:var(--ink-faint); }
 
   .pop-actions{
@@ -189,9 +175,9 @@
   .done-btn{
     font-family:var(--font-body); font-size:13px; font-weight:700; padding:9px 16px;
     border:none; border-radius:10px; background:var(--accent); color:var(--accent-ink); cursor:pointer;
-    transition:transform .15s ease;
+    transition:transform .12s ease;
   }
-  .done-btn:hover{ transform:translateY(-1px); }
+  .done-btn:hover{ transform:scale(1.05); }
 
   /* ============ ACTION BAR ============ */
   .action-bar{ margin-top:28px; display:flex; align-items:center; gap:18px; flex-wrap:wrap; }
@@ -201,14 +187,13 @@
     border:none; border-radius:100px; background:var(--accent); color:var(--accent-ink); cursor:pointer;
     transition:transform .15s ease, box-shadow .15s ease;
   }
-  .generate-btn:hover{ transform:translateY(-2px); box-shadow:0 8px 20px rgba(231,255,135,.25); }
+  .generate-btn:hover{ transform:scale(1.04); box-shadow:0 8px 24px rgba(231,255,135,.18); }
   .generate-btn:active{ transform:scale(.97); }
   .reset-btn{
     font-family:var(--font-body); font-size:13.5px; color:var(--ink-soft); background:none;
-    border:none; cursor:pointer; text-decoration:underline; text-underline-offset:2px;
-    transition:color .15s ease;
+    border:none; cursor:pointer; text-decoration:underline; text-underline-offset:2px; transition:color .15s ease;
   }
-  .reset-btn:hover{ color:var(--accent); }
+  .reset-btn:hover{ color:var(--ink); }
   .dirty-note{ font-size:13px; color:var(--ink-soft); }
   .dirty-note b{ color:var(--accent); }
 
@@ -228,72 +213,59 @@
     font-family:var(--font-body); font-size:12.5px; font-weight:700; padding:8px 14px;
     border:1px solid var(--line-strong); border-radius:10px; background:var(--code-bg);
     color:var(--ink); cursor:pointer; display:flex; align-items:center; gap:6px;
-    transition:border-color .15s ease, transform .15s ease;
+    transition:border-color .15s ease, transform .12s ease;
   }
-  .copy-btn:hover{ border-color:var(--accent); transform:translateY(-1px); }
+  .copy-btn:hover{ border-color:var(--accent); transform:scale(1.03); }
   .copy-btn svg{ width:14px; height:14px; }
   .output textarea{
-    width:100%; min-height:140px; resize:vertical;
+    width:100%; min-height:150px; resize:vertical;
     font-family:var(--mono); font-size:14px; line-height:1.7; color:var(--ink);
     background:var(--code-bg); border:1px solid var(--line); border-radius:12px;
-    padding:16px; outline:none;
+    padding:16px; outline:none; transition:border-color .15s ease;
   }
   .output textarea:focus{ border-color:var(--accent); }
 
-  /* ============ CONDENSED GUIDE ============ */
-  .guide-section{
-    padding:64px 0 96px; border-top:1px solid var(--line);
-  }
-  .guide-grid{
-    display:grid; grid-template-columns:repeat(2, 1fr); gap:16px;
-  }
+  /* ============ GUIDE ============ */
+  .guide-section{ padding:64px 0 96px; border-top:1px solid var(--line); }
+  .guide-grid{ display:grid; grid-template-columns:repeat(2, 1fr); gap:18px; }
   .guide-card{
-    background:var(--bg-card); border:1px solid var(--line); border-radius:16px;
-    padding:24px; transition:transform .18s ease, border-color .18s ease, background .18s ease;
+    background:var(--bg-card); border:1px solid var(--line); border-radius:18px;
+    padding:26px; transition:border-color .18s ease, transform .18s ease;
   }
-  .guide-card:hover{
-    transform:translateY(-3px); border-color:var(--line-strong); background:var(--bg-card-hover);
-  }
-  .guide-card .num{
-    font-family:var(--mono); font-size:11px; color:var(--accent); letter-spacing:.04em; margin-bottom:8px;
-  }
-  .guide-card h3{ font-size:16.5px; font-weight:700; margin-bottom:8px; }
-  .guide-card p{ font-size:13.5px; color:var(--ink-soft); line-height:1.65; margin-bottom:14px; }
-  .guide-card .tip-list{
-    list-style:none; display:flex; flex-direction:column; gap:6px; margin-bottom:14px;
-  }
-  .guide-card .tip-list li{
-    font-size:12.5px; color:var(--ink-soft); line-height:1.55; padding-left:14px; position:relative;
-  }
-  .guide-card .tip-list li::before{
-    content:'—'; position:absolute; left:0; color:var(--accent);
-  }
-  .guide-card .ex-label{
+  .guide-card:hover{ border-color:var(--line-strong); transform:translateY(-3px); }
+  .guide-card .num{ font-family:var(--mono); font-size:11px; color:var(--accent); letter-spacing:.04em; margin-bottom:8px; }
+  .guide-card h3{ font-size:19px; font-weight:700; margin-bottom:10px; }
+  .guide-card .desc{ font-size:13.5px; color:var(--ink-soft); line-height:1.65; margin-bottom:16px; }
+  .guide-block{ margin-bottom:14px; }
+  .guide-block:last-of-type{ margin-bottom:0; }
+  .guide-block .gb-label{
     font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-faint);
-    margin-bottom:6px; font-weight:700;
+    margin-bottom:8px; font-weight:700;
   }
-  .guide-card .ex-chips{ display:flex; flex-wrap:wrap; gap:6px; }
-  .guide-card .ex-chip{
-    font-size:11.5px; padding:4px 10px; border-radius:100px;
+  .guide-chips{ display:flex; flex-wrap:wrap; gap:6px; }
+  .guide-chip{
+    font-size:11.5px; padding:5px 11px; border-radius:100px;
     background:var(--code-bg); border:1px solid var(--line); color:var(--ink-soft);
-    transition:border-color .15s ease, color .15s ease;
   }
-  .guide-card .ex-chip:hover{ border-color:var(--accent); color:var(--ink); }
+  .guide-list{ display:flex; flex-direction:column; gap:6px; }
+  .guide-list .gl-item{ font-size:13px; color:var(--ink); line-height:1.5; display:flex; gap:8px; }
+  .guide-list .gl-item.ok::before{ content:'✓'; color:var(--accent); font-weight:700; flex-shrink:0; }
+  .guide-list .gl-item.err::before{ content:'×'; color:#E36B6B; font-weight:700; flex-shrink:0; }
+  .guide-tip{
+    margin-top:16px; padding-top:14px; border-top:1px solid var(--line);
+    font-family:var(--font-sub); font-style:italic; font-size:13.5px; color:var(--accent); line-height:1.6;
+  }
 
-  footer{
-    padding:36px 0 60px; border-top:1px solid var(--line);
-    display:flex; align-items:center; gap:10px;
-  }
+  footer{ padding:36px 0 60px; border-top:1px solid var(--line); }
   footer span{ font-size:12px; color:var(--ink-faint); letter-spacing:.04em; }
 
   @media (max-width:1100px){
     .field-grid{ grid-template-columns:repeat(2,1fr); }
-    .guide-grid{ grid-template-columns:repeat(2,1fr); }
+    .guide-grid{ grid-template-columns:1fr; }
   }
   @media (max-width:640px){
     .wrap{ padding:0 22px; }
     .field-grid{ grid-template-columns:1fr; }
-    .guide-grid{ grid-template-columns:1fr; }
     .popover{ width:320px; }
   }
 </style>
@@ -330,16 +302,14 @@
 
   <section class="guide-section" id="guide">
     <div class="section-head">
-      <div class="section-eyebrow">Referência rápida</div>
+      <div class="section-eyebrow">Referência</div>
       <h2 class="section-title">Guia de composição</h2>
-      <p class="section-sub">Um resumo do que cada categoria significa, para quem ainda está pegando o jeito dos termos.</p>
+      <p class="section-sub">O que cada categoria significa, o que considerar, e os erros mais comuns — para quem ainda está pegando o jeito dos termos.</p>
     </div>
     <div class="guide-grid" id="guideGrid"></div>
   </section>
 
-  <footer>
-    <span>Montador de Prompts — uso interno</span>
-  </footer>
+  <footer><span>Ferramenta interna de montagem de prompts.</span></footer>
 </div>
 
 <div class="overlay" id="overlay"></div>
@@ -349,18 +319,22 @@
 /* ============================================================
    HELPERS
 ============================================================ */
-function opt(pt, en){ return { pt, en: en || pt }; }
-function opts(list){ return list.map(([pt,en]) => opt(pt,en)); }
+function opt(pt, en, note){ return { pt, en: en || pt, note }; }
+function opts(list){ return list.map(a => opt(a[0], a[1], a[2])); }
 
 /* ============================================================
-   DATA — every option holds { pt, en }. UI shows pt, prompt uses en.
+   DATA
 ============================================================ */
 const categories = [
   { key:'sujeito', num:'01', label:'Sujeito',
-    clause:v=>`the composition centers on ${v}, rendered with authentic, lifelike detail`, allowFreeText:true,
-    guide:{ desc:'O sujeito é o centro de gravidade da imagem — a pessoa que a câmera realmente fotografa. Quanto mais específica a combinação de idade, gênero, etnia, roupa, profissão e traços físicos, menos a IA improvisa e mais o resultado se aproxima do que você imaginou.',
-      tips:['Combine no máximo 4–5 traços por vez — excesso de detalhes conflitantes confunde o modelo.','Descreva cor e peça de roupa juntas ("jaqueta de couro preta") em vez de deixar soltas.','Profissão e acessórios sugerem contexto sem precisar descrever o ambiente inteiro.'],
-      examples:['jovem adulta latina','terno social azul','engenheira','sardas','barba cheia','tatuagens visíveis'] },
+    clause:v=>`A highly detailed portrait portraying ${v}`, allowFreeText:true,
+    guide:{
+      desc:'O elemento central da imagem — quem, ou o que, será fotografado. Um bom prompt trata o sujeito como um briefing fotográfico completo, não como uma frase vaga.',
+      define:['idade','gênero','etnia','roupa e cor','profissão','características físicas','acessórios'],
+      good:['Seja específico em cada característica.','Combine vários subgrupos para um sujeito rico.','Descreva como um fotógrafo descreveria a cena.'],
+      errors:['"uma pessoa"','"alguém"','"uma mulher bonita"'],
+      tip:'Quanto mais específico o sujeito, menor a liberdade de interpretação da IA.'
+    },
     subgroups:[
       { key:'idade', label:'Idade', multi:false, options:opts([
         ['criança','child'],['adolescente','teenager'],['jovem adulto','young adult in their twenties'],
@@ -383,32 +357,25 @@ const categories = [
         ['amarela','yellow'],['bege','beige'],['cinza','gray'],['rosa','pink'],['roxa','purple'],
       ])},
       { key:'profissao', label:'Profissão', multi:false, options:opts([
-        ['médico(a)','doctor'],['enfermeiro(a)','nurse'],['artista','artist'],['empresário(a)','entrepreneur'],
-        ['estudante','student'],['chef','chef'],['atleta','athlete'],['engenheiro(a)','engineer'],
-        ['advogado(a)','lawyer'],['professor(a)','teacher'],['programador(a)','software developer'],
-        ['fotógrafo(a)','photographer'],['arquiteto(a)','architect'],['jornalista','journalist'],
+        ['médico(a)','doctor'],['artista','artist'],['empresário(a)','entrepreneur'],['estudante','student'],
+        ['chef','chef'],['atleta','athlete'],['professor(a)','teacher'],['engenheiro(a)','engineer'],
+        ['advogado(a)','lawyer'],['enfermeiro(a)','nurse'],['programador(a)','software developer'],
+        ['fotógrafo(a)','photographer'],['músico(a)','musician'],['escritor(a)','writer'],
         ['policial','police officer'],['bombeiro(a)','firefighter'],['piloto','pilot'],
-        ['mecânico(a)','mechanic'],['agricultor(a)','farmer'],['cientista','scientist'],
-        ['músico(a)','musician'],['designer','designer'],['vendedor(a)','salesperson'],
-        ['personal trainer','personal trainer'],['cabeleireiro(a)','hairstylist'],
-        ['motorista de aplicativo','rideshare driver'],
+        ['cientista','scientist'],['arquiteto(a)','architect'],['jornalista','journalist'],
+        ['dançarino(a)','dancer'],['ator/atriz','actor'],['mecânico(a)','mechanic'],
+        ['agricultor(a)','farmer'],['militar','military service member'],
+      ])},
+      { key:'aparencia', label:'Cabelo', multi:true, options:opts([
+        ['cabelos cacheados','curly hair'],['cabelos lisos','straight hair'],['cabelos longos','long hair'],
+        ['cabelos curtos','short hair'],['cabelos grisalhos','gray hair'],['careca','a shaved, bald head'],
       ])},
       { key:'caracteristicas', label:'Características físicas', multi:true, options:opts([
-        ['alto','tall'],['baixo','short'],['magro','slim'],['corpo plus size','plus-size build'],
-        ['atlético','athletic build'],['sardas','freckles'],['calvo','bald'],
-        ['cabelo grisalho','graying hair'],['rugas de expressão','visible expression lines'],
-        ['pele bronzeada','tanned skin'],['pele clara','fair skin'],
-        ['tatuagens visíveis','visible tattoos'],['cicatriz marcante','a notable scar'],
-      ])},
-      { key:'cor_olhos', label:'Cor dos olhos', multi:false, options:opts([
-        ['olhos castanhos','brown eyes'],['olhos azuis','blue eyes'],['olhos verdes','green eyes'],
-        ['olhos pretos','dark brown, almost black eyes'],['olhos cor de mel','hazel eyes'],
-        ['heterocromia','heterochromia, two different colored eyes'],
-      ])},
-      { key:'barba', label:'Barba', multi:false, options:opts([
-        ['sem barba','clean-shaven'],['barba por fazer','light stubble'],
-        ['barba curta aparada','a short, well-groomed beard'],['barba cheia','a full, thick beard'],
-        ['bigode','a mustache'],['costeletas','sideburns'],
+        ['alto','tall'],['baixo','short in height'],['magro','slim'],['gordo','heavyset'],
+        ['atlético','athletic build'],['tatuagens visíveis','visible tattoos'],['cicatriz marcante','a notable scar'],
+        ['sardas','freckles'],['barba cheia','a full beard'],['barba por fazer','light stubble'],
+        ['sem barba','clean-shaven'],['bigode','a mustache'],['olhos verdes','green eyes'],
+        ['olhos azuis','blue eyes'],['olhos castanhos','brown eyes'],['olhos pretos','dark eyes'],
       ])},
       { key:'acessorios', label:'Acessórios', multi:true, options:opts([
         ['relógio','a watch'],['óculos','glasses'],['pulseira','a bracelet'],['bracelete','a bangle'],
@@ -416,26 +383,33 @@ const categories = [
       ])},
     ]
   },
-  { key:'acao', num:'02', label:'Ação / Pose', type:'single', clause:v=>`captured ${v}, frozen in a natural, unposed moment`, allowFreeText:true,
-    guide:{ desc:'É o congelamento físico do momento — o verbo da cena. Sem uma ação definida, a IA tende a gerar poses genéricas e estáticas, do tipo "pessoa parada olhando para a câmera".',
-      tips:['Ações em movimento (correndo, dançando, pulando) combinam com obturador mais rápido no campo de parâmetros técnicos.','Poses estáticas (sentado, apoiado) funcionam melhor com enquadramentos fechados.','Se a ação envolve outra pessoa ou objeto, reforce isso no texto livre.'],
-      examples:['caminhando em direção à câmera','ajoelhado','gesticulando ao falar','abraçando alguém'] },
+  { key:'acao', num:'02', label:'Ação / Pose', type:'single', clause:v=>`the subject is ${v}`, allowFreeText:true,
+    guide:{
+      desc:'O momento congelado da imagem — o que o sujeito está fazendo fisicamente. Evite estados passivos e genéricos.',
+      define:['postura do corpo','direção do olhar','gesto das mãos','nível de movimento'],
+      good:['Descreva uma postura, não apenas um estado.','Ligue a ação ao contexto da cena.'],
+      errors:['"parado"','"posando"'],
+      tip:"Evite simplesmente dizer 'parado' — prefira descrever uma postura."
+    },
     options:opts([
-      ['caminhando em direção à câmera','walking toward the camera'],['correndo','running'],['sentado','sitting'],
-      ['olhando para trás','looking back over the shoulder'],['segurando um objeto','holding an object'],
-      ['com os braços cruzados','with arms crossed'],['dançando','dancing'],['pulando','jumping'],
-      ['apoiado em uma parede','leaning against a wall'],['em movimento dinâmico','in dynamic motion'],
-      ['ajoelhado','kneeling'],['deitado','lying down'],['gesticulando ao falar','gesturing while speaking'],
-      ['abraçando alguém','embracing another person'],['escrevendo em um caderno','writing in a notebook'],
-      ['digitando em um notebook','typing on a laptop'],['erguendo os braços em comemoração','raising both arms in celebration'],
-      ['olhando para o horizonte','gazing toward the horizon'],['carregando uma sacola ou mochila','carrying a bag or backpack'],
-      ['apoiado sobre uma mesa','leaning over a table'],['ajustando a própria roupa','adjusting their own clothing'],
-      ['segurando uma xícara de café','holding a cup of coffee'],['olhando para o celular','looking down at a smartphone'],
+      ['caminhando em direção à câmera','walking toward the camera'],['correndo','running'],['sentado','sitting calmly'],
+      ['olhando para trás','looking back over one shoulder'],['segurando um objeto','holding an object'],
+      ['com os braços cruzados','standing with arms crossed'],['dançando','dancing freely'],['pulando','jumping mid-air'],
+      ['apoiado em uma parede','leaning casually against a wall'],['em movimento dinâmico','caught in dynamic motion'],
+      ['ajoelhado','kneeling'],['deitado','lying down, relaxed'],['de costas para a câmera','facing away from the camera'],
+      ['gesticulando com as mãos','gesturing expressively with the hands'],['apoiado em um carro','leaning against a car'],
+      ['subindo uma escada','climbing a staircase'],['olhando pela janela','gazing out of a window'],
+      ['cruzando a rua','crossing the street'],['correndo sob a chuva','running through the rain'],
+      ['inclinado para frente','leaning forward attentively'],
     ])},
-  { key:'expressao', num:'03', label:'Expressão', type:'single', clause:v=>`shown ${v}, adding subtle emotional depth to the scene`, allowFreeText:true,
-    guide:{ desc:'É a alma da cena — o que transforma uma foto tecnicamente correta em uma imagem com presença. Rosto e mãos comunicam tanto quanto a pose do corpo inteiro.',
-      tips:['Expressões sutis (sorriso contido, olhar pensativo) funcionam melhor em still de marca do que expressões extremas.','Combine expressão com ângulo — um close-up amplifica qualquer emoção escolhida aqui.'],
-      examples:['confiante','pensativa','sorriso contido','determinada'] },
+  { key:'expressao', num:'03', label:'Expressão', type:'single', clause:v=>v, allowFreeText:true,
+    guide:{
+      desc:'A emoção ou gesto do rosto e das mãos — o que dá alma à cena. Pode ser uma emoção facial ou um gesto expressivo.',
+      define:['emoção facial','tensão ou relaxamento','gesto das mãos no rosto'],
+      good:['Conecte a expressão ao contexto da cena.','Prefira nuance a rótulos genéricos como "feliz".'],
+      errors:['"expressão normal"','"cara feliz"'],
+      tip:'A expressão é o que dá alma à cena — evite descrições vagas.'
+    },
     options:opts([
       ['serena e distante','with a serene, distant expression'],['neutra','with a neutral expression'],
       ['tensa','with a tense expression'],['melancólica','with a melancholic expression'],
@@ -444,72 +418,92 @@ const categories = [
       ['confiante','with a confident expression'],['sorrindo com os dentes à mostra','smiling broadly with teeth showing'],
       ['cobrindo o rosto com uma mão','covering the face with one hand'],
       ['uma mão na lateral do rosto','resting one hand on the side of the face'],
+      ['rindo espontaneamente','laughing spontaneously'],['com sobrancelhas franzidas','with furrowed eyebrows'],
+      ['mordendo o lábio','biting the lower lip'],['olhar sedutor','with a sultry, direct gaze'],
     ])},
-  { key:'ambiente', num:'04', label:'Ambiente', type:'single', clause:v=>`set in ${v}, grounding the story in a vivid, tangible location`, allowFreeText:true,
-    guide:{ desc:'É o cenário que contextualiza toda a narrativa. O mesmo sujeito muda completamente de leitura dependendo se está em um escritório, numa praia ou num estúdio vazio.',
-      tips:['Ambientes muito genéricos ("lugar bonito") geram resultados aleatórios — prefira nomes concretos de lugares.','Combine ambiente e luz para reforçar o clima: "praia ao entardecer" pede golden hour, não luz de estúdio.'],
-      examples:['escritório','biblioteca','estúdio vazio','jardim'] },
+  { key:'ambiente', num:'04', label:'Ambiente', type:'single', clause:v=>`set in ${v}`, allowFreeText:true,
+    guide:{
+      desc:'O cenário onde a cena acontece — contextualiza toda a narrativa da imagem, do urbano ao natural.',
+      define:['tipo de local','elementos do cenário','época do dia'],
+      good:['Escolha um ambiente que reforce a história.','Combine com a luz para criar atmosfera.'],
+      tip:'O ambiente não é pano de fundo — é parte da narrativa da imagem.'
+    },
     options:opts([
-      ['urbano, rua movimentada','a busy urban street'],['natureza aberta','an open natural landscape'],
-      ['interior aconchegante','a cozy interior'],['futurista','a futuristic setting'],
-      ['praia ao entardecer','a beach at sunset'],['deserto árido','an arid desert'],
-      ['floresta densa','a dense forest'],['estúdio vazio','an empty studio'],
-      ['escritório','an office'],['praia','a beach'],['oceano','the open ocean'],
-      ['campo de futebol','a soccer field'],['biblioteca','a library'],['cafeteria','a café'],
-      ['academia','a gym'],['quarto','a bedroom'],['jardim','a garden'],['aeroporto','an airport'],
+      ['urbano, rua movimentada','a busy urban street lined with tall buildings'],
+      ['natureza aberta','an open natural landscape with rolling hills'],
+      ['interior aconchegante','a cozy, warmly lit interior space'],
+      ['futurista','a futuristic environment with sleek architecture'],
+      ['praia ao entardecer','a quiet beach at sunset with golden light on the water'],
+      ['deserto árido','a vast, arid desert landscape'],['floresta densa','a dense, misty forest'],
+      ['estúdio vazio','an empty photography studio with a plain backdrop'],
+      ['escritório','a modern office space'],['praia','a sandy beach'],['oceano','the open ocean under a wide sky'],
+      ['campo de futebol','a grass soccer field'],['biblioteca','a quiet library filled with tall bookshelves'],
+      ['cafeteria','a warm, inviting café'],['academia','a modern gym with exercise equipment'],
+      ['quarto','a softly lit bedroom'],['jardim','a lush garden full of blooming flowers'],
+      ['aeroporto','a busy airport terminal'],['restaurante','an elegant restaurant interior'],
+      ['montanha','a mountain landscape with dramatic peaks'],
     ])},
-  { key:'luz', num:'05', label:'Luz', type:'single', clause:v=>`illuminated by ${v}, shaping mood and depth through light and shadow`, allowFreeText:true,
-    guide:{ desc:'É o elemento isolado que mais define o clima emocional do resultado. Nomear o tipo específico de luz (golden hour, rim light, ring light) produz resultados muito mais consistentes do que pedir "boa iluminação".',
-      tips:['Luz dura e contraluz criam contraste dramático; luz difusa e softbox suavizam e humanizam.','Para still de produto ou beleza, prefira estúdio/softbox; para storytelling, prefira golden hour ou neon.'],
-      examples:['golden hour','contraluz (backlight)','ring light','baixa-luz dramática'] },
+  { key:'luz', num:'05', label:'Luz', type:'single', clause:v=>`illuminated by ${v}`, allowFreeText:true,
+    guide:{
+      desc:'O elemento que mais define o clima de uma imagem. Nomear o tipo de luz é mais eficaz do que dizer "boa iluminação".',
+      define:['direção da luz','temperatura de cor','dureza ou suavidade'],
+      good:['Nomeie o tipo de luz especificamente.','Combine luz e ambiente para coerência.'],
+      tip:"Nomear o tipo de luz é mais eficaz do que descrever 'boa iluminação'."
+    },
     options:opts([
       ['golden hour','warm, low-angle golden hour light'],['blue hour','the cool, diffused tones of blue hour'],
-      ['luz de estúdio','controlled studio lighting'],['contraluz (backlight)','backlighting'],
-      ['luz de neon urbana','urban neon light'],['luz difusa de janela','soft, diffused window light'],
-      ['luz dura de meio-dia','harsh midday sunlight'],['velas','warm candlelight'],
-      ['luz de anel (ring light)','a ring light'],['softbox','softbox lighting'],
-      ['dia nublado difuso','soft, overcast daylight'],['contorno (rim light)','rim lighting'],
-      ['baixa-luz dramática','dramatic low-key lighting'],['alta-luz clara','bright high-key lighting'],
+      ['luz de estúdio','controlled studio lighting'],['contraluz (backlight)','dramatic backlighting'],
+      ['luz de neon urbana','vivid urban neon light'],['luz difusa de janela','soft, diffused window light'],
+      ['luz dura de meio-dia','harsh midday sunlight'],['velas','warm, flickering candlelight'],
+      ['luz de anel (ring light)','a soft ring light'],['softbox','even softbox lighting'],
+      ['dia nublado difuso','soft, overcast daylight'],['contorno (rim light)','subtle rim lighting'],
+      ['baixa-luz dramática','dramatic low-key lighting with deep shadows'],
+      ['alta-luz clara','bright, airy high-key lighting'],['luz de tempestade','stormy, dramatic light'],
+      ['luz de fogueira','warm firelight'],
     ])},
-  { key:'angulo', num:'06', label:'Ângulo', type:'single', clause:v=>`shot from ${v}, shaping how power and perspective read in the frame`, allowFreeText:true,
-    guide:{ desc:'É a posição da câmera em relação ao sujeito — e comunica poder, vulnerabilidade ou neutralidade antes mesmo de qualquer outro elemento da cena. Um low angle engrandece; um high angle diminui.',
-      tips:['Eye level é o padrão mais seguro para conteúdo institucional e corporativo.','Dutch angle e planos aéreos funcionam melhor em conteúdo editorial ou conceitual, não em still de produto.'],
-      examples:['eye level','low angle','plano aéreo','três quartos'] },
+  { key:'angulo', num:'06', label:'Ângulo', type:'single', clause:v=>`captured from ${v}`, allowFreeText:true,
+    guide:{
+      desc:'A posição da câmera em relação ao sujeito — comunica poder, vulnerabilidade ou neutralidade.',
+      define:['altura da câmera','inclinação','ponto de vista'],
+      good:['Use ângulos baixos para transmitir poder.','Use ângulos altos para vulnerabilidade.'],
+      tip:'O ângulo comunica relação de poder entre câmera e sujeito.'
+    },
     options:opts([
       ['eye level','eye level'],['high angle (câmera acima)','a high angle'],['low angle (câmera abaixo)','a low angle'],
       ['dutch angle (câmera inclinada)','a dutch angle'],['plano aéreo (vista de cima)','an aerial top-down view'],
       ['por cima do ombro','an over-the-shoulder angle'],['visão rasteira extrema','an extreme low ground-level angle'],
       ['três quartos','a three-quarter angle'],['perfil lateral','a side profile angle'],
+      ['plano subjetivo (POV)','a first-person point-of-view angle'],['contra-plongée acentuado','a steep upward angle'],
     ])},
-  { key:'enquadramento', num:'07', label:'Enquadramento', type:'single', clause:v=>`framed as ${v}, controlling how much context surrounds the subject`, allowFreeText:true,
-    guide:{ desc:'Define quanto do sujeito — e do ambiente ao redor — efetivamente entra no quadro. É a diferença entre contar uma história de contexto (plano geral) e uma história de emoção (close-up).',
-      tips:['Combine enquadramento com a lente: closes pedem lentes longas (85mm+), planos gerais combinam com grandes angulares.','Quanto mais fechado o enquadramento, mais expressão e luz carregam o peso da imagem.'],
-      examples:['plano geral','plano médio','close-up','plano detalhe'] },
+  { key:'enquadramento', num:'07', label:'Enquadramento', type:'single', clause:v=>`framed as ${v}`, allowFreeText:true,
+    guide:{
+      desc:'Quanto do sujeito — e do ambiente ao redor — entra na imagem, do plano geral ao extreme close-up.',
+      define:['distância da câmera','quantidade de corpo visível'],
+      good:['Menos moldura aumenta a intimidade.','Combine enquadramento com a intenção da cena.'],
+      tip:'Menos moldura, mais intimidade com o sujeito.'
+    },
     options:opts([
       ['plano geral','a wide shot'],['plano americano','a medium-long shot'],['plano médio','a medium shot'],
       ['close-up','a close-up'],['extreme close-up','an extreme close-up'],['plano detalhe','a detail insert shot'],
     ])},
-  { key:'equipamento', num:'08', label:'Equipamento', clause:v=>`captured using ${v}, defining the optical character and depth of field of the shot`, allowFreeText:true,
-    guide:{ desc:'Câmera e lente juntas definem a personalidade óptica da imagem: perspectiva, compressão e como o fundo se comporta atrás do sujeito. Cada modelo tem um caráter próprio — vale escolher com intenção, não só por hábito.',
-      tips:['Lentes curtas (24–35mm) exageram profundidade e combinam com planos gerais; lentes longas (85mm+) comprimem e isolam o sujeito.','As taglines de cada câmera aparecem dentro do seletor — use-as para casar o modelo com o clima do projeto.'],
-      examples:['Canon EOS R5','85mm','Leica Q2','Hasselblad X2D'] },
+  { key:'equipamento', num:'08', label:'Equipamento', clause:v=>`shot using ${v}`, allowFreeText:true,
+    guide:{
+      desc:'A câmera e a lente escolhidas definem perspectiva, compressão e a relação entre sujeito e fundo.',
+      define:['corpo da câmera','distância focal da lente'],
+      good:['Lentes longas comprimem o fundo.','Lentes curtas capturam mais ambiente.'],
+      tip:'A lente certa depende de quanto ambiente você quer capturar.'
+    },
     subgroups:[
-      { key:'camera', label:'Câmera', multi:false,
-        notes:[
-          {label:'Canon EOS R5', text:'cores de pele quentes e naturais, autofoco muito rápido — forte em retrato e casamento.'},
-          {label:'Canon EOS R3', text:'velocidade extrema, ideal para ação e esportes com baixa perda de qualidade.'},
-          {label:'Nikon Z9', text:'robustez e precisão de foco em condições difíceis, referência em fotojornalismo.'},
-          {label:'Nikon D850', text:'resolução altíssima com latitude de cor generosa — forte em paisagem e still de produto.'},
-          {label:'Sony Alpha A7 IV', text:'versatilidade entre foto e vídeo, ótimo custo-benefício para produção mista.'},
-          {label:'Sony Alpha A1', text:'combina alta resolução com velocidade, o "faz-tudo" topo de linha da Sony.'},
-          {label:'Fujifilm X-T5', text:'simulações de filme e cor icônica direto da câmera — visual editorial autêntico.'},
-          {label:'Leica Q2', text:'nitidez cirúrgica e estética documental discreta, câmera compacta de referência.'},
-          {label:'Hasselblad X2D', text:'resolução médio-formato e fidelidade de cor máxima — padrão de campanha premium.'},
-        ],
-        options:opts([
-        ['Canon EOS R5','a Canon EOS R5'],['Canon EOS R3','a Canon EOS R3'],['Nikon Z9','a Nikon Z9'],
-        ['Nikon D850','a Nikon D850'],['Sony Alpha A7 IV','a Sony Alpha A7 IV'],['Sony Alpha A1','a Sony Alpha A1'],
-        ['Fujifilm X-T5','a Fujifilm X-T5'],['Leica Q2','a Leica Q2'],['Hasselblad X2D','a Hasselblad X2D'],
+      { key:'camera', label:'Câmera', multi:false, options:opts([
+        ['Canon EOS R5','a Canon EOS R5','Alta resolução, ótima para retratos detalhados.'],
+        ['Canon EOS R3','a Canon EOS R3','Velocidade extrema, ideal para ação e esportes.'],
+        ['Nikon Z9','a Nikon Z9','Corpo profissional robusto, sem obturador mecânico.'],
+        ['Nikon D850','a Nikon D850','Resolução altíssima com ótima faixa dinâmica.'],
+        ['Sony Alpha A7 IV','a Sony Alpha A7 IV','Equilíbrio entre foto e vídeo, muito versátil.'],
+        ['Sony Alpha A1','a Sony Alpha A1','Topo de linha, altíssima velocidade e resolução.'],
+        ['Fujifilm X-T5','a Fujifilm X-T5','Cores de filme icônicas em corpo compacto.'],
+        ['Leica Q2','a Leica Q2','Lente fixa premium, estética clássica.'],
+        ['Hasselblad X2D','a Hasselblad X2D','Sensor médio formato, qualidade de estúdio.'],
       ])},
       { key:'lente', label:'Lente', multi:false, options:opts([
         ['35mm','35mm'],['50mm','50mm'],['85mm','85mm'],['135mm','135mm'],['200mm','200mm'],
@@ -517,49 +511,50 @@ const categories = [
       ])},
     ]
   },
-  { key:'estilo', num:'09', label:'Estilo', type:'single', clause:v=>`rendered in ${v} style, tying the whole image to a clear visual language`, allowFreeText:true,
-    guide:{ desc:'É a referência visual e cultural que amarra todos os outros elementos num tratamento coeso — do grão do filme à paleta de cor. Sem estilo definido, a IA mistura referências de forma inconsistente.',
-      tips:['Estilo deve ser coerente com ambiente e luz: "noir" pede sombra dura, não luz difusa de meio-dia.','Para conteúdo de marca premium, editorial e fine art envelhecem melhor que tendências passageiras.'],
-      examples:['editorial','cyberpunk','fine art','alta-costura'] },
+  { key:'estilo', num:'09', label:'Estilo', type:'single', clause:v=>`rendered in ${v}`, allowFreeText:true,
+    guide:{
+      desc:'A referência visual e cultural que orienta o tratamento geral da imagem — do editorial ao noir.',
+      define:['tratamento de cor','referência cultural','textura geral'],
+      good:['Escolha um estilo coerente com o sujeito.','Evite misturar estilos contraditórios.'],
+      tip:'O estilo é a lente cultural através da qual a imagem é lida.'
+    },
     options:opts([
-      ['editorial','editorial'],['documental','documentary'],['cyberpunk','cyberpunk'],['vintage','vintage'],
-      ['minimalista','minimalist'],['fine art','fine art'],['noir','noir'],['alta-costura','haute couture'],
+      ['editorial','a polished editorial photography style'],['documental','a raw, documentary-style approach'],
+      ['cyberpunk','a neon-lit cyberpunk aesthetic'],['vintage','a vintage film aesthetic with faded tones'],
+      ['minimalista','a clean, minimalist composition'],['fine art','a fine art photography style'],
+      ['noir','a moody film noir aesthetic'],['alta-costura','a high-fashion haute couture style'],
     ])},
-  { key:'qualidade', num:'10', label:'Qualidade', type:'single', clause:v=>`finished at ${v}, defining the overall fidelity of the render`, allowFreeText:true,
-    guide:{ desc:'É a precisão técnica exigida do resultado final — inclusive quando o objetivo é o oposto de "perfeito". Especifique sempre, mesmo quando o efeito desejado for um blur proposital ou uma estética de baixa fidelidade.',
-      tips:['Use as opções de blur e baixa qualidade para simular fotos amadoras, prints de tela ou estética vintage/glitch.','Não combine "ultra detalhada 8K" com "pixelado" — escolha uma direção e mantenha coerência.'],
-      examples:['ultra detalhada em 8K','grão de filme sutil','pixelado, baixa resolução','desfocado por movimento'] },
+  { key:'qualidade', num:'10', label:'Qualidade', type:'single', clause:v=>v, allowFreeText:true,
+    guide:{
+      desc:'A precisão técnica exigida do resultado final — de ultra detalhada a deliberadamente degradada.',
+      define:['nitidez','resolução','ruído ou grão','artefatos de compressão'],
+      good:['Especifique o nível de detalhe — não presuma.','Use opções degradadas apenas quando for intencional.'],
+      tip:'Especifique o nível de detalhe — não presuma que a IA vai adivinhar.'
+    },
     options:opts([
-      ['alta qualidade, nítida e detalhada','high quality, sharp and detailed'],
-      ['ultra detalhada em 8K','ultra-detailed, 8K resolution'],
+      ['alta qualidade, nítida e detalhada','high quality, sharp focus, and rich detail'],
+      ['ultra detalhada em 8K','ultra-detailed 8K resolution'],
       ['textura realista de pele e tecido','realistic skin and fabric texture'],
-      ['foco suave artístico','soft artistic focus'],['grão de filme sutil','subtle film grain'],
-      ['levemente desfocado (soft blur)','slightly out of focus with a soft blur'],
-      ['desfocado por movimento (motion blur)','motion blur suggesting movement'],
-      ['pixelado, baixa resolução','pixelated, low resolution'],
-      ['baixa qualidade proposital (efeito vintage/glitch)','intentionally low quality, vintage glitch look'],
-      ['compressão digital visível (artefatos JPEG)','visible digital compression artifacts'],
+      ['foco suave artístico','soft, artistic focus'],['grão de filme sutil','subtle film grain'],
+      ['desfocado (blur)','a blurred, out-of-focus look'],['pixelado','a pixelated, low-resolution look'],
+      ['baixa qualidade','deliberately low quality, degraded image'],
+      ['ruído digital visível','visible digital noise'],['compressão jpeg forte','heavy jpeg compression artifacts'],
     ])},
-  { key:'parametros', num:'11', label:'Parâmetros Técnicos', clause:v=>`shot with precise technical settings — ${v} — for full control over exposure and color`, allowFreeText:true,
-    guide:{ desc:'São os ajustes finos de uma câmera real — abertura, ISO, obturador e balanço de branco. Use apenas quando o resultado exigir precisão fotográfica real, como em still de produto ou campanhas técnicas.',
-      tips:['Abertura baixa (f/1.4) + obturador rápido é a combinação clássica de retrato com fundo desfocado.','ISO alto sempre aumenta o grão — use com intenção estética, não só para "compensar pouca luz".'],
-      examples:['f/1.4','ISO 100','1/500','5600K (luz do dia)'] },
+  { key:'parametros', num:'11', label:'Parâmetros Técnicos', clause:v=>`with technical settings of ${v}`, allowFreeText:true,
+    guide:{
+      desc:'Os ajustes finos de câmera — abertura, ISO, obturador e balanço de branco — use apenas quando forem relevantes.',
+      define:['abertura (profundidade de campo)','ISO (sensibilidade à luz)','obturador (tempo de exposição)','balanço de branco (temperatura de cor)'],
+      good:['Use parâmetros técnicos apenas quando forem relevantes.','Abertura baixa desfoca o fundo — ótimo para retratos.'],
+      tip:'Parâmetros técnicos são opcionais — use apenas quando forem relevantes para o resultado.'
+    },
     subgroups:[
-      { key:'abertura', label:'Abertura', multi:false,
-        desc:'Controla a profundidade de campo: valores baixos (f/1.4) desfocam o fundo e isolam o sujeito; valores altos (f/11) mantêm tudo em foco.',
-        options:opts([['f/1.4'],['f/2.8'],['f/4'],['f/5.6'],['f/11']])},
-      { key:'iso', label:'ISO', multi:false,
-        desc:'Define a sensibilidade do sensor à luz: valores baixos (100) pedem ambientes bem iluminados; valores altos (800+) simulam pouca luz e adicionam granulação.',
-        options:opts([['ISO 100'],['ISO 200'],['ISO 400'],['ISO 800'],['ISO 1600']])},
-      { key:'obturador', label:'Obturador', multi:false,
-        desc:'Define a velocidade de captura: valores rápidos (1/1000+) congelam movimento; valores lentos (1/125) permitem um leve borrão de ação.',
-        options:opts([
+      { key:'abertura', label:'Abertura', note:'Controla a profundidade de campo — valores baixos desfocam o fundo, valores altos mantêm tudo nítido.', multi:false, options:opts([['f/1.4'],['f/2.8'],['f/4'],['f/5.6'],['f/11']])},
+      { key:'iso', label:'ISO', note:'Controla a sensibilidade à luz — valores altos clareiam a imagem, mas geram mais ruído.', multi:false, options:opts([['ISO 100'],['ISO 200'],['ISO 400'],['ISO 800'],['ISO 1600']])},
+      { key:'obturador', label:'Obturador', note:'Controla o tempo de exposição — velocidades altas congelam o movimento, velocidades baixas criam rastros.', multi:false, options:opts([
         ['1/125','a 1/125s shutter speed'],['1/250','a 1/250s shutter speed'],['1/500','a 1/500s shutter speed'],
         ['1/1000','a 1/1000s shutter speed'],['1/4000','a 1/4000s shutter speed'],
       ])},
-      { key:'wb', label:'Balanço de branco', multi:false,
-        desc:'Define a temperatura de cor da cena: valores baixos (3200K) resultam em tons quentes/amarelados; valores altos (7000K) em tons frios/azulados.',
-        options:opts([
+      { key:'wb', label:'Balanço de branco', note:'Controla a temperatura de cor da imagem — mais quente (amarelo) ou mais fria (azul).', multi:false, options:opts([
         ['3200K (tungstênio)','a 3200K tungsten white balance'],['5600K (luz do dia)','a 5600K daylight white balance'],
         ['7000K (nublado)','a 7000K overcast white balance'],
       ])},
@@ -568,15 +563,12 @@ const categories = [
 ];
 
 /* ============================================================
-   STATE
+   STATE — always starts fresh, never persisted across reloads
 ============================================================ */
-// O estado nunca é persistido entre sessões: cada vez que a página é aberta
-// (ou recarregada), o formulário começa em branco. saveState() é mantida como
-// no-op só para não exigir alterar todos os pontos que a chamam.
 let state = defaultState();
 
 function defaultState(){
-  const s = { selections:{}, generated:false, dirty:false, finalText:'' };
+  const s = { selections:{}, generated:false, dirty:false, finalText:'', openKey:null };
   categories.forEach(c=>{
     if(c.subgroups){
       s.selections[c.key] = { subgroups:{}, custom:'' };
@@ -587,7 +579,6 @@ function defaultState(){
   });
   return s;
 }
-function saveState(){ /* intencionalmente vazio — sem persistência entre sessões */ }
 
 /* ============================================================
    PT -> EN lookup
@@ -624,14 +615,13 @@ function categoryText(cat){
     else if(peca.length) bits.push(`wearing a ${peca[0]}`);
     else if(cor.length) bits.push(`wearing ${cor[0]} clothing`);
     const prof = translateArr(cat,'profissao', sel.subgroups.profissao);
-    if(prof.length) bits.push(`working as a ${prof.join(', ')}`);
+    if(prof.length) bits.push(`working as ${/^[aeiou]/i.test(prof[0])?'an':'a'} ${prof[0]}`);
+    const cabelo = translateArr(cat,'aparencia', sel.subgroups.aparencia);
+    if(cabelo.length) bits.push(cabelo.join(', '));
     const carac = translateArr(cat,'caracteristicas', sel.subgroups.caracteristicas);
-    const olhos = translateArr(cat,'cor_olhos', sel.subgroups.cor_olhos);
-    const barba = translateArr(cat,'barba', sel.subgroups.barba);
-    const traits = [...carac, ...olhos, ...barba];
-    if(traits.length) bits.push(`with distinctive physical traits including ${traits.join(', ')}`);
+    if(carac.length) bits.push(carac.join(', '));
     const acess = translateArr(cat,'acessorios', sel.subgroups.acessorios);
-    if(acess.length) bits.push(`accessorized with ${acess.join(', ')}`);
+    if(acess.length) bits.push(`wearing ${acess.join(', ')}`);
     if(sel.custom && sel.custom.trim()) bits.push(sel.custom.trim());
     return bits.length ? bits.filter(Boolean).join(', ') : null;
   }
@@ -677,7 +667,6 @@ function buildFinalPrompt(){
   return out;
 }
 
-/* PT preview text (shown on the card itself, before generating) */
 function categoryPreviewPt(cat){
   const sel = state.selections[cat.key];
   const parts = [];
@@ -753,6 +742,18 @@ function closePopover(){
 }
 overlay.addEventListener('click', closePopover);
 
+function renderOptList(cat, sg, selected){
+  const hasNotes = sg.options.some(o=>o.note);
+  if(hasNotes){
+    return `<div class="opt-card-list">${sg.options.map(o=>`
+      <div class="opt opt-card${selected.includes(o.pt)?' selected':''}" data-value="${escapeAttr(o.pt)}">
+        <div class="opt-card-title">${o.pt}</div>
+        ${o.note ? `<div class="opt-card-note">${o.note}</div>` : ''}
+      </div>`).join('')}</div>`;
+  }
+  return `<div class="opt-list">${sg.options.map(o=>`<span class="opt${selected.includes(o.pt)?' selected':''}" data-value="${escapeAttr(o.pt)}">${o.pt}</span>`).join('')}</div>`;
+}
+
 function renderPopoverContent(cat){
   let html = `<div class="pop-title">${cat.label}</div>`;
   if(cat.subgroups){
@@ -761,20 +762,15 @@ function renderPopoverContent(cat){
       const selected = state.selections[cat.key].subgroups[sg.key] || [];
       html += `<div class="subgroup" data-subgroup="${sg.key}">
         <div class="subgroup-label">${sg.label}</div>
-        ${sg.desc ? `<div class="subgroup-desc">${sg.desc}</div>` : ''}
-        <div class="opt-list">
-          ${sg.options.map(o=>`<span class="opt${selected.includes(o.pt)?' selected':''}" data-value="${escapeAttr(o.pt)}">${o.pt}</span>`).join('')}
-        </div>
-        ${sg.notes ? `<div class="subgroup-notes">${sg.notes.map(n=>`<div class="note-line"><b>${n.label}:</b> ${n.text}</div>`).join('')}</div>` : ''}
+        ${sg.note ? `<div class="subgroup-note">${sg.note}</div>` : ''}
+        ${renderOptList(cat, sg, selected)}
       </div>`;
     });
   } else {
     html += `<div class="pop-sub">Escolha uma opção — selecionar outra substitui a anterior.</div>`;
     const selected = state.selections[cat.key].values || [];
     html += `<div class="subgroup" data-subgroup="__single">
-      <div class="opt-list">
-        ${cat.options.map(o=>`<span class="opt${selected.includes(o.pt)?' selected':''}" data-value="${escapeAttr(o.pt)}">${o.pt}</span>`).join('')}
-      </div>
+      ${renderOptList(cat, {options:cat.options}, selected)}
     </div>`;
   }
   if(cat.allowFreeText){
@@ -818,7 +814,6 @@ function attachPopoverEvents(cat){
       popover.innerHTML = renderPopoverContent(cat);
       attachPopoverEvents(cat);
       renderGrid();
-      saveState();
     });
   });
 
@@ -829,7 +824,6 @@ function attachPopoverEvents(cat){
       state.selections[cat.key].custom = customInput.value;
       markDirtyIfNeeded();
       renderGrid();
-      saveState();
     });
     customInput.addEventListener('keydown', (e)=>{
       if(e.key==='Enter'){ e.preventDefault(); customAdd.click(); }
@@ -847,7 +841,6 @@ function attachPopoverEvents(cat){
     popover.innerHTML = renderPopoverContent(cat);
     attachPopoverEvents(cat);
     renderGrid();
-    saveState();
   });
 
   popover.querySelector('#doneBtn').addEventListener('click', closePopover);
@@ -877,26 +870,16 @@ function updateActionBar(){
 
 generateBtn.addEventListener('click', ()=>{
   const text = buildFinalPrompt();
-  outputText.value = text || 'Nenhuma opção selecionada ainda.';
-  output.classList.add('active');
-
-  // Depois de gerar, o formulário volta ao zero para o próximo prompt —
-  // só o resultado gerado permanece na tela.
-  state = defaultState();
   state.finalText = text;
   state.generated = true;
   state.dirty = false;
-
+  outputText.value = text || 'Nenhuma opção selecionada ainda.';
+  output.classList.add('active');
   updateActionBar();
-  renderGrid();
-  saveState();
   output.scrollIntoView({behavior:'smooth', block:'nearest'});
 });
 
-outputText.addEventListener('input', ()=>{
-  state.finalText = outputText.value;
-  saveState();
-});
+outputText.addEventListener('input', ()=>{ state.finalText = outputText.value; });
 
 copyBtn.addEventListener('click', ()=>{
   navigator.clipboard.writeText(outputText.value).then(()=>{
@@ -913,23 +896,33 @@ resetBtn.addEventListener('click', ()=>{
   output.classList.remove('active');
   updateActionBar();
   renderGrid();
-  saveState();
 });
 
 /* ============================================================
-   CONDENSED GUIDE
+   GUIDE
 ============================================================ */
 const guideGrid = document.getElementById('guideGrid');
 categories.forEach(cat=>{
+  const g = cat.guide;
   const card = document.createElement('div');
   card.className = 'guide-card';
   card.innerHTML = `
     <div class="num">${cat.num} / 11</div>
     <h3>${cat.label}</h3>
-    <p>${cat.guide.desc}</p>
-    ${cat.guide.tips ? `<div class="ex-label">Dicas práticas</div><ul class="tip-list">${cat.guide.tips.map(t=>`<li>${t}</li>`).join('')}</ul>` : ''}
-    <div class="ex-label">Exemplos</div>
-    <div class="ex-chips">${cat.guide.examples.map(e=>`<span class="ex-chip">${e}</span>`).join('')}</div>
+    <p class="desc">${g.desc}</p>
+    <div class="guide-block">
+      <div class="gb-label">O que considerar</div>
+      <div class="guide-chips">${g.define.map(d=>`<span class="guide-chip">${d}</span>`).join('')}</div>
+    </div>
+    <div class="guide-block">
+      <div class="gb-label">Boas práticas</div>
+      <div class="guide-list">${g.good.map(x=>`<div class="gl-item ok">${x}</div>`).join('')}</div>
+    </div>
+    ${g.errors ? `<div class="guide-block">
+      <div class="gb-label">Erros comuns</div>
+      <div class="guide-list">${g.errors.map(x=>`<div class="gl-item err">${x}</div>`).join('')}</div>
+    </div>` : ''}
+    <div class="guide-tip">${g.tip}</div>
   `;
   guideGrid.appendChild(card);
 });
@@ -939,10 +932,6 @@ categories.forEach(cat=>{
 ============================================================ */
 renderGrid();
 updateActionBar();
-if(state.generated){
-  outputText.value = state.finalText;
-  output.classList.add('active');
-}
 </script>
 
 </body>
