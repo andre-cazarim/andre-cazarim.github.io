@@ -6,20 +6,13 @@
 <title>Montador de Prompts</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Playfair+Display:ital,wght@0,500;1,500;1,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;1,500;1,600&display=swap" rel="stylesheet">
 <style>
-  /* ------------------------------------------------------------
-     Quando os arquivos da LORINE chegarem, descomente o bloco
-     abaixo, coloque os arquivos na mesma pasta deste HTML, e
-     troque --font-title de "Anton" para "Lorine".
-  ------------------------------------------------------------
   @font-face{
     font-family:"Lorine";
-    src:url("Lorine-Regular.woff2") format("woff2"),
-        url("Lorine-Regular.otf") format("opentype");
+    src:url("LORINE_-_PERSONAL_USE_ONLY.ttf") format("truetype");
     font-weight:400; font-style:normal;
   }
-  ------------------------------------------------------------ */
 
   :root{
     --bg:#212121;
@@ -34,7 +27,7 @@
     --line-strong:rgba(238,242,244,0.22);
     --code-bg:#232325;
 
-    --font-title:"Anton", "Helvetica Neue", Arial, sans-serif;
+    --font-title:"Lorine", "Helvetica Neue", Arial, sans-serif;
     --font-sub:"Playfair Display", Georgia, serif;
     --font-body: Helvetica, "Helvetica Neue", Arial, sans-serif;
     --mono:"SF Mono","Menlo","Consolas",monospace;
@@ -287,6 +280,19 @@
   
 
 
+
+  /* ============ BACK TO TOP ============ */
+  .back-to-top{
+    position:fixed; bottom:24px; right:24px; z-index:450;
+    font-family:var(--font-body); font-size:11px; font-weight:700;
+    letter-spacing:.04em; text-transform:uppercase;
+    padding:9px 16px; border-radius:100px;
+    background:transparent; border:1.4px solid var(--accent); color:var(--accent);
+    cursor:pointer; opacity:0; pointer-events:none; transform:translateY(8px);
+    transition:opacity .25s ease, transform .25s ease, background .15s ease, color .15s ease;
+  }
+  .back-to-top.visible{ opacity:1; pointer-events:auto; transform:translateY(0); }
+  .back-to-top:hover{ background:var(--accent); color:var(--accent-ink); }
 
   /* ============ TOP PROGRESS ============ */
   .progress-rail{
@@ -652,6 +658,8 @@
 <nav class="aperture-nav" id="apertureNav">
   <div class="nav-track" id="navTrack"></div>
 </nav>
+
+<button class="back-to-top" id="backToTop" type="button">Voltar ao topo</button>
 
 <main id="scrollArea">
 
@@ -1182,8 +1190,14 @@ const categories = [
         ['Hasselblad X2D','a Hasselblad X2D','Sensor médio formato, qualidade de estúdio.'],
       ])},
       { key:'lente', label:'Lente', multi:false, options:opts([
-        ['35mm','35mm'],['50mm','50mm'],['85mm','85mm'],['135mm','135mm'],['200mm','200mm'],
-        ['macro','macro'],['grande angular 24mm','24mm wide-angle'],['olho de peixe','fisheye'],
+        ['35mm','35mm','Mais contexto de ambiente.'],
+        ['50mm','50mm','Perspectiva natural, próxima da visão humana.'],
+        ['85mm','85mm','Padrão de retrato — comprime suavemente o fundo.'],
+        ['135mm','135mm','Compressão forte, isola o sujeito do fundo.'],
+        ['200mm','200mm','Teleobjetiva, ótima para distância e isolamento total.'],
+        ['macro','macro','Foco em detalhes minúsculos e texturas.'],
+        ['grande angular 24mm','24mm wide-angle','Captura amplos ambientes e cenários.'],
+        ['olho de peixe','fisheye','Distorção curva acentuada, efeito imersivo.'],
       ])},
     ]
   },
@@ -1741,6 +1755,15 @@ function onScroll(){
 window.addEventListener('scroll', onScroll, {passive:true});
 window.addEventListener('resize', onScroll);
 onScroll();
+
+/* ---------- back to top ---------- */
+const backToTop = document.getElementById('backToTop');
+function onScrollBackToTop(){
+  backToTop.classList.toggle('visible', window.scrollY > window.innerHeight * 0.6);
+}
+backToTop.addEventListener('click', ()=> window.scrollTo({top:0, behavior:'smooth'}));
+window.addEventListener('scroll', onScrollBackToTop, {passive:true});
+onScrollBackToTop();
 
 </script>
 </body>
