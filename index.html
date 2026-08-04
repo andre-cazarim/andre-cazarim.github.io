@@ -1408,7 +1408,14 @@ function renderGrid(){
 const overlay = document.getElementById('overlay');
 const popover = document.getElementById('popover');
 
+let openAnchorKey = null;
+
 function openPopover(key, anchorEl){
+  // Capture the anchor's position BEFORE renderGrid() rebuilds the field
+  // elements — otherwise anchorEl is a detached node and its rect is all 0,
+  // which is what made the popover jump off-screen on narrow viewports.
+  const rect = anchorEl.getBoundingClientRect();
+
   state.openKey = key;
   renderGrid();
   const cat = categories.find(c=>c.key===key);
@@ -1418,25 +1425,55 @@ function openPopover(key, anchorEl){
   overlay.classList.add('active');
   popover.classList.add('active');
 
-  const rect = anchorEl.getBoundingClientRect();
+  openAnchorKey = key;
+  positionPopover(rect);
+}
+
+function positionPopover(rect){
+  if(!rect) return;
   const scrollY = window.scrollY, scrollX = window.scrollX;
-  let top = rect.bottom + scrollY + 8;
+  const margin = 16;
+  const viewportW = document.documentElement.clientWidth;
+  const viewportH = window.innerHeight;
+
+  // Measure the popover's real rendered size (it already has .active applied,
+  // so it's visible and its width/height reflect the current media query).
+  const popW = popover.offsetWidth;
+  const popH = popover.offsetHeight;
+
   let left = rect.left + scrollX;
-  const popW = 400;
-  if(left + popW > window.scrollX + document.documentElement.clientWidth - 24){
-    left = rect.right + scrollX - popW;
+  const minLeft = scrollX + margin;
+  const maxLeft = scrollX + viewportW - popW - margin;
+  left = Math.min(Math.max(left, minLeft), Math.max(minLeft, maxLeft));
+
+  let top = rect.bottom + scrollY + 8;
+  const spaceBelow = viewportH - rect.bottom;
+  const spaceAbove = rect.top;
+  // If there isn't enough room below but there's more room above, flip it above the anchor.
+  if(spaceBelow < popH + 24 && spaceAbove > spaceBelow){
+    top = rect.top + scrollY - popH - 8;
   }
+  const minTop = scrollY + margin;
+  if(top < minTop) top = minTop;
+
   popover.style.top = top + 'px';
   popover.style.left = left + 'px';
 }
 
 function closePopover(){
   state.openKey = null;
+  openAnchorKey = null;
   overlay.classList.remove('active');
   popover.classList.remove('active');
   renderGrid();
 }
 overlay.addEventListener('click', closePopover);
+
+window.addEventListener('resize', ()=>{
+  if(!openAnchorKey) return;
+  const el = fieldGrid.querySelector(`[data-key="${openAnchorKey}"]`);
+  if(el) positionPopover(el.getBoundingClientRect());
+});
 
 function renderOptList(cat, sg, selected){
   const hasNotes = sg.options.some(o=>o.note);
