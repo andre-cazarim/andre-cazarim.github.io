@@ -1248,14 +1248,33 @@ const categories = [
         ['asiático','Asian'],['negro','Black'],['branco','White'],['indígena','Indigenous'],
         ['árabe','Middle Eastern'],['latino','Latino'],['sul-asiático','South Asian'],
       ])},
-      { key:'peca_roupa', label:'Peça de roupa', multi:false, options:opts([
-        ['blusa','blouse'],['camiseta','t-shirt'],['vestido','dress'],['jaqueta de couro','leather jacket'],
-        ['terno social','formal suit'],['roupa casual','casual streetwear'],['uniforme de trabalho','work uniform'],
-        ['roupa esportiva','athletic wear'],['casaco','coat'],['saia','skirt'],
+      { key:'superior', label:'Parte superior', multi:true, options:opts([
+        ['camiseta','t-shirt'],['blusa','blouse'],['camisa social','dress shirt'],['camisa xadrez','plaid shirt'],
+        ['camisa polo','polo shirt'],['moletom','hoodie'],['suéter','sweater'],['regata','tank top'],
+        ['jaqueta de couro','leather jacket'],['jaqueta jeans','denim jacket'],['casaco','coat'],
+        ['blazer','blazer'],['terno social','formal suit jacket'],['roupa esportiva (top)','athletic top'],
+        ['camiseta oversized','oversized t-shirt'],['cropped','cropped top'],
       ])},
-      { key:'cor_roupa', label:'Cor da roupa', multi:false, options:opts([
+      { key:'cor_superior', label:'Cor da parte superior', multi:false, options:opts([
         ['preta','black'],['branca','white'],['vermelha','red'],['azul','blue'],['verde','green'],
         ['amarela','yellow'],['bege','beige'],['cinza','gray'],['rosa','pink'],['roxa','purple'],
+        ['laranja','orange'],['marrom','brown'],['estampada','patterned'],['xadrez','plaid'],
+      ])},
+      { key:'inferior', label:'Parte inferior', multi:true, options:opts([
+        ['calça jeans','jeans'],['calça social','dress pants'],['calça de moletom','sweatpants'],
+        ['calça cargo','cargo pants'],['legging','leggings'],['bermuda jeans','denim shorts'],
+        ['bermuda de moletom','sweatshorts'],['shorts esportivo','athletic shorts'],
+        ['saia','skirt'],['saia longa','maxi skirt'],['vestido','dress'],
+      ])},
+      { key:'cor_inferior', label:'Cor da parte inferior', multi:false, options:opts([
+        ['preta','black'],['branca','white'],['azul (jeans)','blue denim'],['cinza','gray'],
+        ['bege','beige'],['verde','green'],['marrom','brown'],['vermelha','red'],['estampada','patterned'],
+      ])},
+      { key:'calcado', label:'Calçado', multi:true, options:opts([
+        ['tênis casual','casual sneakers'],['tênis esportivo','athletic sneakers'],['tênis de corrida','running shoes'],
+        ['sapato social','dress shoes'],['sapato de salto','high heels'],['bota','boots'],
+        ['bota de couro','leather boots'],['chinelo slide','slide sandals'],['chinelo de dedo','flip-flops'],
+        ['sandália','sandals'],['sapatilha','flats'],
       ])},
       { key:'profissao', label:'Profissão', multi:false, options:opts([
         ['médico(a)','doctor'],['artista','artist'],['empresário(a)','entrepreneur'],['estudante','student'],
@@ -1522,11 +1541,26 @@ function categoryText(cat){
       bits.push(`a ${[...genero, ...idade].filter(Boolean).join(' ')}`);
     }
     if(etnia.length) bits.push(etnia.join(', '));
-    const peca = translateArr(cat,'peca_roupa', sel.subgroups.peca_roupa);
-    const cor = translateArr(cat,'cor_roupa', sel.subgroups.cor_roupa);
-    if(peca.length && cor.length) bits.push(`wearing a ${cor[0]} ${peca[0]}`);
-    else if(peca.length) bits.push(`wearing a ${peca[0]}`);
-    else if(cor.length) bits.push(`wearing ${cor[0]} clothing`);
+
+    // Roupa — monta superior, inferior e calçado como conjunto
+    const sup = translateArr(cat,'superior', sel.subgroups.superior);
+    const corSup = translateArr(cat,'cor_superior', sel.subgroups.cor_superior);
+    const inf = translateArr(cat,'inferior', sel.subgroups.inferior);
+    const corInf = translateArr(cat,'cor_inferior', sel.subgroups.cor_inferior);
+    const calc = translateArr(cat,'calcado', sel.subgroups.calcado);
+
+    const outfitParts = [];
+    if(sup.length){
+      const label = sup.length === 1 ? `a ${corSup.length ? corSup[0]+' ' : ''}${sup[0]}` : sup.map((s,i) => i===0 && corSup.length ? `a ${corSup[0]} ${s}` : `a ${s}`).join(' and ');
+      outfitParts.push(label);
+    }
+    if(inf.length){
+      const label = inf.map((s,i) => i===0 && corInf.length ? `${corInf[0]} ${s}` : s).join(' and ');
+      outfitParts.push(label);
+    }
+    if(calc.length) outfitParts.push(calc.join(' and '));
+    if(outfitParts.length) bits.push(`wearing ${outfitParts.join(', ')}`);
+
     const prof = translateArr(cat,'profissao', sel.subgroups.profissao);
     if(prof.length) bits.push(`working as ${/^[aeiou]/i.test(prof[0])?'an':'a'} ${prof[0]}`);
     const cabelo = translateArr(cat,'aparencia', sel.subgroups.aparencia);
