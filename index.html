@@ -96,10 +96,10 @@
   .field .preview.empty{ color:var(--ink-faint); }
 
   /* ============ OVERLAY + POPOVER ============ */
-  .overlay{ position:fixed; inset:0; z-index:60; background:rgba(0,0,0,.4); display:none; }
+  .overlay{ position:fixed; inset:0; z-index:320; background:rgba(0,0,0,.4); display:none; }
   .overlay.active{ display:block; }
   .popover{
-    position:absolute; z-index:70; width:400px; max-width:92vw;
+    position:absolute; z-index:330; width:400px; max-width:92vw;
     background:#2E2E30; border:1px solid var(--line-strong); border-radius:16px;
     box-shadow:0 24px 60px rgba(0,0,0,.5);
     padding:20px; max-height:74vh; overflow-y:auto; display:none;
@@ -182,6 +182,10 @@
   }
   .generate-btn:hover{ transform:scale(1.04); box-shadow:0 8px 24px rgba(231,255,135,.18); }
   .generate-btn:active{ transform:scale(.97); }
+  .generate-btn.random-btn{
+    background:transparent; border:1.4px solid var(--accent); color:var(--accent);
+  }
+  .generate-btn.random-btn:hover{ background:var(--accent); color:var(--accent-ink); }
   .reset-btn{
     font-family:var(--font-body); font-size:13.5px; color:var(--ink-soft); background:none;
     border:none; cursor:pointer; text-decoration:underline; text-underline-offset:2px; transition:color .15s ease;
@@ -646,6 +650,39 @@
     .topnav-item::after{ left:12px; right:12px; }
   }
 
+  /* ============ NAVBAR LOGO ============ */
+  .topnav-logo{
+    display:flex; align-items:center; padding-right:20px; margin-right:6px;
+    border-right:1px solid var(--line); flex-shrink:0;
+  }
+  .topnav-logo svg{ height:20px; width:auto; display:block; }
+
+  /* ============ NAVBAR DROPDOWN (Gerador de Prompts) ============ */
+  .topnav-dropdown{ position:relative; flex-shrink:0; }
+  .dropdown-trigger{
+    display:flex; align-items:center; gap:6px;
+  }
+  .dropdown-trigger .caret{
+    width:9px; height:9px; transition:transform .18s ease; flex-shrink:0;
+  }
+  .dropdown-trigger.open .caret{ transform:rotate(180deg); }
+  .dropdown-menu{
+    position:fixed; z-index:310;
+    background:#2A2A2C; border:1px solid var(--line-strong); border-radius:14px;
+    box-shadow:0 20px 48px rgba(0,0,0,.45);
+    padding:8px; min-width:220px;
+    display:none; flex-direction:column; gap:2px;
+  }
+  .dropdown-menu.open{ display:flex; }
+  .dropdown-option{
+    font-family:var(--font-body); font-size:13.5px; font-weight:500;
+    text-align:left; white-space:nowrap;
+    padding:10px 14px; border-radius:9px; background:none; border:none;
+    color:var(--ink-soft); cursor:pointer; transition:background .14s ease, color .14s ease;
+  }
+  .dropdown-option:hover{ background:var(--bg-card-hover); color:var(--ink); }
+  .dropdown-option.active{ background:var(--accent); color:var(--accent-ink); font-weight:700; }
+
   /* ============ SECTION PAGES (PESSOAS, GALERIA etc) ============ */
   .section-page{ display:none; }
   .section-page.active{ display:block; }
@@ -761,14 +798,47 @@
 <!-- ============ TOP NAV ============ -->
 <nav class="topnav" id="topNav">
   <div class="topnav-inner">
-    <button class="topnav-item active" data-section="pessoas">Pessoas</button>
-    <button class="topnav-item" data-section="animais">Animais</button>
-    <button class="topnav-item" data-section="paisagens">Paisagens</button>
-    <button class="topnav-item" data-section="texturas">Texturas e Padrões</button>
-    <button class="topnav-item" data-section="produto">Objeto / Produto</button>
-    <button class="topnav-item" data-section="render3d">Render 3D</button>
-    <button class="topnav-item" data-section="ilustracao">Ilustração</button>
+    <div class="topnav-logo"><svg id="Camada_2" data-name="Camada 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 598.47 137.68">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #eef2f4;
+      }
+
+      .cls-2 {
+        fill: #e7ff87;
+      }
+    </style>
+  </defs>
+  <g id="Camada_1-2" data-name="Camada 1">
+    <g>
+      <path class="cls-1" d="M190.06,2.62l37.47,102.53L264.63,2.62h23.59v3.8c-2.28.95-3.8,3.8-3.8,7.04v111.47c0,3.23,1.52,6.09,3.8,7.04v3.8h-28.53v-3.8c2.28-.95,3.8-3.8,3.8-7.04V56.26l-28.91,79.51h-18.26l-30.06-82.56v71.71c0,3.23,1.52,6.09,3.8,7.04v3.8h-24.73v-3.8c2.28-.95,3.8-3.8,3.8-7.04V13.46c0-3.23-1.52-6.09-3.8-7.04v-3.8h24.73Z"/>
+      <path class="cls-1" d="M300.58,12.51c0-2.66-1.52-5.14-3.8-6.09v-3.8h28.53v3.8c-2.28.95-3.8,3.42-3.8,6.28v76.28c0,19.02,11.22,31.58,28.15,31.58s28.91-12.55,28.91-31.58V12.7c0-2.85-1.52-5.33-3.8-6.28v-3.8h28.53v3.8c-2.28.95-3.8,3.42-3.8,6.09v75.14c0,30.06-20.16,50.03-50.41,50.03s-48.51-19.97-48.51-50.03V12.51Z"/>
+      <path class="cls-1" d="M432.41,32.49c.19,5.71,2.28,11.6,13.51,17.5l22.07,11.6c17.31,9.13,34.05,19.78,32.34,40.9-1.71,20.92-19.97,35.19-49.46,35.19-15.79,0-32.91-5.14-42.61-12.94l-.19-31.2h3.99c7.61,15.79,23.78,26.06,40.71,26.06,14.46,0,25.49-7.04,26.63-17.69.76-8.18-8.75-14.08-21.11-20.54l-23.02-12.17c-17.69-9.32-25.49-19.97-25.49-34.81,0-18.45,18.64-33.67,46.41-33.67,14.65,0,31.01,5.14,40.52,12.94l.19,29.1h-4.18c-7.04-15.41-23.4-23.97-40.71-23.97-13.89,0-19.78,6.66-19.59,13.7Z"/>
+      <path class="cls-1" d="M505.07,135.78v-3.8h.19c.19,0,.19-.19.38-.38l.38-.19c.19-.19.38-.19.57-.38l.57-.57v-.19l.19-.19c.19-.38.38-.57.57-.95l.19-.19c0-.19.19-.38.19-.57v-.19c.19-.57.19-1.14.38-1.71,0-.19.19-.19.19-.38V12.13c0-.76-.38-1.33-.57-1.9v-.19c0-.19-.19-.19-.19-.38v-.19c-.38-.76-.76-1.33-1.33-1.9l-.19-.19c-.19-.19-.38-.19-.57-.38l-.38-.19c-.19,0,0-.19-.19-.19h-.19v-.19h-.19v-3.8h91.5l.95,27.39h-3.8c-2.28-6.09-9.32-10.27-17.31-10.27h-46.6v40.9h40.52c3.23,0,6.09-1.52,7.04-3.8h3.8v24.73h-3.8c-.95-2.28-3.8-3.8-7.04-3.8h-40.52v40.9h46.6c8.37,0,15.79-4.18,18.26-10.27h3.8l-1.9,27.39h-91.5Z"/>
+      <path class="cls-2" d="M134.36,83.95c-5.88-5.74-10.87-14.6-5.6-22.41,3.09-4.93,8.46-8.43,9.78-14.39,2.13-7.8-.88-18.42-7.9-22.79-8.6-4.37-18.21,2.46-26.92,3.61-5.95,1.33-12.33-1.55-14.96-7.16-4.95-11.21,1.53-20.57-16.33-20.82h-.08c-6.39.17-11.81,3.85-16.34,8.07-2.81,3.61-5.22,7.94-7.51,12.04-3.06,5.83-7.68,10.68-12.2,15.23-.6.74-7.16,6.54-7.24,4.93-.11-3.57,2.35-8.7-.19-12-2.71-3.28-7.76-4.1-11.76-3.65C5.46,25.88-2.59,33.14.77,45.43c.78,3.85,2.98,6.6,6.18,8.3,1.96,1.19,4.39,2.92,6.4,3.48,1.34.24,3.51.77,4.56,1.15,1.07.23,1.66.48,1.49,2.08-.98,5.43-3.98,10.08-7.44,14.73-3.67,5.12-10.91,12.17-6.84,18.66,4.36,5.67.76,6.81,1.89,12.7,1.14,5.41,7.89,6.79,12.93,6.36,7.07-.34,14.69-3.67,21.98-3.12,3.96.23,6.82.49,8.6,2.8,5.08,9.01,1.28,20.64,14.61,24.52,17.49,3.95,19.34-13.09,28.72-22.69,3.09-3.02,6.79-4.17,10.58-5.14,6.93-2.13,12.84,3.57,19.45,4.5,3.51.19,6.09-2.36,8.81-4.77,8.3-9.15,13.22-15.8,1.69-25.03Z"/>
+    </g>
+  </g>
+</svg></div>
+
+    <div class="topnav-dropdown" id="generatorDropdown">
+      <button class="topnav-item dropdown-trigger active" id="dropdownTrigger" type="button">
+        Gerador de Prompts
+        <svg class="caret" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.5L6 8l3.5-3.5"/></svg>
+      </button>
+      <div class="dropdown-menu" id="dropdownMenu">
+        <button class="dropdown-option active" data-section="pessoas">Pessoas</button>
+        <button class="dropdown-option" data-section="produto">Objeto / Produto</button>
+        <button class="dropdown-option" data-section="animais">Animais</button>
+        <button class="dropdown-option" data-section="paisagens">Paisagens</button>
+        <button class="dropdown-option" data-section="texturas">Texturas e Padrões</button>
+        <button class="dropdown-option" data-section="render3d">Render 3D</button>
+        <button class="dropdown-option" data-section="ilustracao">Ilustração</button>
+      </div>
+    </div>
+
     <button class="topnav-item" data-section="galeria">Galeria de Prompts</button>
+    <button class="topnav-item" data-section="guia">Guia de Composição</button>
   </div>
 </nav>
 
@@ -776,8 +846,8 @@
 <div class="section-page active" id="sec-pessoas">
 <div class="wrap">
   <header class="hero">
-    <div class="eyebrow">Ferramenta interna</div>
-    <h1 class="title">Montador de<br>Prompts</h1>
+    <div class="eyebrow">Gerador</div>
+    <h1 class="title">Pessoas</h1>
     <p class="lede">Escolha as opções em qualquer ordem — categorias em branco são ignoradas. As opções aparecem em português, mas o prompt final é sempre gerado em inglês.</p>
   </header>
 
@@ -869,6 +939,223 @@
 </div>
 </div>
 
+<!-- ============ OBJETO / PRODUTO ============ -->
+<div class="section-page" id="sec-produto">
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">Gerador</div>
+    <h1 class="title">Objeto / Produto</h1>
+    <p class="lede">Monte o prompt para gerar imagens de produtos do zero. Combine objeto, material, cenário e iluminação para descrever exatamente o resultado que você quer.</p>
+  </header>
+  <section class="section">
+    <div class="field-grid" id="fieldGridProduto"></div>
+    <div class="action-bar">
+      <button class="generate-btn" id="generateBtnProduto">Gerar prompt</button>
+      <button class="reset-btn" id="resetBtnProduto">Limpar tudo</button>
+      <span class="dirty-note" id="dirtyNoteProduto" style="display:none;">Isso vai <b>substituir</b> o texto atual.</span>
+    </div>
+    <div class="output" id="outputProduto">
+      <div class="output-head">
+        <h3>Prompt final <span class="lang-tag">EN</span></h3>
+        <button class="copy-btn" id="copyBtnProduto">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+          Copiar
+        </button>
+      </div>
+      <textarea id="outputTextProduto" spellcheck="false"></textarea>
+      <div class="tool-links">
+        <span class="tool-links-label">Usar em:</span>
+        <a class="tool-btn" href="https://firefly.adobe.com/image" target="_blank" rel="noopener">Abrir Firefly ↗</a>
+        <a class="tool-btn" href="https://gemini.google.com" target="_blank" rel="noopener">Abrir Gemini ↗</a>
+        <a class="tool-btn" href="https://chatgpt.com" target="_blank" rel="noopener">Abrir ChatGPT ↗</a>
+      </div>
+    </div>
+  </section>
+</div>
+</div>
+
+<!-- ============ ANIMAIS ============ -->
+<div class="section-page" id="sec-animais">
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">Gerador</div>
+    <h1 class="title">Animais</h1>
+    <p class="lede">Monte o prompt para gerar fotografias de animais — domésticos, selvagens ou aquáticos. Combine espécie, pelagem, comportamento e ambiente.</p>
+  </header>
+  <section class="section">
+    <div class="field-grid" id="fieldGridAnimais"></div>
+    <div class="action-bar">
+      <button class="generate-btn" id="generateBtnAnimais">Gerar prompt</button>
+      
+      <button class="reset-btn" id="resetBtnAnimais">Limpar tudo</button>
+      <span class="dirty-note" id="dirtyNoteAnimais" style="display:none;">Isso vai <b>substituir</b> o texto atual.</span>
+    </div>
+    <div class="output" id="outputAnimais">
+      <div class="output-head">
+        <h3>Prompt final <span class="lang-tag">EN</span></h3>
+        <button class="copy-btn" id="copyBtnAnimais">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+          Copiar
+        </button>
+      </div>
+      <textarea id="outputTextAnimais" spellcheck="false"></textarea>
+      <div class="tool-links">
+        <span class="tool-links-label">Usar em:</span>
+        <a class="tool-btn" href="https://firefly.adobe.com/image" target="_blank" rel="noopener">Abrir Firefly ↗</a>
+        <a class="tool-btn" href="https://gemini.google.com" target="_blank" rel="noopener">Abrir Gemini ↗</a>
+        <a class="tool-btn" href="https://chatgpt.com" target="_blank" rel="noopener">Abrir ChatGPT ↗</a>
+      </div>
+    </div>
+  </section>
+</div>
+</div>
+
+<!-- ============ PAISAGENS ============ -->
+<div class="section-page" id="sec-paisagens">
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">Gerador</div>
+    <h1 class="title">Paisagens</h1>
+    <p class="lede">Monte o prompt para gerar paisagens e ambientes sem sujeito — o cenário é o protagonista da imagem.</p>
+  </header>
+  <section class="section">
+    <div class="field-grid" id="fieldGridPaisagens"></div>
+    <div class="action-bar">
+      <button class="generate-btn" id="generateBtnPaisagens">Gerar prompt</button>
+      
+      <button class="reset-btn" id="resetBtnPaisagens">Limpar tudo</button>
+      <span class="dirty-note" id="dirtyNotePaisagens" style="display:none;">Isso vai <b>substituir</b> o texto atual.</span>
+    </div>
+    <div class="output" id="outputPaisagens">
+      <div class="output-head">
+        <h3>Prompt final <span class="lang-tag">EN</span></h3>
+        <button class="copy-btn" id="copyBtnPaisagens">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+          Copiar
+        </button>
+      </div>
+      <textarea id="outputTextPaisagens" spellcheck="false"></textarea>
+      <div class="tool-links">
+        <span class="tool-links-label">Usar em:</span>
+        <a class="tool-btn" href="https://firefly.adobe.com/image" target="_blank" rel="noopener">Abrir Firefly ↗</a>
+        <a class="tool-btn" href="https://gemini.google.com" target="_blank" rel="noopener">Abrir Gemini ↗</a>
+        <a class="tool-btn" href="https://chatgpt.com" target="_blank" rel="noopener">Abrir ChatGPT ↗</a>
+      </div>
+    </div>
+  </section>
+</div>
+</div>
+
+<!-- ============ TEXTURAS E PADRÕES ============ -->
+<div class="section-page" id="sec-texturas">
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">Gerador</div>
+    <h1 class="title">Texturas e Padrões</h1>
+    <p class="lede">Monte o prompt para gerar texturas e padrões (patterns). Ideal para fundos, papéis de parede digitais e materiais de design.</p>
+  </header>
+  <section class="section">
+    <div class="field-grid" id="fieldGridTexturas"></div>
+    <div class="action-bar">
+      <button class="generate-btn" id="generateBtnTexturas">Gerar prompt</button>
+      <button class="generate-btn random-btn" id="randomBtnTexturas" type="button">Gerar prompt aleatório</button>
+      <button class="reset-btn" id="resetBtnTexturas">Limpar tudo</button>
+      <span class="dirty-note" id="dirtyNoteTexturas" style="display:none;">Isso vai <b>substituir</b> o texto atual.</span>
+    </div>
+    <div class="output" id="outputTexturas">
+      <div class="output-head">
+        <h3>Prompt final <span class="lang-tag">EN</span></h3>
+        <button class="copy-btn" id="copyBtnTexturas">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+          Copiar
+        </button>
+      </div>
+      <textarea id="outputTextTexturas" spellcheck="false"></textarea>
+      <div class="tool-links">
+        <span class="tool-links-label">Usar em:</span>
+        <a class="tool-btn" href="https://firefly.adobe.com/image" target="_blank" rel="noopener">Abrir Firefly ↗</a>
+        <a class="tool-btn" href="https://gemini.google.com" target="_blank" rel="noopener">Abrir Gemini ↗</a>
+        <a class="tool-btn" href="https://chatgpt.com" target="_blank" rel="noopener">Abrir ChatGPT ↗</a>
+      </div>
+    </div>
+  </section>
+</div>
+</div>
+
+<!-- ============ RENDER 3D ============ -->
+<div class="section-page" id="sec-render3d">
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">Gerador</div>
+    <h1 class="title">Render 3D</h1>
+    <p class="lede">Monte o prompt para gerar imagens que simulam objetos e cenas 3D — do fotorrealista ao low poly.</p>
+  </header>
+  <section class="section">
+    <div class="field-grid" id="fieldGridRender3d"></div>
+    <div class="action-bar">
+      <button class="generate-btn" id="generateBtnRender3d">Gerar prompt</button>
+      
+      <button class="reset-btn" id="resetBtnRender3d">Limpar tudo</button>
+      <span class="dirty-note" id="dirtyNoteRender3d" style="display:none;">Isso vai <b>substituir</b> o texto atual.</span>
+    </div>
+    <div class="output" id="outputRender3d">
+      <div class="output-head">
+        <h3>Prompt final <span class="lang-tag">EN</span></h3>
+        <button class="copy-btn" id="copyBtnRender3d">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+          Copiar
+        </button>
+      </div>
+      <textarea id="outputTextRender3d" spellcheck="false"></textarea>
+      <div class="tool-links">
+        <span class="tool-links-label">Usar em:</span>
+        <a class="tool-btn" href="https://firefly.adobe.com/image" target="_blank" rel="noopener">Abrir Firefly ↗</a>
+        <a class="tool-btn" href="https://gemini.google.com" target="_blank" rel="noopener">Abrir Gemini ↗</a>
+        <a class="tool-btn" href="https://chatgpt.com" target="_blank" rel="noopener">Abrir ChatGPT ↗</a>
+      </div>
+    </div>
+  </section>
+</div>
+</div>
+
+<!-- ============ ILUSTRAÇÃO ============ -->
+<div class="section-page" id="sec-ilustracao">
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">Gerador</div>
+    <h1 class="title">Ilustração</h1>
+    <p class="lede">Monte o prompt para gerar ilustrações — de vetorial flat a aquarela, cartoon e line art.</p>
+  </header>
+  <section class="section">
+    <div class="field-grid" id="fieldGridIlustracao"></div>
+    <div class="action-bar">
+      <button class="generate-btn" id="generateBtnIlustracao">Gerar prompt</button>
+      
+      <button class="reset-btn" id="resetBtnIlustracao">Limpar tudo</button>
+      <span class="dirty-note" id="dirtyNoteIlustracao" style="display:none;">Isso vai <b>substituir</b> o texto atual.</span>
+    </div>
+    <div class="output" id="outputIlustracao">
+      <div class="output-head">
+        <h3>Prompt final <span class="lang-tag">EN</span></h3>
+        <button class="copy-btn" id="copyBtnIlustracao">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+          Copiar
+        </button>
+      </div>
+      <textarea id="outputTextIlustracao" spellcheck="false"></textarea>
+      <div class="tool-links">
+        <span class="tool-links-label">Usar em:</span>
+        <a class="tool-btn" href="https://firefly.adobe.com/image" target="_blank" rel="noopener">Abrir Firefly ↗</a>
+        <a class="tool-btn" href="https://gemini.google.com" target="_blank" rel="noopener">Abrir Gemini ↗</a>
+        <a class="tool-btn" href="https://chatgpt.com" target="_blank" rel="noopener">Abrir ChatGPT ↗</a>
+      </div>
+    </div>
+  </section>
+</div>
+</div>
+
+<!-- ============ GUIA DE COMPOSIÇÃO ============ -->
+<div class="section-page" id="sec-guia">
 <div class="progress-rail"><div class="progress-fill" id="progressFill"></div></div>
 <div class="page-counter"><span class="cur" id="curPage">01</span>&nbsp;/&nbsp;16</div>
 
@@ -1207,9 +1494,9 @@ levemente semicerrados.</div>
 
 </main>
 
+</div><!-- /sec-guia -->
 
 <div class="wrap">
-
   <footer><span>Ferramenta interna de montagem de prompts.</span></footer>
 </div>
 
@@ -1992,10 +2279,16 @@ const apertureNav = document.getElementById('apertureNav');
 const progressFill = document.getElementById('progressFill');
 const curPage = document.getElementById('curPage');
 
-const progressRail = document.querySelector('.progress-rail');
-const pageCounter = document.querySelector('.page-counter');
-
 function onScroll(){
+  const progressRail = document.querySelector('.progress-rail');
+  const pageCounter = document.querySelector('.page-counter');
+  const secGuia = document.getElementById('sec-guia');
+  if(!progressRail || !pageCounter || !secGuia || !secGuia.classList.contains('active')){
+    if(progressRail) progressRail.style.opacity = '0';
+    if(pageCounter) pageCounter.style.opacity = '0';
+    if(apertureNav) apertureNav.classList.remove('visible');
+    return;
+  }
   const winH = window.innerHeight;
   const scrollTop = window.scrollY;
 
@@ -2044,21 +2337,74 @@ onScroll();
 /* ============================================================
    TOP NAV — section switching
 ============================================================ */
-const STUB_SECTIONS = ['animais','paisagens','texturas','produto','render3d','ilustracao'];
+const STUB_SECTIONS = [];
+const GENERATOR_SECTIONS = ['pessoas','produto','animais','paisagens','texturas','render3d','ilustracao'];
 
-document.querySelectorAll('.topnav-item').forEach(btn => {
+let produtoBuilderInited = false;
+let animaisBuilderInited = false;
+let paisagensBuilderInited = false;
+let texturasBuilderInited = false;
+let render3dBuilderInited = false;
+let ilustracaoBuilderInited = false;
+
+const dropdownTrigger = document.getElementById('dropdownTrigger');
+const dropdownMenu = document.getElementById('dropdownMenu');
+const generatorDropdown = document.getElementById('generatorDropdown');
+
+function switchSection(sec){
+  if(STUB_SECTIONS.includes(sec)) return;
+
+  document.querySelectorAll('.topnav-item').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.dropdown-option').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.section-page').forEach(s => s.classList.remove('active'));
+
+  const target = document.getElementById('sec-' + sec);
+  if(target){ target.classList.add('active'); window.scrollTo({top:0, behavior:'instant'}); }
+
+  if(GENERATOR_SECTIONS.includes(sec)){
+    dropdownTrigger.classList.add('active');
+    const opt = document.querySelector(`.dropdown-option[data-section="${sec}"]`);
+    if(opt) opt.classList.add('active');
+  } else {
+    const item = document.querySelector(`.topnav-item[data-section="${sec}"]`);
+    if(item) item.classList.add('active');
+  }
+
+  if(sec === 'produto' && !produtoBuilderInited){ produtoBuilderInited = true; initProdutoBuilder(); }
+  if(sec === 'animais' && !animaisBuilderInited){ animaisBuilderInited = true; initAnimaisBuilder(); }
+  if(sec === 'paisagens' && !paisagensBuilderInited){ paisagensBuilderInited = true; initPaisagensBuilder(); }
+  if(sec === 'texturas' && !texturasBuilderInited){ texturasBuilderInited = true; initTexturasBuilder(); }
+  if(sec === 'render3d' && !render3dBuilderInited){ render3dBuilderInited = true; initRender3dBuilder(); }
+  if(sec === 'ilustracao' && !ilustracaoBuilderInited){ ilustracaoBuilderInited = true; initIlustracaoBuilder(); }
+}
+
+document.querySelectorAll('.topnav-item[data-section]').forEach(btn => {
+  btn.addEventListener('click', () => switchSection(btn.dataset.section));
+});
+document.querySelectorAll('.dropdown-option').forEach(btn => {
   btn.addEventListener('click', () => {
-    const sec = btn.dataset.section;
-    if(STUB_SECTIONS.includes(sec)) return; // no-op for stubs
-
-    // deactivate all
-    document.querySelectorAll('.topnav-item').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.section-page').forEach(s => s.classList.remove('active'));
-
-    btn.classList.add('active');
-    const target = document.getElementById('sec-' + sec);
-    if(target){ target.classList.add('active'); window.scrollTo({top:0, behavior:'instant'}); }
+    switchSection(btn.dataset.section);
+    dropdownMenu.classList.remove('open');
+    dropdownTrigger.classList.remove('open');
   });
+});
+
+dropdownTrigger.addEventListener('click', (e) => {
+  e.stopPropagation();
+  const willOpen = !dropdownMenu.classList.contains('open');
+  if(willOpen){
+    const rect = dropdownTrigger.getBoundingClientRect();
+    dropdownMenu.style.top = (rect.bottom + 8) + 'px';
+    dropdownMenu.style.left = rect.left + 'px';
+  }
+  dropdownMenu.classList.toggle('open');
+  dropdownTrigger.classList.toggle('open');
+});
+document.addEventListener('click', (e) => {
+  if(!generatorDropdown.contains(e.target)){
+    dropdownMenu.classList.remove('open');
+    dropdownTrigger.classList.remove('open');
+  }
 });
 
 /* ============================================================
@@ -2180,14 +2526,10 @@ function buildGalleryCard(item){
       <span class="prompt-customize-label">Personalizar</span>
       <div class="prompt-input-row">
         <input class="prompt-input" type="text" placeholder="${item.placeholder}" id="${id}-input">
-        <button class="prompt-gen-btn" id="${id}-btn" type="button">
-          <span class="btn-label">Gerar</span>
-          <span class="spinner"></span>
-        </button>
       </div>
     </div>
     <div class="prompt-result" id="${id}-result">
-      <span class="prompt-result-label">Prompt adaptado</span>
+      <span class="prompt-result-label">Prompt final</span>
       <div class="prompt-result-text" id="${id}-text"></div>
       <button class="prompt-copy-btn" id="${id}-copy" type="button">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
@@ -2196,55 +2538,25 @@ function buildGalleryCard(item){
     </div>
   `;
 
-  const btn = card.querySelector(`#${id}-btn`);
   const input = card.querySelector(`#${id}-input`);
   const resultBox = card.querySelector(`#${id}-result`);
   const resultText = card.querySelector(`#${id}-text`);
   const copyBtn = card.querySelector(`#${id}-copy`);
 
-  btn.addEventListener('click', async () => {
+  function buildAdaptedPrompt(base, customization){
+    if(!customization) return base;
+    return base.trimEnd().replace(/\.?$/, '') + '. ' + customization.trim().charAt(0).toUpperCase() + customization.trim().slice(1) + (customization.trim().endsWith('.') ? '' : '.');
+  }
+
+  function updateResult(){
     const customization = input.value.trim();
-    if(!customization) return;
+    const adapted = buildAdaptedPrompt(item.base, customization);
+    resultText.textContent = adapted;
+    resultBox.classList.add('active');
+  }
 
-    btn.disabled = true;
-    btn.classList.add('loading');
-
-    try {
-      const systemPrompt = `You are a professional AI image prompt engineer specializing in Gemini and Adobe Firefly.
-Your task: take a base prompt and a user's customization request, and return a single adapted prompt in English.
-Rules:
-- Output ONLY the final prompt, no explanations, no quotes, no preamble.
-- Keep the core technique and structure of the base prompt.
-- Naturally integrate the user's customization.
-- Keep it concise and precise. Max 3 sentences.`;
-
-      const userMsg = `Base prompt: "${item.base}"\n\nUser customization: "${customization}"\n\nReturn the adapted prompt:`;
-
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({
-          model:'claude-sonnet-4-6',
-          max_tokens:400,
-          system: systemPrompt,
-          messages:[{role:'user', content: userMsg}]
-        })
-      });
-
-      const data = await response.json();
-      const text = data.content?.map(b => b.text||'').join('').trim();
-      resultText.textContent = text || 'Não foi possível gerar o prompt. Tente novamente.';
-      resultBox.classList.add('active');
-    } catch(e) {
-      resultText.textContent = 'Erro ao conectar com a IA. Tente novamente.';
-      resultBox.classList.add('active');
-    } finally {
-      btn.disabled = false;
-      btn.classList.remove('loading');
-    }
-  });
-
-  input.addEventListener('keydown', e => { if(e.key === 'Enter') btn.click(); });
+  input.addEventListener('input', updateResult);
+  updateResult();
 
   copyBtn.addEventListener('click', () => {
     navigator.clipboard.writeText(resultText.textContent).then(() => {
@@ -2272,6 +2584,905 @@ function onScrollBackToTop(){
 backToTop.addEventListener('click', ()=> window.scrollTo({top:0, behavior:'smooth'}));
 window.addEventListener('scroll', onScrollBackToTop, {passive:true});
 onScrollBackToTop();
+
+
+/* ============================================================
+   PRODUTO — DATA
+============================================================ */
+const categoriesProduto = [
+  { key:'objeto', num:'01', label:'Objeto', clause:v=>`A ${v}`, allowFreeText:true, type:'single',
+    options:opts([
+      ['garrafa de vidro','glass bottle'],['garrafa de plástico','plastic bottle'],['lata','aluminum can'],
+      ['frasco de perfume','perfume bottle'],['embalagem de produto','product packaging box'],
+      ['tênis','sneaker'],['sapato','shoe'],['bolsa','handbag'],['mochila','backpack'],
+      ['relógio','watch'],['óculos','sunglasses'],['joias / colar','jewelry necklace'],
+      ['smartphone','smartphone'],['notebook','laptop computer'],['câmera fotográfica','camera'],
+      ['fone de ouvido','headphones'],['alto-falante','speaker'],
+      ['copo','glass cup'],['caneca','mug'],['prato','plate'],
+      ['livro','book'],['planta em vaso','potted plant'],['vela aromática','scented candle'],
+      ['caixa de cosméticos','cosmetics box'],['tubo de produto','product tube'],['frasco de skincare','skincare jar'],
+    ])},
+  { key:'material', num:'02', label:'Material', clause:v=>`made of ${v}`, allowFreeText:true, type:'single',
+    options:opts([
+      ['vidro','glass'],['vidro fosco','frosted glass'],['plástico brilhante','glossy plastic'],
+      ['plástico fosco','matte plastic'],['metal polido','polished metal'],['metal escovado','brushed metal'],
+      ['alumínio','aluminum'],['aço inoxidável','stainless steel'],['cobre','copper'],['ouro','gold'],
+      ['couro genuíno','genuine leather'],['couro vegano','vegan leather'],['tecido','fabric'],
+      ['madeira clara','light wood'],['madeira escura','dark wood'],['mármore','marble'],
+      ['cerâmica','ceramic'],['borracha','rubber'],['papel kraft','kraft paper'],['papelão','cardboard'],
+    ])},
+  { key:'cor_objeto', num:'03', label:'Cor do objeto', clause:v=>`in ${v}`, allowFreeText:true, type:'single',
+    options:opts([
+      ['preto','black'],['branco','white'],['cinza','gray'],['prata','silver'],['dourado','gold'],
+      ['bege / creme','beige cream'],['marrom','brown'],['vermelho','red'],['azul marinho','navy blue'],
+      ['azul claro','light blue'],['verde escuro','dark green'],['verde menta','mint green'],
+      ['rosa','pink'],['roxo','purple'],['laranja','orange'],['amarelo','yellow'],
+      ['transparente','transparent / clear'],['translúcido','translucent'],
+    ])},
+  { key:'cenario', num:'04', label:'Cenário / Fundo', clause:v=>`${v}`, allowFreeText:true, type:'single',
+    options:opts([
+      ['fundo infinito liso','on a seamless solid-color backdrop'],
+      ['fundo de estúdio com gradiente suave','on a studio backdrop with a soft gradient'],
+      ['superfície de mármore branco','on a white marble surface'],
+      ['superfície de mármore preto','on a black marble surface'],
+      ['superfície de concreto','on a concrete surface'],
+      ['superfície de madeira clara','on a light wood surface'],
+      ['superfície de madeira escura','on a dark wood surface'],
+      ['superfície de pedra natural','on a natural stone surface'],
+      ['superfície de tecido texturizado','on a textured fabric surface'],
+      ['superfície de metal','on a metallic surface'],
+      ['mesa de cozinha com utensílios','on a kitchen counter with utensils around it'],
+      ['mesa de trabalho com papelaria','on a work desk with stationery'],
+      ['prateleira de madeira','on a wooden shelf'],
+      ['ambiente externo — jardim','in an outdoor garden setting'],
+      ['ambiente externo — praia','in an outdoor beach setting'],
+      ['ambiente de banheiro com plantas','in a bathroom setting with plants'],
+      ['flat lay — fundo com elementos complementares','in a flat lay arrangement with complementary props around it'],
+      ['cena lifestyle — mãos segurando o produto','in a lifestyle scene with hands holding the product'],
+      ['fundo desfocado (bokeh)','against a blurred bokeh background'],
+      ['ambiente futurista / minimalista','in a futuristic, minimalist environment'],
+    ])},
+  { key:'luz_produto', num:'05', label:'Luz', clause:v=>`illuminated by ${v}`, allowFreeText:true, type:'single',
+    options:opts([
+      ['luz de estúdio controlada','controlled studio lighting'],
+      ['softbox frontal','frontal softbox lighting'],
+      ['luz difusa de janela','soft, diffused window light'],
+      ['backlight com contorno','backlighting with a rim highlight'],
+      ['luz lateral dramática','dramatic side lighting'],
+      ['golden hour','warm golden hour light'],
+      ['luz de néon','neon light'],
+      ['luz baixa e dramática','dramatic low-key lighting'],
+      ['alta chave (bright & clean)','bright, airy high-key lighting'],
+      ['vela / luz quente pontual','warm candlelight / warm spotlit'],
+    ])},
+  { key:'angulo_produto', num:'06', label:'Ângulo', clause:v=>`shot from ${v}`, allowFreeText:true, type:'single',
+    options:opts([
+      ['frontal (eye level)','a straight-on eye-level angle'],
+      ['três quartos frontal','a three-quarter front angle'],
+      ['três quartos traseiro','a three-quarter rear angle'],
+      ['lateral (perfil)','a side profile angle'],
+      ['plano superior (top-down)','directly above, top-down'],
+      ['45 graus (vista diagonal)','a 45-degree diagonal angle'],
+      ['baixo (worm-eye)','a low worm-eye angle'],
+      ['detalhe extremo (close-up de textura)','an extreme close-up focusing on surface texture'],
+    ])},
+  { key:'estilo_produto', num:'07', label:'Estilo', clause:v=>`in ${v}`, allowFreeText:true, type:'single',
+    options:opts([
+      ['product shot limpo e comercial','a clean commercial product photography style'],
+      ['editorial de moda / luxo','a luxury fashion editorial style'],
+      ['lifestyle autêntico','an authentic lifestyle photography style'],
+      ['flat lay minimalista','a minimalist flat lay style'],
+      ['still life artístico','an artistic still life style'],
+      ['render 3D fotorrealista','a photorealistic 3D render style'],
+      ['vintage / analógico','a vintage analog photography style'],
+    ])},
+  { key:'qualidade_produto', num:'08', label:'Qualidade', clause:v=>v, allowFreeText:true, type:'single',
+    options:opts([
+      ['alta qualidade, nítida e detalhada','high quality, sharp focus, and rich detail'],
+      ['ultra detalhada em 8K','ultra-detailed 8K resolution'],
+      ['texturas e reflexos realistas','realistic textures and reflections'],
+      ['foco suave artístico','soft, artistic focus'],
+      ['grão de filme sutil','subtle film grain'],
+    ])},
+  { key:'proporcao_produto', num:'09', label:'Proporção', clause:v=>`aspect ratio ${v}`, allowFreeText:true, type:'single',
+    options:opts([
+      ['9:16 (vertical, stories/reels)','9:16'],
+      ['4:5 (vertical, feed)','4:5'],
+      ['1:1 (quadrado)','1:1'],
+      ['16:9 (horizontal, widescreen)','16:9'],
+    ])},
+];
+
+/* ============================================================
+   PRODUTO — STATE & ENGINE
+============================================================ */
+let stateProduto = defaultStateProduto();
+
+function defaultStateProduto(){
+  const s = { selections:{}, generated:false, dirty:false, finalText:'', openKey:null };
+  categoriesProduto.forEach(c=>{
+    if(c.subgroups){
+      s.selections[c.key] = { subgroups:{}, custom:'' };
+      c.subgroups.forEach(sg=> s.selections[c.key].subgroups[sg.key] = []);
+    } else {
+      s.selections[c.key] = { values:[], custom:'' };
+    }
+  });
+  return s;
+}
+
+function categoryTextProduto(cat){
+  const sel = stateProduto.selections[cat.key];
+  const vals = [...(sel.values||[])].map(pt=>{
+    const o = cat.options.find(x=>x.pt===pt);
+    return o ? o.en : pt;
+  });
+  if(sel.custom && sel.custom.trim()) vals.push(sel.custom.trim());
+  return vals.length ? vals.join(', ') : null;
+}
+
+function buildFinalPromptProduto(){
+  const clauses = [];
+  categoriesProduto.forEach(cat=>{
+    const text = categoryTextProduto(cat);
+    if(text) clauses.push(cat.clause(text));
+  });
+  if(!clauses.length) return '';
+  let out = clauses.join(', ');
+  out = out.charAt(0).toUpperCase() + out.slice(1);
+  if(!/[.!?]$/.test(out)) out += '.';
+  return out;
+}
+
+function categoryPreviewPtProduto(cat){
+  const sel = stateProduto.selections[cat.key];
+  const parts = [...(sel.values||[])];
+  if(sel.custom && sel.custom.trim()) parts.push(sel.custom.trim());
+  return parts.length ? parts.join(' · ') : null;
+}
+
+function renderGridProduto(){
+  const fieldGridProduto = document.getElementById('fieldGridProduto');
+  if(!fieldGridProduto) return;
+  fieldGridProduto.innerHTML = '';
+  categoriesProduto.forEach(cat=>{
+    const preview = categoryPreviewPtProduto(cat);
+    const filled = !!preview;
+    const el = document.createElement('div');
+    el.className = 'field' + (filled?' filled':'') + (stateProduto.openKey===cat.key?' open':'');
+    el.dataset.key = cat.key;
+    el.innerHTML = `
+      <span class="dot"></span>
+      <div class="num">${cat.num}</div>
+      <div class="label">${cat.label}</div>
+      <div class="preview ${filled?'':'empty'}">${filled?preview:'Toque para escolher'}</div>
+    `;
+    el.addEventListener('click', ()=> openPopoverProduto(cat.key, el));
+    fieldGridProduto.appendChild(el);
+  });
+}
+
+function openPopoverProduto(key, anchorEl){
+  stateProduto.openKey = key;
+  renderGridProduto();
+  const cat = categoriesProduto.find(c=>c.key===key);
+  const selected = stateProduto.selections[cat.key].values||[];
+  const customVal = stateProduto.selections[cat.key].custom||'';
+
+  let innerHtml = `<div class="pop-title">${cat.label}</div>
+    <div class="pop-sub">Escolha uma opção — selecionar outra substitui a anterior.</div>
+    <div class="subgroup" data-subgroup="__single">
+      <div class="opt-list">
+        ${cat.options.map(o=>`<span class="opt${selected.includes(o.pt)?' selected':''}" data-value="${o.pt.replace(/"/g,'&quot;')}">${o.pt}</span>`).join('')}
+      </div>
+    </div>`;
+  if(cat.allowFreeText){
+    innerHtml += `<div class="free-text">
+      <div class="row">
+        <input type="text" id="customInputP" placeholder="Outro... (em inglês, se possível)" value="${customVal.replace(/"/g,'&quot;')}">
+        <button id="customAddP">OK</button>
+      </div>
+      <div class="hint">O prompt final sai em inglês — escreva o texto livre já em inglês.</div>
+    </div>`;
+  }
+  innerHtml += `<div class="pop-actions">
+    <button class="link-btn" id="clearBtnP">Limpar seleção</button>
+    <button class="done-btn" id="doneBtnP">Concluir</button>
+  </div>`;
+
+  popover.innerHTML = innerHtml;
+  overlay.classList.add('active');
+  popover.classList.add('active');
+
+  const rect = anchorEl.getBoundingClientRect();
+  let top = rect.bottom + window.scrollY + 8;
+  let left = rect.left + window.scrollX;
+  if(left + 400 > document.documentElement.clientWidth - 24) left = rect.right + window.scrollX - 400;
+  popover.style.top = top+'px';
+  popover.style.left = left+'px';
+
+  popover.querySelectorAll('.opt').forEach(o=>{
+    o.addEventListener('click', ()=>{
+      const v = o.dataset.value;
+      const arr = stateProduto.selections[cat.key].values;
+      const idx = arr.indexOf(v);
+      stateProduto.selections[cat.key].values = idx>-1 ? [] : [v];
+      markDirtyIfNeededProduto();
+      popover.querySelectorAll('.opt').forEach(x=>x.classList.toggle('selected', x.dataset.value===v && idx===-1));
+      renderGridProduto();
+    });
+  });
+
+  const ci = popover.querySelector('#customInputP');
+  const ca = popover.querySelector('#customAddP');
+  if(ca){
+    ca.addEventListener('click',()=>{ stateProduto.selections[cat.key].custom=ci.value; markDirtyIfNeededProduto(); renderGridProduto(); });
+    ci.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault();ca.click();} });
+  }
+  popover.querySelector('#clearBtnP').addEventListener('click',()=>{
+    stateProduto.selections[cat.key].values=[];
+    stateProduto.selections[cat.key].custom='';
+    markDirtyIfNeededProduto();
+    popover.querySelectorAll('.opt').forEach(x=>x.classList.remove('selected'));
+    renderGridProduto();
+  });
+  popover.querySelector('#doneBtnP').addEventListener('click', closePopover);
+}
+
+function markDirtyIfNeededProduto(){
+  if(stateProduto.generated) stateProduto.dirty = true;
+  updateActionBarProduto();
+}
+
+function updateActionBarProduto(){
+  const btn = document.getElementById('generateBtnProduto');
+  const note = document.getElementById('dirtyNoteProduto');
+  if(btn) btn.textContent = (stateProduto.generated && stateProduto.dirty) ? 'Gerar novamente' : 'Gerar prompt';
+  if(note) note.style.display = (stateProduto.generated && stateProduto.dirty) ? 'inline' : 'none';
+}
+
+function initProdutoBuilder(){
+  const genBtn = document.getElementById('generateBtnProduto');
+  const rstBtn = document.getElementById('resetBtnProduto');
+  const copyBtn = document.getElementById('copyBtnProduto');
+  const outputEl = document.getElementById('outputProduto');
+  const outputText = document.getElementById('outputTextProduto');
+  if(!genBtn) return;
+
+  genBtn.addEventListener('click',()=>{
+    const text = buildFinalPromptProduto();
+    stateProduto.finalText = text;
+    stateProduto.generated = true;
+    stateProduto.dirty = false;
+    outputText.value = text || 'Nenhuma opção selecionada ainda.';
+    outputEl.classList.add('active');
+    updateActionBarProduto();
+    outputEl.scrollIntoView({behavior:'smooth',block:'nearest'});
+  });
+
+  outputText.addEventListener('input',()=>{ stateProduto.finalText = outputText.value; });
+
+  copyBtn.addEventListener('click',()=>{
+    navigator.clipboard.writeText(outputText.value).then(()=>{
+      const orig = copyBtn.innerHTML;
+      copyBtn.innerHTML = 'Copiado ✓';
+      setTimeout(()=>{ copyBtn.innerHTML = orig; }, 1500);
+    });
+  });
+
+  rstBtn.addEventListener('click',()=>{
+    if(!confirm('Limpar todas as seleções e o prompt gerado?')) return;
+    stateProduto = defaultStateProduto();
+    outputText.value = '';
+    outputEl.classList.remove('active');
+    updateActionBarProduto();
+    renderGridProduto();
+  });
+
+  renderGridProduto();
+  updateActionBarProduto();
+}
+
+
+/* ============================================================
+   MOTOR GENÉRICO — reutilizado por Animais, Paisagens, Texturas,
+   Render 3D e Ilustração. Suporta categorias simples (single ou
+   multi) e categorias com subgrupos, com texto livre e notas.
+============================================================ */
+function createGenericBuilder(cfg){
+  const categories = cfg.categories;
+  let state = makeDefaultState();
+
+  function makeDefaultState(){
+    const s = { selections:{}, generated:false, dirty:false, finalText:'', openKey:null };
+    categories.forEach(c=>{
+      if(c.subgroups){
+        s.selections[c.key] = { subgroups:{}, custom:'' };
+        c.subgroups.forEach(sg=> s.selections[c.key].subgroups[sg.key] = []);
+      } else {
+        s.selections[c.key] = { values:[], custom:'' };
+      }
+    });
+    return s;
+  }
+
+  function findOption(cat, subgroupKey, ptValue){
+    const list = cat.subgroups ? cat.subgroups.find(s=>s.key===subgroupKey).options : cat.options;
+    return list.find(o=>o.pt===ptValue);
+  }
+  function translateArr(cat, subgroupKey, ptArr){
+    return (ptArr||[]).map(pt=>{
+      const o = findOption(cat, subgroupKey, pt);
+      return o ? o.en : pt;
+    });
+  }
+
+  function categoryText(cat){
+    const sel = state.selections[cat.key];
+    if(cat.subgroups){
+      const parts = [];
+      cat.subgroups.forEach(sg=>{
+        const vals = translateArr(cat, sg.key, sel.subgroups[sg.key]);
+        if(vals.length) parts.push(vals.join(', '));
+      });
+      if(sel.custom && sel.custom.trim()) parts.push(sel.custom.trim());
+      return parts.length ? parts.join(', ') : null;
+    }
+    const vals = translateArr(cat, null, sel.values);
+    const parts = [...vals];
+    if(sel.custom && sel.custom.trim()) parts.push(sel.custom.trim());
+    return parts.length ? parts.join(', ') : null;
+  }
+
+  function buildFinalPrompt(){
+    const clauses = [];
+    categories.forEach(cat=>{
+      const text = categoryText(cat);
+      if(text) clauses.push(cat.clause(text));
+    });
+    if(!clauses.length) return '';
+    let out = clauses.join(', ');
+    out = out.charAt(0).toUpperCase() + out.slice(1);
+    if(!/[.!?]$/.test(out)) out += '.';
+    return out;
+  }
+
+  function categoryPreviewPt(cat){
+    const sel = state.selections[cat.key];
+    const parts = [];
+    if(cat.subgroups){
+      cat.subgroups.forEach(sg=>{
+        const vals = sel.subgroups[sg.key] || [];
+        if(vals.length) parts.push(vals.join(', '));
+      });
+    } else {
+      parts.push(...(sel.values||[]));
+    }
+    if(sel.custom && sel.custom.trim()) parts.push(sel.custom.trim());
+    return parts.length ? parts.join(' · ') : null;
+  }
+
+  function renderOptListGeneric(sg){
+    const hasNotes = sg.options.some(o=>o.note);
+    const selected = sg._selected;
+    if(hasNotes){
+      return `<div class="opt-card-list">${sg.options.map(o=>`
+        <div class="opt opt-card${selected.includes(o.pt)?' selected':''}" data-value="${o.pt.replace(/"/g,'&quot;')}">
+          <div class="opt-card-title">${o.pt}</div>
+          ${o.note ? `<div class="opt-card-note">${o.note}</div>` : ''}
+        </div>`).join('')}</div>`;
+    }
+    return `<div class="opt-list">${sg.options.map(o=>`<span class="opt${selected.includes(o.pt)?' selected':''}" data-value="${o.pt.replace(/"/g,'&quot;')}">${o.pt}</span>`).join('')}</div>`;
+  }
+
+  function renderPopoverContentGeneric(cat){
+    let html = `<div class="pop-title">${cat.label}</div>`;
+    if(cat.subgroups){
+      html += `<div class="pop-sub">Selecione o que for relevante em cada grupo.</div>`;
+      cat.subgroups.forEach(sg=>{
+        sg._selected = state.selections[cat.key].subgroups[sg.key] || [];
+        html += `<div class="subgroup" data-subgroup="${sg.key}">
+          <div class="subgroup-label">${sg.label}</div>
+          ${sg.note ? `<div class="subgroup-note">${sg.note}</div>` : ''}
+          ${renderOptListGeneric(sg)}
+        </div>`;
+      });
+    } else {
+      html += `<div class="pop-sub">${cat.multi ? 'Selecione uma ou mais opções.' : 'Escolha uma opção — selecionar outra substitui a anterior.'}</div>`;
+      const pseudo = { options: cat.options, _selected: state.selections[cat.key].values || [] };
+      html += `<div class="subgroup" data-subgroup="__single">${renderOptListGeneric(pseudo)}</div>`;
+    }
+    if(cat.allowFreeText){
+      const customVal = state.selections[cat.key].custom || '';
+      html += `<div class="free-text">
+        <div class="row">
+          <input type="text" id="customInputG" placeholder="${cat.freeTextPlaceholder || 'Outro... (em inglês, se possível)'}" value="${customVal.replace(/"/g,'&quot;')}">
+          <button id="customAddG">OK</button>
+        </div>
+        <div class="hint">O prompt final sai em inglês — escreva o texto livre já em inglês.</div>
+      </div>`;
+    }
+    html += `<div class="pop-actions">
+      <button class="link-btn" id="clearBtnG">Limpar seleção</button>
+      <button class="done-btn" id="doneBtnG">Concluir</button>
+    </div>`;
+    return html;
+  }
+
+  function attachPopoverEventsGeneric(cat){
+    popover.querySelectorAll('.opt').forEach(optEl=>{
+      optEl.addEventListener('click', ()=>{
+        const subgroupKey = optEl.closest('.subgroup').dataset.subgroup;
+        const value = optEl.dataset.value;
+        if(cat.subgroups){
+          const sg = cat.subgroups.find(s=>s.key===subgroupKey);
+          const arr = state.selections[cat.key].subgroups[subgroupKey];
+          const idx = arr.indexOf(value);
+          if(sg.multi){ if(idx>-1) arr.splice(idx,1); else arr.push(value); }
+          else { state.selections[cat.key].subgroups[subgroupKey] = (idx>-1) ? [] : [value]; }
+        } else {
+          const arr = state.selections[cat.key].values;
+          const idx = arr.indexOf(value);
+          if(cat.multi){ if(idx>-1) arr.splice(idx,1); else arr.push(value); }
+          else { state.selections[cat.key].values = (idx>-1) ? [] : [value]; }
+        }
+        markDirtyIfNeeded();
+        popover.innerHTML = renderPopoverContentGeneric(cat);
+        attachPopoverEventsGeneric(cat);
+        renderGrid();
+      });
+    });
+    const ci = popover.querySelector('#customInputG');
+    const ca = popover.querySelector('#customAddG');
+    if(ca){
+      ca.addEventListener('click', ()=>{
+        state.selections[cat.key].custom = ci.value;
+        markDirtyIfNeeded();
+        renderGrid();
+      });
+      ci.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); ca.click(); } });
+    }
+    popover.querySelector('#clearBtnG').addEventListener('click', ()=>{
+      if(cat.subgroups){ cat.subgroups.forEach(sg=> state.selections[cat.key].subgroups[sg.key] = []); }
+      else { state.selections[cat.key].values = []; }
+      state.selections[cat.key].custom = '';
+      markDirtyIfNeeded();
+      popover.innerHTML = renderPopoverContentGeneric(cat);
+      attachPopoverEventsGeneric(cat);
+      renderGrid();
+    });
+    popover.querySelector('#doneBtnG').addEventListener('click', closePopover);
+  }
+
+  function openPopoverGeneric(key, anchorEl){
+    state.openKey = key;
+    renderGrid();
+    const cat = categories.find(c=>c.key===key);
+    popover.innerHTML = renderPopoverContentGeneric(cat);
+    attachPopoverEventsGeneric(cat);
+    overlay.classList.add('active');
+    popover.classList.add('active');
+    const rect = anchorEl.getBoundingClientRect();
+    let top = rect.bottom + window.scrollY + 8;
+    let left = rect.left + window.scrollX;
+    if(left + 400 > document.documentElement.clientWidth - 24) left = rect.right + window.scrollX - 400;
+    popover.style.top = top+'px';
+    popover.style.left = left+'px';
+  }
+
+  const genGrid = document.getElementById(cfg.fieldGridId);
+  function renderGrid(){
+    genGrid.innerHTML = '';
+    categories.forEach(cat=>{
+      const preview = categoryPreviewPt(cat);
+      const filled = !!preview;
+      const el = document.createElement('div');
+      el.className = 'field' + (filled?' filled':'') + (state.openKey===cat.key?' open':'');
+      el.dataset.key = cat.key;
+      el.innerHTML = `
+        <span class="dot"></span>
+        <div class="num">${cat.num}</div>
+        <div class="label">${cat.label}</div>
+        <div class="preview ${filled?'':'empty'}">${filled?preview:'Toque para escolher'}</div>
+      `;
+      el.addEventListener('click', ()=> openPopoverGeneric(cat.key, el));
+      genGrid.appendChild(el);
+    });
+  }
+
+  function markDirtyIfNeeded(){
+    if(state.generated) state.dirty = true;
+    updateActionBar();
+  }
+  function updateActionBar(){
+    const btn = document.getElementById(cfg.generateBtnId);
+    const note = document.getElementById(cfg.dirtyNoteId);
+    if(btn) btn.textContent = (state.generated && state.dirty) ? 'Gerar novamente' : 'Gerar prompt';
+    if(note) note.style.display = (state.generated && state.dirty) ? 'inline' : 'none';
+  }
+
+  function generate(){
+    const text = buildFinalPrompt();
+    state.finalText = text;
+    state.generated = true;
+    state.dirty = false;
+    const outputText = document.getElementById(cfg.outputTextId);
+    const outputEl = document.getElementById(cfg.outputId);
+    outputText.value = text || 'Nenhuma opção selecionada ainda.';
+    outputEl.classList.add('active');
+    updateActionBar();
+    outputEl.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+
+  function randomize(){
+    state = makeDefaultState();
+    categories.forEach(cat=>{
+      if(cat.subgroups){
+        cat.subgroups.forEach(sg=>{
+          const pool = sg.options;
+          const pick = pool[Math.floor(Math.random()*pool.length)];
+          state.selections[cat.key].subgroups[sg.key] = [pick.pt];
+        });
+      } else {
+        const pool = cat.options;
+        const pick = pool[Math.floor(Math.random()*pool.length)];
+        state.selections[cat.key].values = [pick.pt];
+      }
+    });
+    renderGrid();
+    generate();
+  }
+
+  const genBtn = document.getElementById(cfg.generateBtnId);
+  const rstBtn = document.getElementById(cfg.resetBtnId);
+  const cpyBtn = document.getElementById(cfg.copyBtnId);
+  const outputText = document.getElementById(cfg.outputTextId);
+  const outputEl = document.getElementById(cfg.outputId);
+
+  genBtn.addEventListener('click', generate);
+  outputText.addEventListener('input', ()=>{ state.finalText = outputText.value; });
+  cpyBtn.addEventListener('click', ()=>{
+    navigator.clipboard.writeText(outputText.value).then(()=>{
+      const orig = cpyBtn.innerHTML;
+      cpyBtn.innerHTML = 'Copiado ✓';
+      setTimeout(()=> cpyBtn.innerHTML = orig, 1500);
+    });
+  });
+  rstBtn.addEventListener('click', ()=>{
+    if(!confirm('Limpar todas as seleções e o prompt gerado?')) return;
+    state = makeDefaultState();
+    outputText.value = '';
+    outputEl.classList.remove('active');
+    updateActionBar();
+    renderGrid();
+  });
+
+  if(cfg.randomBtnId){
+    const rndBtn = document.getElementById(cfg.randomBtnId);
+    if(rndBtn) rndBtn.addEventListener('click', randomize);
+  }
+
+  renderGrid();
+  updateActionBar();
+  return { renderGrid };
+}
+
+/* ============================================================
+   ANIMAIS — DATA
+============================================================ */
+const categoriesAnimais = [
+  { key:'especie', num:'01', label:'Espécie', type:'single', clause:v=>`A photograph of ${v}`, allowFreeText:true,
+    options:opts([
+      ['cachorro','a dog'],['gato','a cat'],['coelho','a rabbit'],['cavalo','a horse'],['hamster','a hamster'],
+      ['leão','a lion'],['tigre','a tiger'],['lobo','a wolf'],['urso','a bear'],['raposa','a fox'],['veado','a deer'],
+      ['elefante','an elephant'],['girafa','a giraffe'],['zebra','a zebra'],['macaco','a monkey'],
+      ['águia','an eagle'],['coruja','an owl'],['papagaio','a parrot'],['flamingo','a flamingo'],['pinguim','a penguin'],
+      ['golfinho','a dolphin'],['baleia','a whale'],['tartaruga marinha','a sea turtle'],['peixe tropical','a tropical fish'],['cavalo-marinho','a seahorse'],
+      ['borboleta','a butterfly'],['camaleão','a chameleon'],['esquilo','a squirrel'],
+    ])},
+  { key:'raca', num:'02', label:'Raça / Variedade', type:'single', clause:v=>`of the ${v} breed`, allowFreeText:true,
+    freeTextPlaceholder:'ex: Golden Retriever, Vira-lata caramelo',
+    options:opts([
+      ['labrador','Labrador'],['golden retriever','Golden Retriever'],['bulldog francês','French Bulldog'],
+      ['vira-lata caramelo','a Brazilian street-dog mix (caramelo)'],['persa','Persian'],['siamês','Siamese'],
+      ['maine coon','Maine Coon'],['husky siberiano','Siberian Husky'],['poodle','Poodle'],['pug','Pug'],
+    ])},
+  { key:'pelagem', num:'03', label:'Pelagem / Textura', clause:v=>`with ${v}`, allowFreeText:true,
+    subgroups:[
+      { key:'tipo', label:'Tipo', multi:false, options:opts([
+        ['pelo curto','short fur'],['pelo longo','long fur'],['pelagem dupla','a double coat'],
+        ['sem pelo','no fur, bare skin'],['penas','feathers'],['escamas','scales'],['pele lisa','smooth skin'],
+      ])},
+      { key:'cor', label:'Cor / Padrão', multi:false, options:opts([
+        ['malhado','a mottled pattern'],['listrado','stripes'],['mesclado','a brindle mix'],
+        ['monocromático preto','solid black'],['monocromático branco','solid white'],['dourado','golden fur'],
+        ['tricolor','a tricolor pattern'],['manchado','spotted markings'],['cinza','gray fur'],
+      ])},
+    ]
+  },
+  { key:'pose_animal', num:'04', label:'Pose / Comportamento', type:'single', clause:v=>v, allowFreeText:true,
+    options:opts([
+      ['correndo','running'],['caçando','hunting'],['descansando','resting calmly'],['alerta, olhando para a câmera','alert, looking directly at the camera'],
+      ['brincando','playing'],['voando','flying'],['nadando','swimming'],['rosnando','growling'],
+      ['dormindo','sleeping'],['caminhando','walking'],['saltando','leaping mid-air'],['se alimentando','feeding'],
+    ])},
+  { key:'ambiente_animal', num:'05', label:'Ambiente', type:'single', clause:v=>`in ${v}`, allowFreeText:true,
+    options:opts([
+      ['savana africana','the African savanna'],['floresta densa','a dense forest'],['montanha nevada','a snowy mountain'],
+      ['oceano aberto','the open ocean'],['recife de coral','a coral reef'],['deserto','a desert'],
+      ['casa, ambiente doméstico','a cozy home environment'],['jardim','a garden'],
+      ['estúdio, fundo neutro','a studio setting with a neutral background'],['zoológico','a zoo enclosure'],
+    ])},
+  { key:'luz_animal', num:'06', label:'Luz', type:'single', clause:v=>`illuminated by ${v}`, allowFreeText:true,
+    options:opts([
+      ['golden hour','warm golden hour light'],['luz difusa de floresta','soft, dappled forest light'],
+      ['luz de estúdio controlada','controlled studio lighting'],['contraluz','backlighting'],
+      ['luz dura de meio-dia','harsh midday sunlight'],['luz azulada de amanhecer','cool blue dawn light'],
+      ['luz subaquática','underwater light rays'],['blue hour','the cool tones of blue hour'],
+    ])},
+  { key:'angulo_animal', num:'07', label:'Ângulo', type:'single', clause:v=>`captured from ${v}`, allowFreeText:true,
+    options:opts([
+      ['nível do olho do animal','the animal\u2019s eye level'],['low angle','a low angle'],['high angle','a high angle'],
+      ['close-up no rosto','an extreme close-up on the face'],['plano aéreo','an aerial view'],['perfil lateral','a side profile angle'],
+    ])},
+  { key:'equipamento_animal', num:'08', label:'Equipamento', clause:v=>`shot using ${v}`, allowFreeText:true,
+    subgroups:[
+      { key:'camera', label:'Câmera', multi:false, options:opts([
+        ['Canon EOS R5','a Canon EOS R5','Alta resolução, ótima para detalhes de pelagem e penas.'],
+        ['Nikon Z9','a Nikon Z9','Foco automático rápido, ideal para animais em movimento.'],
+        ['Sony Alpha A1','a Sony Alpha A1','Altíssima velocidade, ótima para captura de ação.'],
+        ['Fujifilm X-T5','a Fujifilm X-T5','Cores de filme icônicas, boa para retratos naturais.'],
+      ])},
+      { key:'lente', label:'Lente', multi:false, options:opts([
+        ['400mm teleobjetiva','a 400mm telephoto lens','Padrão para vida selvagem à distância.'],
+        ['600mm teleobjetiva','a 600mm telephoto lens','Máxima aproximação sem perturbar o animal.'],
+        ['85mm','an 85mm lens','Ótima para retratos de animais domésticos próximos.'],
+        ['macro','a macro lens','Foco extremo em detalhes — olhos, textura de pelo, insetos.'],
+      ])},
+    ]
+  },
+  { key:'estilo_animal', num:'09', label:'Estilo', type:'single', clause:v=>`in ${v} style`, allowFreeText:true,
+    options:opts([
+      ['wildlife photography','a professional wildlife photography'],['macro','a macro photography'],
+      ['editorial','an editorial photography'],['documental','a documentary photography'],['fofo, estilo pet shop','a cute, pet-shop advertising'],
+    ])},
+  { key:'qualidade_animal', num:'10', label:'Qualidade', type:'single', clause:v=>v, allowFreeText:true,
+    options:opts([
+      ['alta qualidade, nítida e detalhada','high quality, sharp focus, and rich detail'],
+      ['ultra detalhada em 8K','ultra-detailed 8K resolution'],
+      ['textura realista de pelo/penas','realistic fur and feather texture'],
+      ['foco suave artístico','soft, artistic focus'],
+    ])},
+];
+
+/* ============================================================
+   PAISAGENS — DATA
+============================================================ */
+const categoriesPaisagens = [
+  { key:'tipo_paisagem', num:'01', label:'Tipo de paisagem', type:'single', clause:v=>`A landscape photograph of ${v}`, allowFreeText:true,
+    options:opts([
+      ['montanha','a mountain range'],['praia','a beach coastline'],['floresta','a forest'],['deserto','a desert'],
+      ['campo aberto','an open countryside field'],['cidade, skyline','a city skyline'],['área rural','rural farmland'],
+      ['cânion','a canyon'],['geleira','a glacier'],['vulcão','a volcano'],['cachoeira','a waterfall'],['vale','a valley'],
+    ])},
+  { key:'elementos_paisagem', num:'02', label:'Elementos naturais', type:'single', multi:true, clause:v=>`featuring ${v}`, allowFreeText:true,
+    options:opts([
+      ['rio','a winding river'],['lago','a calm lake'],['mar','the open sea'],['céu limpo','a clear blue sky'],
+      ['céu dramático com nuvens','a dramatic, cloud-filled sky'],['vegetação densa','dense vegetation'],
+      ['campo florido','a field of flowers'],['rochas e penhascos','rocky cliffs'],['neve','snow-covered ground'],['árvores isoladas','isolated trees dotting the landscape'],
+    ])},
+  { key:'clima_paisagem', num:'03', label:'Clima / Atmosfera', type:'single', clause:v=>`under ${v}`, allowFreeText:true,
+    options:opts([
+      ['céu limpo','clear skies'],['nublado','overcast skies'],['tempestade se formando','a storm forming on the horizon'],
+      ['neblina','thick fog'],['nevando','falling snow'],['pôr do sol dramático','a dramatic sunset'],['névoa matinal','morning mist'],
+    ])},
+  { key:'estacao', num:'04', label:'Estação do ano', type:'single', clause:v=>`during ${v}`, allowFreeText:true,
+    options:opts([
+      ['primavera','spring, with blooming flora'],['verão','summer, with lush greenery'],
+      ['outono','autumn, with golden and red foliage'],['inverno','winter, with snow-covered scenery'],
+    ])},
+  { key:'luz_paisagem', num:'05', label:'Luz', type:'single', clause:v=>`illuminated by ${v}`, allowFreeText:true,
+    options:opts([
+      ['golden hour','warm golden hour light'],['blue hour','the cool tones of blue hour'],
+      ['luz dura de meio-dia','harsh midday sunlight'],['luz noturna com estrelas','a starry night sky'],
+      ['aurora boreal','the northern lights (aurora borealis)'],['luz difusa de dia nublado','soft, overcast daylight'],
+    ])},
+  { key:'perspectiva', num:'06', label:'Perspectiva', type:'single', clause:v=>`shot from ${v}`, allowFreeText:true,
+    options:opts([
+      ['vista aérea / drone','an aerial drone view'],['nível do solo','ground level'],
+      ['panorâmica ampla','a wide panoramic perspective'],['através de moldura natural','a view framed by natural elements like branches or a rock arch'],
+    ])},
+  { key:'estilo_paisagem', num:'07', label:'Estilo', type:'single', clause:v=>`in ${v} style`, allowFreeText:true,
+    options:opts([
+      ['fotorrealista','a photorealistic'],['pintura a óleo','an oil painting'],['minimalista','a minimalist'],['cinematográfico','a cinematic'],
+    ])},
+  { key:'qualidade_paisagem', num:'08', label:'Qualidade', type:'single', clause:v=>v, allowFreeText:true,
+    options:opts([
+      ['alta qualidade, nítida e detalhada','high quality, sharp focus, and rich detail'],
+      ['ultra detalhada em 8K','ultra-detailed 8K resolution'],['grão de filme sutil','subtle film grain'],
+    ])},
+  { key:'proporcao_paisagem', num:'09', label:'Proporção', type:'single', clause:v=>`aspect ratio ${v}`, allowFreeText:true,
+    options:opts([['9:16','9:16'],['4:5','4:5'],['1:1','1:1'],['16:9','16:9']])},
+];
+
+/* ============================================================
+   TEXTURAS E PADRÕES — DATA
+============================================================ */
+const categoriesTexturas = [
+  { key:'tipo_padrao', num:'01', label:'Tipo de padrão', type:'single', clause:v=>`A ${v} pattern`, allowFreeText:true,
+    options:opts([
+      ['geométrico','geometric'],['floral','floral'],['orgânico / abstrato','organic abstract'],['listrado','striped'],
+      ['xadrez','checkered'],['ondulado','wavy'],['mosaico','mosaic-style'],['ruído (noise)','grainy noise-based'],
+      ['pontilhado','polka dot'],['espinha de peixe','herringbone'],
+    ])},
+  { key:'material_textura', num:'02', label:'Material simulado', type:'single', clause:v=>`simulating ${v}`, allowFreeText:true,
+    options:opts([
+      ['tecido','woven fabric'],['madeira','wood grain'],['pedra / mármore','marble stone'],['metal','brushed metal'],
+      ['papel','textured paper'],['couro','leather'],['cerâmica','ceramic'],['vidro','glass'],['concreto','concrete'],
+    ])},
+  { key:'paleta_textura', num:'03', label:'Paleta de cores', type:'single', clause:v=>`in ${/^[aeiou]/i.test(v)?'an':'a'} ${v} color palette`, allowFreeText:true,
+    options:opts([
+      ['monocromático','monochromatic'],['complementar','complementary'],['pastel','soft pastel'],
+      ['tons terrosos','earthy, warm-toned'],['alto contraste (P&B)','high-contrast black and white'],['neon','vibrant neon'],
+    ])},
+  { key:'repeticao', num:'04', label:'Repetição', type:'single', clause:v=>v, allowFreeText:true,
+    options:opts([
+      ['seamless (tile perfeito)','designed as a seamless, perfectly tileable pattern'],
+      ['aleatório / orgânico','with an organic, non-repeating arrangement'],
+    ])},
+  { key:'escala', num:'05', label:'Escala / Densidade', type:'single', clause:v=>`at a ${v} scale`, allowFreeText:true,
+    options:opts([
+      ['micro, super detalhado','micro, extremely close-up and detailed'],['macro, espaçado','large-scale and spaced out'],
+      ['densidade média','medium density'],
+    ])},
+  { key:'estilo_textura', num:'06', label:'Estilo', type:'single', clause:v=>`in a ${v} style`, allowFreeText:true,
+    options:opts([
+      ['minimalista','minimalist'],['maximalista','maximalist'],['vintage / retrô','vintage retro'],
+      ['orgânico, feito à mão','hand-drawn, organic'],['digital / vetorial','clean digital vector'],
+    ])},
+  { key:'qualidade_textura', num:'07', label:'Qualidade', type:'single', clause:v=>v, allowFreeText:true,
+    options:opts([
+      ['nítido e detalhado','sharp and highly detailed'],['textura tátil realista','realistic tactile surface texture'],
+      ['alta resolução 4K/8K','high resolution, 4K to 8K'],
+    ])},
+];
+
+/* ============================================================
+   RENDER 3D — DATA
+============================================================ */
+const categoriesRender3d = [
+  { key:'tipo_cena', num:'01', label:'Tipo de cena', type:'single', clause:v=>`A 3D render of ${v}`, allowFreeText:true,
+    options:opts([
+      ['objeto isolado','an isolated object'],['personagem / character','a character'],['cenário abstrato','an abstract scene'],
+      ['produto','a product'],['ambiente arquitetônico','an architectural environment'],
+    ])},
+  { key:'estilo_render', num:'02', label:'Estilo de render', type:'single', clause:v=>`rendered in ${/^[aeiou]/i.test(v)?'an':'a'} ${v} style`, allowFreeText:true,
+    options:opts([
+      ['fotorrealista','photorealistic','Busca máximo realismo — luz, textura e física simulados com precisão.'],
+      ['clay render','clay-render, matte gray, form-focused','Sem textura ou cor — só a forma pura, muito usado para estudos de volume.'],
+      ['low poly','low-poly, faceted','Geometria simplificada e visível, visual estilizado e geométrico.'],
+      ['isométrico','isometric','Perspectiva sem distorção, ângulo fixo de 30° — comum em ícones e jogos.'],
+      ['toon / cel-shaded','toon-shaded, cel-shaded','Sombreamento em blocos sólidos, visual de desenho animado 3D.'],
+    ])},
+  { key:'material_render', num:'03', label:'Material / Shading', type:'single', clause:v=>`with a ${v} material finish`, allowFreeText:true,
+    options:opts([
+      ['glossy','glossy, reflective','Superfície brilhante com reflexos nítidos, tipo plástico polido.'],
+      ['fosco','matte','Sem reflexo especular, absorve a luz de forma uniforme.'],
+      ['metálico','metallic','Reflexos característicos de metal, com alto contraste de luz.'],
+      ['vidro / translúcido','glass, translucent','Permite passagem de luz, com refração e transparência.'],
+      ['subsurface scattering','subsurface scattering (like skin or wax)','Luz penetra e se espalha por dentro do material — usado para pele, cera, mármore.'],
+    ])},
+  { key:'iluminacao_render', num:'04', label:'Iluminação de estúdio', type:'single', clause:v=>`lit using ${v}`, allowFreeText:true,
+    options:opts([
+      ['HDRI ambiente','HDRI environment lighting','Iluminação baseada em imagem 360°, cria reflexos realistas.'],
+      ['softbox 3 pontos','a classic three-point softbox setup','Setup clássico de estúdio — luz principal, preenchimento e contorno.'],
+      ['global illumination','global illumination','Simula luz indireta quicando entre superfícies, muito realista.'],
+      ['luz dramática de estúdio','dramatic studio lighting with deep shadows','Contraste forte, sombras marcadas.'],
+    ])},
+  { key:'fundo_render', num:'05', label:'Cor de fundo / cenário', type:'single', clause:v=>`against ${v}`, allowFreeText:true,
+    options:opts([
+      ['fundo infinito','a seamless infinite background'],['gradiente','a smooth gradient background'],
+      ['preto','a solid black background'],['branco','a solid white background'],['ambiente 3D completo','a fully modeled 3D environment'],
+    ])},
+  { key:'angulo_render', num:'06', label:'Ângulo de câmera', type:'single', clause:v=>`captured from ${v}`, allowFreeText:true,
+    options:opts([
+      ['frontal','a front-facing angle'],['três quartos','a three-quarter angle'],['top-down','a top-down angle'],['low angle dramático','a dramatic low angle'],
+    ])},
+  { key:'motor_render', num:'07', label:'Referência de motor 3D', type:'single', clause:v=>`in the rendering aesthetic of ${v}`, allowFreeText:true,
+    options:opts([
+      ['Octane Render','Octane Render','Cores vibrantes e saturadas, muito usado em motion design.'],
+      ['Blender Cycles','Blender Cycles','Ray tracing fisicamente preciso, padrão da comunidade open-source.'],
+      ['Unreal Engine 5','Unreal Engine 5','Iluminação em tempo real (Lumen), visual de jogo AAA fotorrealista.'],
+      ['Redshift','Redshift','Otimizado para GPU, muito usado em produção de VFX.'],
+      ['Arnold','Arnold','Renderer de referência em estúdios de animação e cinema.'],
+      ['Cinema 4D / Corona','Cinema 4D with Corona Renderer','Muito usado em motion design e still life de produto.'],
+    ])},
+  { key:'qualidade_render', num:'08', label:'Qualidade', type:'single', clause:v=>v, allowFreeText:true,
+    options:opts([
+      ['ray tracing','with accurate ray-traced reflections and shadows'],
+      ['alta resolução','high resolution, ultra-detailed'],
+      ['ambient occlusion','with realistic ambient occlusion'],
+    ])},
+];
+
+/* ============================================================
+   ILUSTRAÇÃO — DATA
+============================================================ */
+const categoriesIlustracao = [
+  { key:'estilo_ilustracao', num:'01', label:'Estilo de ilustração', type:'single', clause:v=>`An illustration in ${v} style`, allowFreeText:true,
+    options:opts([
+      ['flat design','flat design'],['vetorial','clean vector'],['aquarela','watercolor'],['cartoon','cartoon'],
+      ['anime / mangá','anime/manga'],['pixel art','pixel art'],['line art','minimalist line art'],
+      ['colagem','collage'],['risografia','risograph-print'],
+    ])},
+  { key:'sujeito_ilustracao', num:'02', label:'Sujeito / Cena', type:'single', clause:v=>`depicting ${v}`, allowFreeText:true,
+    freeTextPlaceholder:'ex: uma raposa lendo um livro embaixo de uma árvore',
+    options:opts([
+      ['um personagem','a character'],['uma cena urbana','an urban scene'],['um objeto isolado','an isolated object'],['uma paisagem estilizada','a stylized landscape'],
+    ])},
+  { key:'paleta_ilustracao', num:'03', label:'Paleta de cores', type:'single', clause:v=>`with ${/^[aeiou]/i.test(v)?'an':'a'} ${v} color palette`, allowFreeText:true,
+    options:opts([
+      ['vibrante','vibrant'],['pastel','soft pastel'],['duotone','duotone'],['monocromático','monochromatic'],['tons terrosos','earthy'],
+    ])},
+  { key:'traco', num:'04', label:'Traço', type:'single', clause:v=>`featuring ${v}`, allowFreeText:true,
+    options:opts([
+      ['contorno grosso','bold outlines'],['sem contorno','no outlines, color-blocked shapes'],
+      ['hachurado','cross-hatching'],['traço solto / esboçado','loose, sketchy linework'],
+    ])},
+  { key:'composicao_ilustracao', num:'05', label:'Composição', type:'single', clause:v=>`with ${/^[aeiou]/i.test(v)?'an':'a'} ${v} composition`, allowFreeText:true,
+    options:opts([
+      ['centralizada','centered'],['assimétrica','asymmetrical'],['maximalista, cheia de elementos','maximalist, densely packed'],['espaço negativo generoso','generous negative space'],
+    ])},
+  { key:'referencia_ilustracao', num:'06', label:'Referência artística', type:'single', clause:v=>`evoking ${v}`, allowFreeText:true,
+    options:opts([
+      ['anos 60/70','a 1960s\u201370s retro aesthetic'],['editorial contemporâneo','a contemporary editorial aesthetic'],
+      ['infantil','a playful children\u2019s book aesthetic'],['corporativo / tech','a clean corporate tech aesthetic'],
+    ])},
+  { key:'qualidade_ilustracao', num:'07', label:'Qualidade', type:'single', clause:v=>v, allowFreeText:true,
+    options:opts([
+      ['vetorial nítido','crisp vector quality'],['textura de papel','a subtle paper texture'],['alta resolução','high resolution'],
+    ])},
+];
+
+/* ============================================================
+   INIT — 5 novas seções (lazy, uma vez por aba)
+============================================================ */
+function initAnimaisBuilder(){
+  createGenericBuilder({
+    categories: categoriesAnimais,
+    fieldGridId:'fieldGridAnimais', generateBtnId:'generateBtnAnimais', resetBtnId:'resetBtnAnimais',
+    dirtyNoteId:'dirtyNoteAnimais', outputId:'outputAnimais', outputTextId:'outputTextAnimais', copyBtnId:'copyBtnAnimais',
+  });
+}
+function initPaisagensBuilder(){
+  createGenericBuilder({
+    categories: categoriesPaisagens,
+    fieldGridId:'fieldGridPaisagens', generateBtnId:'generateBtnPaisagens', resetBtnId:'resetBtnPaisagens',
+    dirtyNoteId:'dirtyNotePaisagens', outputId:'outputPaisagens', outputTextId:'outputTextPaisagens', copyBtnId:'copyBtnPaisagens',
+  });
+}
+function initTexturasBuilder(){
+  createGenericBuilder({
+    categories: categoriesTexturas,
+    fieldGridId:'fieldGridTexturas', generateBtnId:'generateBtnTexturas', resetBtnId:'resetBtnTexturas',
+    dirtyNoteId:'dirtyNoteTexturas', outputId:'outputTexturas', outputTextId:'outputTextTexturas', copyBtnId:'copyBtnTexturas',
+    randomBtnId:'randomBtnTexturas',
+  });
+}
+function initRender3dBuilder(){
+  createGenericBuilder({
+    categories: categoriesRender3d,
+    fieldGridId:'fieldGridRender3d', generateBtnId:'generateBtnRender3d', resetBtnId:'resetBtnRender3d',
+    dirtyNoteId:'dirtyNoteRender3d', outputId:'outputRender3d', outputTextId:'outputTextRender3d', copyBtnId:'copyBtnRender3d',
+  });
+}
+function initIlustracaoBuilder(){
+  createGenericBuilder({
+    categories: categoriesIlustracao,
+    fieldGridId:'fieldGridIlustracao', generateBtnId:'generateBtnIlustracao', resetBtnId:'resetBtnIlustracao',
+    dirtyNoteId:'dirtyNoteIlustracao', outputId:'outputIlustracao', outputTextId:'outputTextIlustracao', copyBtnId:'copyBtnIlustracao',
+  });
+}
 
 </script>
 </body>
