@@ -346,6 +346,16 @@
   .rating-block .rb-stars{ color:var(--accent); font-size:15px; letter-spacing:2px; }
   .rating-block .rb-row{ font-size:12.5px; color:var(--ink-soft); margin-bottom:4px; }
   .rating-block .rb-row b{ color:var(--ink); font-weight:600; }
+  .rating-img-upload{
+    display:block; border:1.5px dashed var(--line-strong); border-radius:12px;
+    overflow:hidden; cursor:pointer; transition:border-color .15s ease;
+  }
+  .rating-img-upload:hover{ border-color:var(--accent); }
+  .rating-img-placeholder{
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    padding:22px; color:var(--ink-soft); font-size:13px;
+  }
+
   .rating-block .rb-comment{
     font-family:var(--font-sub); font-style:italic; font-size:13.5px; color:var(--ink);
     margin-top:10px; padding-top:10px; border-top:1px solid var(--line); line-height:1.55;
@@ -1208,15 +1218,56 @@ function openRateModal(albumId, albumDataFallback){
       <span class="field-label">Comentário (opcional)</span>
       <textarea id="commentInput" placeholder="O que achou desse álbum?"></textarea>
     </div>
+    <div class="form-block">
+      <span class="field-label">Foto (opcional)</span>
+      <label class="rating-img-upload" id="ratingImgLabel">
+        <input type="file" id="ratingImgInput" accept="image/jpeg,image/png,image/webp" style="display:none;">
+        <div class="rating-img-placeholder" id="ratingImgPlaceholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          <span>Clique para adicionar uma foto</span>
+        </div>
+        <img id="ratingImgPreview" style="display:none; width:100%; border-radius:10px; max-height:200px; object-fit:cover;">
+      </label>
+      <button type="button" id="ratingImgClear" style="display:none; margin-top:6px;" class="modal-close" title="Remover foto">✕ Remover foto</button>
+    </div>
   `;
 
   if(existing){
     rateFormBody.querySelector('#bestTrackInput').value = existing.bestTrack || '';
     rateFormBody.querySelector('#worstTrackInput').value = existing.worstTrack || '';
     rateFormBody.querySelector('#commentInput').value = existing.comment || '';
+    if(existing.imageBase64){
+      const prev = rateFormBody.querySelector('#ratingImgPreview');
+      const placeholder = rateFormBody.querySelector('#ratingImgPlaceholder');
+      const clearBtn = rateFormBody.querySelector('#ratingImgClear');
+      prev.src = existing.imageBase64; prev.style.display = 'block';
+      placeholder.style.display = 'none'; clearBtn.style.display = '';
+    }
   }
   const trackInputs = rateFormBody.querySelectorAll('.playlist-track-input');
   picks.forEach((p,i)=>{ if(trackInputs[i]) trackInputs[i].value = p; });
+
+  // upload e preview da foto
+  const imgInput = rateFormBody.querySelector('#ratingImgInput');
+  const imgPreview = rateFormBody.querySelector('#ratingImgPreview');
+  const imgPlaceholder = rateFormBody.querySelector('#ratingImgPlaceholder');
+  const imgClearBtn = rateFormBody.querySelector('#ratingImgClear');
+  const imgLabel = rateFormBody.querySelector('#ratingImgLabel');
+  imgLabel.addEventListener('click', ()=>{ if(!imgPreview.src || imgPreview.style.display==='none') imgInput.click(); });
+  imgInput.addEventListener('change', ()=>{
+    const file = imgInput.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      imgPreview.src = reader.result; imgPreview.style.display = 'block';
+      imgPlaceholder.style.display = 'none'; imgClearBtn.style.display = '';
+    };
+    reader.readAsDataURL(file);
+  });
+  imgClearBtn.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    imgInput.value = ''; imgPreview.src = ''; imgPreview.style.display = 'none';
+    imgPlaceholder.style.display = 'flex'; imgClearBtn.style.display = 'none';
+  });
 
   renderStarRow();
   rateOverlay.classList.add('active');
@@ -1247,15 +1298,38 @@ document.getElementById('rateSaveBtn').addEventListener('click', async ()=>{
   const playlistPicks = Array.from(rateFormBody.querySelectorAll('.playlist-track-input'))
     .map(i=>i.value.trim()).filter(Boolean).slice(0,3);
   const comment = rateFormBody.querySelector('#commentInput').value.trim();
+
+  // imagem: redimensiona pra max 800px e comprime pra JPEG antes de salvar
+  const imgPreviewEl = rateFormBody.querySelector('#ratingImgPreview');
+  let imageBase64 = null;
+  if(imgPreviewEl && imgPreviewEl.src && imgPreviewEl.style.display !== 'none'){
+    await new Promise(resolve=>{
+      const tmpImg = new Image();
+      tmpImg.onload = ()=>{
+        const MAX = 800;
+        const scale = Math.min(1, MAX / Math.max(tmpImg.naturalWidth, tmpImg.naturalHeight));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(tmpImg.naturalWidth * scale);
+        canvas.height = Math.round(tmpImg.naturalHeight * scale);
+        canvas.getContext('2d').drawImage(tmpImg, 0, 0, canvas.width, canvas.height);
+        imageBase64 = canvas.toDataURL('image/jpeg', 0.82);
+        resolve();
+      };
+      tmpImg.src = imgPreviewEl.src;
+    });
+  }
+
   const btn = document.getElementById('rateSaveBtn');
   btn.disabled = true; btn.textContent = 'Salvando...';
   try{
     const ratingId = `${rateTargetAlbum.id}_${currentUID}`;
-    await setDoc(doc(ratingsCol, ratingId), {
+    const ratingData = {
       albumId: rateTargetAlbum.id, uid: currentUID, userName: currentUser, stars: rateStars,
       bestTrack, worstTrack, playlistPicks, comment,
       ratedAt: serverTimestamp()
-    });
+    };
+    if(imageBase64 !== null) ratingData.imageBase64 = imageBase64;
+    await setDoc(doc(ratingsCol, ratingId), ratingData);
 
     const starsStr = '★'.repeat(rateStars) + '☆'.repeat(5-rateStars);
     const albumLine = `${rateTargetAlbum.title} — ${rateTargetAlbum.artist}`;
@@ -1448,6 +1522,7 @@ function openDetailModal(albumId){
         ${r.worstTrack ? `<div class="rb-row">Pior faixa: <b>${escapeHtml(r.worstTrack)}</b></div>` : ''}
         ${r.playlistPicks && r.playlistPicks.length ? `<div class="rb-row">Playlist: <b>${r.playlistPicks.map(escapeHtml).join(', ')}</b></div>` : ''}
         ${r.comment ? `<div class="rb-comment">"${escapeHtml(r.comment)}"</div>` : ''}
+        ${r.imageBase64 ? `<img src="${r.imageBase64}" alt="Foto da avaliação" style="margin-top:12px; width:100%; border-radius:10px; max-height:260px; object-fit:cover;">` : ''}
       `;
     } else {
       block.innerHTML = `
@@ -1701,6 +1776,7 @@ function openUserProfileModal(uid){
           <div class="pr-title">${escapeHtml(r.album.title||'')}</div>
           <div class="pr-stars">${starString(r.stars)}</div>
           ${r.comment ? `<div class="pr-comment">"${escapeHtml(r.comment)}"</div>` : ''}
+          ${r.imageBase64 ? `<img src="${r.imageBase64}" alt="" style="margin-top:6px; width:100%; border-radius:8px; max-height:120px; object-fit:cover;">` : ''}
         </div>
       `;
       row.addEventListener('click', ()=>{ closeProfileModal(); openDetailModal(r.album.id); });
