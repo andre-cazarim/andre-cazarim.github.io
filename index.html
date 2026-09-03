@@ -209,6 +209,23 @@
   }
 
   /* ============ TIERLIST ============ */
+  .tier-user-tabs{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
+  .tier-user-tab{
+    display:flex; align-items:center; gap:8px; padding:8px 14px 8px 8px;
+    background:var(--bg-card); border:1.4px solid var(--line); border-radius:100px;
+    font-size:13px; color:var(--ink-soft); transition:all .15s ease;
+  }
+  .tier-user-tab:hover{ border-color:var(--line-strong); color:var(--ink); }
+  .tier-user-tab.active{ border-color:var(--accent); color:var(--ink); background:var(--bg-card-hover); }
+  .tier-user-tab .tut-avatar{ width:22px; height:22px; border-radius:50%; object-fit:cover; }
+  .tier-user-tab .tut-badge{
+    font-size:9.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--accent);
+    border:1px solid var(--accent); border-radius:100px; padding:1px 6px; margin-left:2px;
+  }
+  .tierlist-board.readonly .tier-items{ cursor:default; }
+  .tier-readonly-note{
+    font-size:12.5px; color:var(--ink-faint); margin:14px 0 0; display:flex; align-items:center; gap:6px;
+  }
   .tierlist-board{
     display:flex; flex-direction:column; gap:2px; border-radius:14px; overflow:hidden;
     border:1px solid var(--line-strong);
@@ -238,6 +255,7 @@
     display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
   }
   .tier-chip.dragging{ opacity:.35; }
+  .tier-chip.readonly{ cursor:default; }
   .tier-pool{
     display:flex; flex-wrap:wrap; gap:12px; padding:16px; background:var(--bg-card);
     border:1px dashed var(--line-strong); border-radius:16px; min-height:100px;
@@ -610,11 +628,12 @@
     <header class="hero">
       <div class="eyebrow">Sua tierlist</div>
       <h1 class="title">Tierlist</h1>
-      <p class="lede">Arraste os álbuns pra fileira que eles merecem. Cada pessoa tem a sua própria tierlist.</p>
+      <p class="lede">Arraste os álbuns pra fileira que eles merecem. Cada pessoa tem a sua própria tierlist — você só pode editar a sua, mas pode ver a dos outros.</p>
     </header>
     <section class="section">
+      <div class="tier-user-tabs" id="tierUserTabs"></div>
       <div class="tierlist-board" id="tierlistBoard"></div>
-      <div class="section-row" style="margin-top:32px;">
+      <div class="section-row" id="tierPoolLabelRow" style="margin-top:32px;">
         <span class="field-label" style="margin:0;">Álbuns pra classificar</span>
       </div>
       <div class="tier-pool" id="tierPool"></div>
@@ -2027,13 +2046,42 @@ function myTierData(){
   return { S:d.S||[], A:d.A||[], B:d.B||[], C:d.C||[], D:d.D||[], F:d.F||[] };
 }
 
+function tierDataFor(uid){
+  const d = (uid && tierlists[uid]) || {};
+  return { S:d.S||[], A:d.A||[], B:d.B||[], C:d.C||[], D:d.D||[], F:d.F||[] };
+}
+
+let viewingTierUid = null;
+
+function renderTierUserTabs(){
+  const wrap = document.getElementById('tierUserTabs');
+  if(!wrap || !currentUID) return;
+  if(!viewingTierUid) viewingTierUid = currentUID;
+  const uids = allKnownUsers();
+  wrap.innerHTML = '';
+  uids.forEach(uid=>{
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'tier-user-tab' + (uid===viewingTierUid ? ' active' : '');
+    const isMe = uid===currentUID;
+    btn.innerHTML = `${avatarHtml(uid, 'tut-avatar')}<span>${escapeHtml(displayNameFor(uid))}</span>${isMe ? '<span class="tut-badge">Você</span>' : ''}`;
+    btn.addEventListener('click', ()=>{ viewingTierUid = uid; renderTierlist(); });
+    wrap.appendChild(btn);
+  });
+}
+
 function renderTierlist(){
   const board = document.getElementById('tierlistBoard');
   const pool = document.getElementById('tierPool');
+  const poolLabelRow = document.getElementById('tierPoolLabelRow');
   if(!board || !pool || !currentUID) return;
-  const data = myTierData();
+  renderTierUserTabs();
+  const uid = viewingTierUid || currentUID;
+  const editable = uid === currentUID;
+  const data = tierDataFor(uid);
   const placed = new Set([].concat(data.S, data.A, data.B, data.C, data.D, data.F));
 
+  board.className = 'tierlist-board' + (editable ? '' : ' readonly');
   board.innerHTML = '';
   TIERS.forEach(t=>{
     const row = document.createElement('div');
@@ -2043,38 +2091,48 @@ function renderTierlist(){
     itemsEl.className = 'tier-items';
     data[t.key].forEach(albumId=>{
       const a = albums.find(x=>x.id===albumId);
-      if(a) itemsEl.appendChild(tierChip(a));
+      if(a) itemsEl.appendChild(tierChip(a, editable));
     });
-    setupDropZone(itemsEl, t.key);
+    if(editable) setupDropZone(itemsEl, t.key);
     row.appendChild(itemsEl);
     board.appendChild(row);
   });
 
-  pool.innerHTML = '';
-  const unranked = albums.filter(a=>!placed.has(a.id));
-  if(!unranked.length){
-    pool.innerHTML = `<div class="empty-state" style="width:100%;">Todos os álbuns já estão classificados.</div>`;
+  if(editable){
+    poolLabelRow.style.display = '';
+    pool.style.display = '';
+    pool.innerHTML = '';
+    const unranked = albums.filter(a=>!placed.has(a.id));
+    if(!unranked.length){
+      pool.innerHTML = `<div class="empty-state" style="width:100%;">Todos os álbuns já estão classificados.</div>`;
+    } else {
+      unranked.forEach(a=> pool.appendChild(tierChip(a, true)));
+    }
+    setupDropZone(pool, null);
   } else {
-    unranked.forEach(a=> pool.appendChild(tierChip(a)));
+    poolLabelRow.style.display = 'none';
+    pool.style.display = 'none';
+    pool.innerHTML = '';
   }
-  setupDropZone(pool, null);
 }
 
-function tierChip(a){
+function tierChip(a, editable){
   const chip = document.createElement('div');
-  chip.className = 'tier-chip';
-  chip.draggable = true;
+  chip.className = 'tier-chip' + (editable ? '' : ' readonly');
+  chip.draggable = !!editable;
   chip.dataset.albumId = a.id;
   chip.innerHTML = `
     ${a.coverUrl ? `<img src="${a.coverUrl}" alt="" loading="lazy" onerror="this.outerHTML='<div class=&quot;cover-ph&quot;>Sem capa</div>'">` : `<div class="cover-ph">Sem capa</div>`}
     <div class="tc-name">${escapeHtml(a.title||'')}</div>
   `;
-  chip.addEventListener('dragstart', e=>{
-    e.dataTransfer.setData('text/plain', a.id);
-    e.dataTransfer.effectAllowed = 'move';
-    setTimeout(()=> chip.classList.add('dragging'), 0);
-  });
-  chip.addEventListener('dragend', ()=> chip.classList.remove('dragging'));
+  if(editable){
+    chip.addEventListener('dragstart', e=>{
+      e.dataTransfer.setData('text/plain', a.id);
+      e.dataTransfer.effectAllowed = 'move';
+      setTimeout(()=> chip.classList.add('dragging'), 0);
+    });
+    chip.addEventListener('dragend', ()=> chip.classList.remove('dragging'));
+  }
   return chip;
 }
 
@@ -2084,6 +2142,7 @@ function setupDropZone(el, tierKey){
   el.addEventListener('drop', async e=>{
     e.preventDefault();
     el.classList.remove('drag-over');
+    if(viewingTierUid && viewingTierUid !== currentUID) return;
     const albumId = e.dataTransfer.getData('text/plain');
     if(!albumId || !currentUID) return;
     await moveAlbumToTier(albumId, tierKey);
