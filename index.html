@@ -232,6 +232,18 @@
     flex-wrap:wrap; margin-bottom:20px;
   }
   .tier-toolbar .tier-user-tabs{ margin-bottom:0; flex:1; }
+  .tier-select-hint{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    background:var(--accent); color:#001017; font-size:13px; font-weight:600;
+    padding:10px 16px; border-radius:12px; margin-bottom:16px;
+  }
+  .tier-select-hint button{
+    background:rgba(0,0,0,.15); border:none; color:inherit; font-weight:700;
+    font-size:12px; padding:6px 12px; border-radius:100px; cursor:pointer; flex-shrink:0;
+  }
+  .tier-chip.selected{
+    outline:3px solid var(--accent); outline-offset:2px; border-radius:10px;
+  }
   .tierlist-board{
     display:flex; flex-direction:column; gap:2px; border-radius:14px; overflow:hidden;
     border:1px solid var(--line-strong);
@@ -249,11 +261,9 @@
   }
   .tier-items.drag-over{ background:var(--bg-card-hover); }
   .tier-chip{
-    width:72px; cursor:grab; user-select:none; text-align:center;
+    width:72px; cursor:pointer; user-select:none; text-align:center;
   }
   .tier-chip.mini{ width:52px; }
-  .tier-chip:not(.readonly){ touch-action:none; }
-  .tier-chip:active{ cursor:grabbing; }
   .tier-chip img, .tier-chip .cover-ph{
     width:72px; height:72px; border-radius:8px; object-fit:cover; display:block;
     border:1px solid var(--line); background:var(--bg-card);
@@ -265,17 +275,11 @@
     display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
   }
   .tier-chip.mini .tc-name{ display:none; }
-  .tier-chip.dragging{ opacity:.35; }
   .tier-chip.readonly{ cursor:default; }
   .tier-pool{
     display:flex; flex-wrap:wrap; gap:12px; padding:16px; background:var(--bg-card);
     border:1px dashed var(--line-strong); border-radius:16px; min-height:100px;
   }
-  .tier-pool.drag-over{ border-color:var(--accent); }
-  .tier-chip-ghost{
-    opacity:.92; box-shadow:0 12px 28px rgba(0,0,0,.5); border-radius:10px;
-  }
-  body.tier-dragging-active{ overflow:hidden; overscroll-behavior:none; }
 
   .empty-state{
     padding:60px 20px; text-align:center; color:var(--ink-faint); font-size:14px;
@@ -643,12 +647,16 @@
     <header class="hero">
       <div class="eyebrow">Sua tierlist</div>
       <h1 class="title">Tierlist</h1>
-      <p class="lede">Arraste os álbuns pra fileira que eles merecem. Cada pessoa tem a sua própria tierlist — você só pode editar a sua, mas pode ver a dos outros.</p>
+      <p class="lede">Toque num álbum pra selecioná-lo e depois toque na fileira onde ele deve entrar. Cada pessoa tem a sua própria tierlist — você só pode editar a sua, mas pode ver a dos outros.</p>
     </header>
     <section class="section">
       <div class="tier-toolbar">
         <div class="tier-user-tabs" id="tierUserTabs"></div>
         <button class="btn" id="tierDownloadBtn" type="button">⬇ Baixar como imagem</button>
+      </div>
+      <div class="tier-select-hint" id="tierSelectHint" style="display:none;">
+        <span>Álbum selecionado — toque numa fileira (ou no banco embaixo) pra colocá-lo lá.</span>
+        <button type="button" id="tierSelectCancel">Cancelar</button>
       </div>
       <div class="tierlist-board" id="tierlistBoard"></div>
       <div class="section-row" id="tierPoolLabelRow" style="margin-top:32px;">
@@ -2070,6 +2078,7 @@ function tierDataFor(uid){
 }
 
 let viewingTierUid = null;
+let selectedAlbumId = null; // álbum selecionado aguardando destino (fluxo tocar-e-colocar)
 
 function renderTierUserTabs(){
   const wrap = document.getElementById('tierUserTabs');
@@ -2083,7 +2092,7 @@ function renderTierUserTabs(){
     btn.className = 'tier-user-tab' + (uid===viewingTierUid ? ' active' : '');
     const isMe = uid===currentUID;
     btn.innerHTML = `${avatarHtml(uid, 'tut-avatar')}<span>${escapeHtml(displayNameFor(uid))}</span>${isMe ? '<span class="tut-badge">Você</span>' : ''}`;
-    btn.addEventListener('click', ()=>{ viewingTierUid = uid; renderTierlist(); });
+    btn.addEventListener('click', ()=>{ viewingTierUid = uid; selectedAlbumId = null; renderTierlist(); });
     wrap.appendChild(btn);
   });
 }
@@ -2092,18 +2101,16 @@ function renderTierlist(){
   const board = document.getElementById('tierlistBoard');
   const pool = document.getElementById('tierPool');
   const poolLabelRow = document.getElementById('tierPoolLabelRow');
+  const hint = document.getElementById('tierSelectHint');
   if(!board || !pool || !currentUID) return;
-  if(tierDrag){
-    // um gesto de arrastar está em andamento — reconstruir o DOM agora quebraria o drag.
-    // adia esse re-render pra quando o gesto terminar.
-    tierRenderPending = true;
-    return;
-  }
   renderTierUserTabs();
   const uid = viewingTierUid || currentUID;
   const editable = uid === currentUID;
   const data = tierDataFor(uid);
   const placed = new Set([].concat(data.S, data.A, data.B, data.C, data.D, data.F));
+
+  if(!editable && selectedAlbumId) selectedAlbumId = null;
+  if(hint) hint.style.display = (editable && selectedAlbumId) ? 'flex' : 'none';
 
   board.className = 'tierlist-board' + (editable ? '' : ' readonly');
   board.innerHTML = '';
@@ -2141,7 +2148,8 @@ function renderTierlist(){
 
 function tierChip(a, editable, mini){
   const chip = document.createElement('div');
-  chip.className = 'tier-chip' + (editable ? '' : ' readonly') + (mini ? ' mini' : '');
+  const isSelected = editable && selectedAlbumId === a.id;
+  chip.className = 'tier-chip' + (editable ? '' : ' readonly') + (mini ? ' mini' : '') + (isSelected ? ' selected' : '');
   chip.dataset.albumId = a.id;
   chip.title = `${a.title||''}${a.artist ? ' — '+a.artist : ''}`;
   chip.innerHTML = `
@@ -2149,114 +2157,57 @@ function tierChip(a, editable, mini){
     <div class="tc-name">${escapeHtml(a.title||'')}</div>
   `;
   if(editable){
-    chip.addEventListener('pointerdown', e=> onChipPointerDown(e, chip, a.id));
+    chip.addEventListener('click', e=>{
+      e.stopPropagation();
+      onChipClick(a.id, chip);
+    });
   }
   return chip;
 }
 
 /* ============================================================
-   TIERLIST — drag via Pointer Events (funciona em mouse e touch)
+   TIERLIST — selecionar e tocar no destino (funciona igual em
+   mouse e toque; mais confiável em navegadores mobile do que
+   arrastar-e-soltar via Pointer Events).
 ============================================================ */
-let tierDrag = null; // { pointerId, chip, albumId, offsetX, offsetY, w, h, moved, startX, startY, ghost, lastZone }
-let tierRenderPending = false;
-const TIER_DRAG_THRESHOLD = 6; // px antes de considerar que começou a arrastar
-
-function onChipPointerDown(e, chip, albumId){
-  if(e.pointerType === 'mouse' && e.button !== 0) return;
-  if(tierDrag){
-    // estado de um gesto anterior que não foi finalizado corretamente — limpa antes de começar um novo
-    try{ cleanupTierDrag(tierDrag.chip); }catch(err){ tierDrag = null; }
-  }
-  const rect = chip.getBoundingClientRect();
-  tierDrag = {
-    pointerId: e.pointerId, chip, albumId,
-    offsetX: e.clientX - rect.left, offsetY: e.clientY - rect.top,
-    w: rect.width, h: rect.height,
-    startX: e.clientX, startY: e.clientY,
-    moved: false, ghost: null, lastZone: null
-  };
-  try{ chip.setPointerCapture(e.pointerId); }catch(err){}
-  chip.addEventListener('pointermove', onChipPointerMove);
-  chip.addEventListener('pointerup', onChipPointerUp);
-  chip.addEventListener('pointercancel', onChipPointerCancel);
-}
-
-function startTierGhost(){
-  const d = tierDrag;
-  const ghost = d.chip.cloneNode(true);
-  ghost.className = 'tier-chip tier-chip-ghost';
-  ghost.style.position = 'fixed';
-  ghost.style.left = '0'; ghost.style.top = '0';
-  ghost.style.width = d.w + 'px';
-  ghost.style.margin = '0';
-  ghost.style.pointerEvents = 'none';
-  ghost.style.zIndex = '9999';
-  ghost.style.transform = `translate(${d.startX - d.offsetX}px, ${d.startY - d.offsetY}px)`;
-  document.body.appendChild(ghost);
-  d.ghost = ghost;
-  d.chip.classList.add('dragging');
-  document.body.classList.add('tier-dragging-active');
-}
-
-function zoneFromPoint(x, y){
-  if(tierDrag && tierDrag.ghost) tierDrag.ghost.style.display = 'none';
-  const el = document.elementFromPoint(x, y);
-  if(tierDrag && tierDrag.ghost) tierDrag.ghost.style.display = '';
-  return el ? el.closest('.tier-items, .tier-pool') : null;
-}
-
-function onChipPointerMove(e){
-  const d = tierDrag;
-  if(!d || e.pointerId !== d.pointerId) return;
-  if(!d.moved){
-    const dx = e.clientX - d.startX, dy = e.clientY - d.startY;
-    if(Math.hypot(dx, dy) < TIER_DRAG_THRESHOLD) return;
-    d.moved = true;
-    startTierGhost();
-  }
-  e.preventDefault();
-  d.ghost.style.transform = `translate(${e.clientX - d.offsetX}px, ${e.clientY - d.offsetY}px)`;
-
-  const zone = zoneFromPoint(e.clientX, e.clientY);
-  if(d.lastZone && d.lastZone !== zone) d.lastZone.classList.remove('drag-over');
-  if(zone) zone.classList.add('drag-over');
-  d.lastZone = zone;
-}
-
-async function onChipPointerUp(e){
-  const d = tierDrag;
-  if(!d || e.pointerId !== d.pointerId) return;
-  cleanupTierDrag(d.chip);
-  if(d.moved && d.lastZone){
-    const tierKey = d.lastZone.dataset.tier || null;
-    await moveAlbumToTier(d.albumId, tierKey);
-  }
-}
-
-function onChipPointerCancel(e){
-  const d = tierDrag;
-  if(!d || e.pointerId !== d.pointerId) return;
-  cleanupTierDrag(d.chip);
-}
-
-function cleanupTierDrag(chip){
-  const d = tierDrag;
-  if(d){
-    if(d.ghost) d.ghost.remove();
-    if(d.lastZone) d.lastZone.classList.remove('drag-over');
-    try{ chip.releasePointerCapture(d.pointerId); }catch(err){}
-  }
-  chip.classList.remove('dragging');
-  chip.removeEventListener('pointermove', onChipPointerMove);
-  chip.removeEventListener('pointerup', onChipPointerUp);
-  chip.removeEventListener('pointercancel', onChipPointerCancel);
-  document.body.classList.remove('tier-dragging-active');
-  tierDrag = null;
-  if(tierRenderPending){
-    tierRenderPending = false;
+function onChipClick(albumId, chipEl){
+  if(selectedAlbumId === albumId){
+    selectedAlbumId = null; // toca de novo no mesmo álbum pra cancelar
     renderTierlist();
+    return;
   }
+  if(selectedAlbumId === null){
+    selectedAlbumId = albumId;
+    renderTierlist();
+    return;
+  }
+  // já tinha outro álbum selecionado: move ele pra fileira/banco deste chip aqui tocado
+  const zoneEl = chipEl.closest('.tier-items, .tier-pool');
+  const tierKey = (zoneEl && zoneEl.dataset.tier) || null;
+  const moving = selectedAlbumId;
+  selectedAlbumId = null;
+  moveAlbumToTier(moving, tierKey);
 }
+
+function onZoneClick(tierKey){
+  if(!selectedAlbumId) return;
+  const moving = selectedAlbumId;
+  selectedAlbumId = null;
+  moveAlbumToTier(moving, tierKey);
+}
+
+document.getElementById('tierSelectCancel')?.addEventListener('click', ()=>{
+  selectedAlbumId = null;
+  renderTierlist();
+});
+
+// listeners de destino (delegados, ligados uma única vez — os containers
+// persistem entre renders, só o conteúdo interno é recriado)
+document.getElementById('tierlistBoard')?.addEventListener('click', e=>{
+  const zone = e.target.closest('.tier-items');
+  if(zone) onZoneClick(zone.dataset.tier || null);
+});
+document.getElementById('tierPool')?.addEventListener('click', ()=> onZoneClick(null));
 
 async function moveAlbumToTier(albumId, tierKey){
   const prev = tierlists[currentUID];
