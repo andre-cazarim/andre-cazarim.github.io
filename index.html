@@ -244,6 +244,7 @@
   .tier-chip{
     width:72px; cursor:grab; user-select:none; text-align:center;
   }
+  .tier-chip:not(.readonly){ touch-action:none; }
   .tier-chip:active{ cursor:grabbing; }
   .tier-chip img, .tier-chip .cover-ph{
     width:72px; height:72px; border-radius:8px; object-fit:cover; display:block;
@@ -261,6 +262,10 @@
     border:1px dashed var(--line-strong); border-radius:16px; min-height:100px;
   }
   .tier-pool.drag-over{ border-color:var(--accent); }
+  .tier-chip-ghost{
+    opacity:.92; box-shadow:0 12px 28px rgba(0,0,0,.5); border-radius:10px;
+  }
+  body.tier-dragging-active{ overflow:hidden; overscroll-behavior:none; }
 
   .empty-state{
     padding:60px 20px; text-align:center; color:var(--ink-faint); font-size:14px;
@@ -2089,11 +2094,11 @@ function renderTierlist(){
     row.innerHTML = `<div class="tier-label" style="background:${t.color};">${t.key}</div>`;
     const itemsEl = document.createElement('div');
     itemsEl.className = 'tier-items';
+    itemsEl.dataset.tier = t.key;
     data[t.key].forEach(albumId=>{
       const a = albums.find(x=>x.id===albumId);
       if(a) itemsEl.appendChild(tierChip(a, editable));
     });
-    if(editable) setupDropZone(itemsEl, t.key);
     row.appendChild(itemsEl);
     board.appendChild(row);
   });
@@ -2108,7 +2113,6 @@ function renderTierlist(){
     } else {
       unranked.forEach(a=> pool.appendChild(tierChip(a, true)));
     }
-    setupDropZone(pool, null);
   } else {
     poolLabelRow.style.display = 'none';
     pool.style.display = 'none';
@@ -2119,34 +2123,111 @@ function renderTierlist(){
 function tierChip(a, editable){
   const chip = document.createElement('div');
   chip.className = 'tier-chip' + (editable ? '' : ' readonly');
-  chip.draggable = !!editable;
   chip.dataset.albumId = a.id;
   chip.innerHTML = `
     ${a.coverUrl ? `<img src="${a.coverUrl}" alt="" loading="lazy" onerror="this.outerHTML='<div class=&quot;cover-ph&quot;>Sem capa</div>'">` : `<div class="cover-ph">Sem capa</div>`}
     <div class="tc-name">${escapeHtml(a.title||'')}</div>
   `;
   if(editable){
-    chip.addEventListener('dragstart', e=>{
-      e.dataTransfer.setData('text/plain', a.id);
-      e.dataTransfer.effectAllowed = 'move';
-      setTimeout(()=> chip.classList.add('dragging'), 0);
-    });
-    chip.addEventListener('dragend', ()=> chip.classList.remove('dragging'));
+    chip.addEventListener('pointerdown', e=> onChipPointerDown(e, chip, a.id));
   }
   return chip;
 }
 
-function setupDropZone(el, tierKey){
-  el.addEventListener('dragover', e=>{ e.preventDefault(); el.classList.add('drag-over'); });
-  el.addEventListener('dragleave', ()=> el.classList.remove('drag-over'));
-  el.addEventListener('drop', async e=>{
-    e.preventDefault();
-    el.classList.remove('drag-over');
-    if(viewingTierUid && viewingTierUid !== currentUID) return;
-    const albumId = e.dataTransfer.getData('text/plain');
-    if(!albumId || !currentUID) return;
-    await moveAlbumToTier(albumId, tierKey);
-  });
+/* ============================================================
+   TIERLIST — drag via Pointer Events (funciona em mouse e touch)
+============================================================ */
+let tierDrag = null; // { pointerId, chip, albumId, offsetX, offsetY, w, h, moved, startX, startY, ghost, lastZone }
+const TIER_DRAG_THRESHOLD = 6; // px antes de considerar que começou a arrastar
+
+function onChipPointerDown(e, chip, albumId){
+  if(e.pointerType === 'mouse' && e.button !== 0) return;
+  if(tierDrag) return;
+  const rect = chip.getBoundingClientRect();
+  tierDrag = {
+    pointerId: e.pointerId, chip, albumId,
+    offsetX: e.clientX - rect.left, offsetY: e.clientY - rect.top,
+    w: rect.width, h: rect.height,
+    startX: e.clientX, startY: e.clientY,
+    moved: false, ghost: null, lastZone: null
+  };
+  try{ chip.setPointerCapture(e.pointerId); }catch(err){}
+  chip.addEventListener('pointermove', onChipPointerMove);
+  chip.addEventListener('pointerup', onChipPointerUp);
+  chip.addEventListener('pointercancel', onChipPointerCancel);
+}
+
+function startTierGhost(){
+  const d = tierDrag;
+  const ghost = d.chip.cloneNode(true);
+  ghost.className = 'tier-chip tier-chip-ghost';
+  ghost.style.position = 'fixed';
+  ghost.style.left = '0'; ghost.style.top = '0';
+  ghost.style.width = d.w + 'px';
+  ghost.style.margin = '0';
+  ghost.style.pointerEvents = 'none';
+  ghost.style.zIndex = '9999';
+  ghost.style.transform = `translate(${d.startX - d.offsetX}px, ${d.startY - d.offsetY}px)`;
+  document.body.appendChild(ghost);
+  d.ghost = ghost;
+  d.chip.classList.add('dragging');
+  document.body.classList.add('tier-dragging-active');
+}
+
+function zoneFromPoint(x, y){
+  if(tierDrag && tierDrag.ghost) tierDrag.ghost.style.display = 'none';
+  const el = document.elementFromPoint(x, y);
+  if(tierDrag && tierDrag.ghost) tierDrag.ghost.style.display = '';
+  return el ? el.closest('.tier-items, .tier-pool') : null;
+}
+
+function onChipPointerMove(e){
+  const d = tierDrag;
+  if(!d || e.pointerId !== d.pointerId) return;
+  if(!d.moved){
+    const dx = e.clientX - d.startX, dy = e.clientY - d.startY;
+    if(Math.hypot(dx, dy) < TIER_DRAG_THRESHOLD) return;
+    d.moved = true;
+    startTierGhost();
+  }
+  e.preventDefault();
+  d.ghost.style.transform = `translate(${e.clientX - d.offsetX}px, ${e.clientY - d.offsetY}px)`;
+
+  const zone = zoneFromPoint(e.clientX, e.clientY);
+  if(d.lastZone && d.lastZone !== zone) d.lastZone.classList.remove('drag-over');
+  if(zone) zone.classList.add('drag-over');
+  d.lastZone = zone;
+}
+
+async function onChipPointerUp(e){
+  const d = tierDrag;
+  if(!d || e.pointerId !== d.pointerId) return;
+  cleanupTierDrag(d.chip);
+  if(d.moved && d.lastZone){
+    const tierKey = d.lastZone.dataset.tier || null;
+    await moveAlbumToTier(d.albumId, tierKey);
+  }
+}
+
+function onChipPointerCancel(e){
+  const d = tierDrag;
+  if(!d || e.pointerId !== d.pointerId) return;
+  cleanupTierDrag(d.chip);
+}
+
+function cleanupTierDrag(chip){
+  const d = tierDrag;
+  if(d){
+    if(d.ghost) d.ghost.remove();
+    if(d.lastZone) d.lastZone.classList.remove('drag-over');
+    try{ chip.releasePointerCapture(d.pointerId); }catch(err){}
+  }
+  chip.classList.remove('dragging');
+  chip.removeEventListener('pointermove', onChipPointerMove);
+  chip.removeEventListener('pointerup', onChipPointerUp);
+  chip.removeEventListener('pointercancel', onChipPointerCancel);
+  document.body.classList.remove('tier-dragging-active');
+  tierDrag = null;
 }
 
 async function moveAlbumToTier(albumId, tierKey){
