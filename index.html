@@ -2093,6 +2093,12 @@ function renderTierlist(){
   const pool = document.getElementById('tierPool');
   const poolLabelRow = document.getElementById('tierPoolLabelRow');
   if(!board || !pool || !currentUID) return;
+  if(tierDrag){
+    // um gesto de arrastar está em andamento — reconstruir o DOM agora quebraria o drag.
+    // adia esse re-render pra quando o gesto terminar.
+    tierRenderPending = true;
+    return;
+  }
   renderTierUserTabs();
   const uid = viewingTierUid || currentUID;
   const editable = uid === currentUID;
@@ -2152,11 +2158,15 @@ function tierChip(a, editable, mini){
    TIERLIST — drag via Pointer Events (funciona em mouse e touch)
 ============================================================ */
 let tierDrag = null; // { pointerId, chip, albumId, offsetX, offsetY, w, h, moved, startX, startY, ghost, lastZone }
+let tierRenderPending = false;
 const TIER_DRAG_THRESHOLD = 6; // px antes de considerar que começou a arrastar
 
 function onChipPointerDown(e, chip, albumId){
   if(e.pointerType === 'mouse' && e.button !== 0) return;
-  if(tierDrag) return;
+  if(tierDrag){
+    // estado de um gesto anterior que não foi finalizado corretamente — limpa antes de começar um novo
+    try{ cleanupTierDrag(tierDrag.chip); }catch(err){ tierDrag = null; }
+  }
   const rect = chip.getBoundingClientRect();
   tierDrag = {
     pointerId: e.pointerId, chip, albumId,
@@ -2242,6 +2252,10 @@ function cleanupTierDrag(chip){
   chip.removeEventListener('pointercancel', onChipPointerCancel);
   document.body.classList.remove('tier-dragging-active');
   tierDrag = null;
+  if(tierRenderPending){
+    tierRenderPending = false;
+    renderTierlist();
+  }
 }
 
 async function moveAlbumToTier(albumId, tierKey){
