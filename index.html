@@ -226,35 +226,45 @@
   .tier-readonly-note{
     font-size:12.5px; color:var(--ink-faint); margin:14px 0 0; display:flex; align-items:center; gap:6px;
   }
+  .wrap-tierlist{ max-width:1600px; }
+  .tier-toolbar{
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    flex-wrap:wrap; margin-bottom:20px;
+  }
+  .tier-toolbar .tier-user-tabs{ margin-bottom:0; flex:1; }
   .tierlist-board{
     display:flex; flex-direction:column; gap:2px; border-radius:14px; overflow:hidden;
     border:1px solid var(--line-strong);
   }
-  .tier-row{ display:flex; min-height:110px; background:var(--bg-card); }
+  .tier-row{ display:flex; background:var(--bg-card); }
   .tier-label{
-    width:90px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
-    font-family:var(--font-title); font-weight:800; font-size:26px; color:#111;
+    width:64px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-title); font-weight:800; font-size:22px; color:#111;
     text-shadow:0 1px 0 rgba(255,255,255,.25);
   }
   .tier-items{
-    flex:1; display:flex; flex-wrap:wrap; align-content:flex-start; gap:8px; padding:10px;
-    background:var(--code-bg); min-height:110px; transition:background .12s ease;
+    flex:1; display:flex; flex-wrap:wrap; align-content:flex-start; gap:6px; padding:8px;
+    background:var(--code-bg); min-height:64px; max-height:128px; overflow-y:auto;
+    transition:background .12s ease;
   }
   .tier-items.drag-over{ background:var(--bg-card-hover); }
   .tier-chip{
     width:72px; cursor:grab; user-select:none; text-align:center;
   }
+  .tier-chip.mini{ width:52px; }
   .tier-chip:not(.readonly){ touch-action:none; }
   .tier-chip:active{ cursor:grabbing; }
   .tier-chip img, .tier-chip .cover-ph{
     width:72px; height:72px; border-radius:8px; object-fit:cover; display:block;
     border:1px solid var(--line); background:var(--bg-card);
   }
+  .tier-chip.mini img, .tier-chip.mini .cover-ph{ width:52px; height:52px; border-radius:6px; }
   .tier-chip .cover-ph{ display:flex; align-items:center; justify-content:center; color:var(--ink-faint); font-size:9px; text-transform:uppercase; }
   .tier-chip .tc-name{
     font-size:10px; color:var(--ink-soft); margin-top:4px; line-height:1.25;
     display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
   }
+  .tier-chip.mini .tc-name{ display:none; }
   .tier-chip.dragging{ opacity:.35; }
   .tier-chip.readonly{ cursor:default; }
   .tier-pool{
@@ -629,14 +639,17 @@
 
 <!-- ============ TIERLIST ============ -->
 <div class="section-page" id="sec-tierlist">
-  <div class="wrap">
+  <div class="wrap wrap-tierlist">
     <header class="hero">
       <div class="eyebrow">Sua tierlist</div>
       <h1 class="title">Tierlist</h1>
       <p class="lede">Arraste os álbuns pra fileira que eles merecem. Cada pessoa tem a sua própria tierlist — você só pode editar a sua, mas pode ver a dos outros.</p>
     </header>
     <section class="section">
-      <div class="tier-user-tabs" id="tierUserTabs"></div>
+      <div class="tier-toolbar">
+        <div class="tier-user-tabs" id="tierUserTabs"></div>
+        <button class="btn" id="tierDownloadBtn" type="button">⬇ Baixar como imagem</button>
+      </div>
       <div class="tierlist-board" id="tierlistBoard"></div>
       <div class="section-row" id="tierPoolLabelRow" style="margin-top:32px;">
         <span class="field-label" style="margin:0;">Álbuns pra classificar</span>
@@ -2097,7 +2110,7 @@ function renderTierlist(){
     itemsEl.dataset.tier = t.key;
     data[t.key].forEach(albumId=>{
       const a = albums.find(x=>x.id===albumId);
-      if(a) itemsEl.appendChild(tierChip(a, editable));
+      if(a) itemsEl.appendChild(tierChip(a, editable, true));
     });
     row.appendChild(itemsEl);
     board.appendChild(row);
@@ -2120,10 +2133,11 @@ function renderTierlist(){
   }
 }
 
-function tierChip(a, editable){
+function tierChip(a, editable, mini){
   const chip = document.createElement('div');
-  chip.className = 'tier-chip' + (editable ? '' : ' readonly');
+  chip.className = 'tier-chip' + (editable ? '' : ' readonly') + (mini ? ' mini' : '');
   chip.dataset.albumId = a.id;
+  chip.title = `${a.title||''}${a.artist ? ' — '+a.artist : ''}`;
   chip.innerHTML = `
     ${a.coverUrl ? `<img src="${a.coverUrl}" alt="" loading="lazy" onerror="this.outerHTML='<div class=&quot;cover-ph&quot;>Sem capa</div>'">` : `<div class="cover-ph">Sem capa</div>`}
     <div class="tc-name">${escapeHtml(a.title||'')}</div>
@@ -2231,6 +2245,7 @@ function cleanupTierDrag(chip){
 }
 
 async function moveAlbumToTier(albumId, tierKey){
+  const prev = tierlists[currentUID];
   const data = myTierData();
   const next = { S:[...data.S], A:[...data.A], B:[...data.B], C:[...data.C], D:[...data.D], F:[...data.F] };
   Object.keys(next).forEach(k=>{ next[k] = next[k].filter(id=>id!==albumId); });
@@ -2239,8 +2254,158 @@ async function moveAlbumToTier(albumId, tierKey){
   renderTierlist();
   try{
     await setDoc(doc(tierlistsCol, currentUID), next);
-  }catch(e){ console.error('Erro ao salvar tierlist:', e); }
+  }catch(e){
+    console.error('Erro ao salvar tierlist:', e);
+    tierlists[currentUID] = prev; // desfaz a atualização otimista, já que não foi salvo de verdade
+    renderTierlist();
+    alert('Não foi possível salvar sua tierlist. Verifique sua conexão (ou as regras do Firestore para a coleção "tierlists") e tente de novo.');
+  }
 }
+
+/* ============================================================
+   TIERLIST — baixar como imagem
+============================================================ */
+function loadImageSafe(url){
+  return new Promise(resolve=>{
+    if(!url){ resolve(null); return; }
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = ()=> resolve(img);
+    img.onerror = ()=> resolve(null);
+    img.src = url;
+  });
+}
+
+function roundRectPath(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.arcTo(x+w, y, x+w, y+h, r);
+  ctx.arcTo(x+w, y+h, x, y+h, r);
+  ctx.arcTo(x, y+h, x, y, r);
+  ctx.arcTo(x, y, x+w, y, r);
+  ctx.closePath();
+}
+
+async function buildTierlistImage(uid){
+  const data = tierDataFor(uid);
+  const name = displayNameFor(uid);
+
+  const CHIP = 96, GAP = 10, PAD = 16;
+  const LABEL_W = 100;
+  const CANVAS_W = 1500;
+  const AREA_W = CANVAS_W - LABEL_W - PAD*2;
+  const perRow = Math.max(1, Math.floor((AREA_W + GAP) / (CHIP + GAP)));
+  const HEADER_H = 84;
+
+  // pré-carrega todas as imagens dos álbuns usados
+  const allIds = [].concat(data.S, data.A, data.B, data.C, data.D, data.F);
+  const albumById = {};
+  allIds.forEach(id=>{ const a = albums.find(x=>x.id===id); if(a) albumById[id] = a; });
+  const imgCache = {};
+  await Promise.all(Object.values(albumById).map(async a=>{
+    imgCache[a.id] = await loadImageSafe(a.coverUrl);
+  }));
+
+  // calcula altura de cada linha
+  const rowMeta = TIERS.map(t=>{
+    const ids = data[t.key];
+    const lines = ids.length ? Math.ceil(ids.length / perRow) : 1;
+    const h = Math.max(CHIP + PAD*2, lines*(CHIP+GAP) + PAD*2 - GAP);
+    return { tier:t, ids, h };
+  });
+  const boardH = rowMeta.reduce((s,r)=>s+r.h, 0);
+  const CANVAS_H = HEADER_H + boardH + PAD;
+
+  const canvas = document.createElement('canvas');
+  const scale = 2; // exporta em maior resolução
+  canvas.width = CANVAS_W*scale; canvas.height = CANVAS_H*scale;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(scale, scale);
+
+  // fundo
+  ctx.fillStyle = '#00171F';
+  ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+
+  // cabeçalho
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = '700 26px Inter, sans-serif';
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillText(`Tierlist de ${name}`, PAD, 40);
+  ctx.fillStyle = '#7FB8D6';
+  ctx.font = '400 14px Inter, sans-serif';
+  ctx.fillText('Fantano Só Que Bom', PAD, 62);
+
+  let y = HEADER_H;
+  rowMeta.forEach(({tier, ids, h})=>{
+    // label da fileira
+    ctx.fillStyle = tier.color;
+    ctx.fillRect(PAD, y, LABEL_W, h);
+    ctx.fillStyle = '#111111';
+    ctx.font = '800 30px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(tier.key, PAD + LABEL_W/2, y + h/2);
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+
+    // área de itens
+    const areaX = PAD + LABEL_W;
+    const areaW = CANVAS_W - PAD*2 - LABEL_W;
+    ctx.fillStyle = '#001F2B';
+    ctx.fillRect(areaX, y, areaW, h);
+
+    ids.forEach((id, i)=>{
+      const col = i % perRow, line = Math.floor(i / perRow);
+      const cx = areaX + PAD + col*(CHIP+GAP);
+      const cy = y + PAD + line*(CHIP+GAP);
+      const img = imgCache[id];
+      ctx.save();
+      roundRectPath(ctx, cx, cy, CHIP, CHIP, 10);
+      ctx.clip();
+      if(img){
+        ctx.drawImage(img, cx, cy, CHIP, CHIP);
+      } else {
+        ctx.fillStyle = '#003459';
+        ctx.fillRect(cx, cy, CHIP, CHIP);
+      }
+      ctx.restore();
+      ctx.strokeStyle = 'rgba(255,255,255,.15)';
+      roundRectPath(ctx, cx, cy, CHIP, CHIP, 10);
+      ctx.stroke();
+    });
+
+    y += h;
+  });
+
+  return canvas;
+}
+
+document.getElementById('tierDownloadBtn').addEventListener('click', async (e)=>{
+  const btn = e.currentTarget;
+  const uid = viewingTierUid || currentUID;
+  if(!uid) return;
+  const originalText = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Gerando imagem...';
+  try{
+    const canvas = await buildTierlistImage(uid);
+    const blob = await new Promise(resolve=> canvas.toBlob(resolve, 'image/png'));
+    if(!blob) throw new Error('Não foi possível gerar a imagem.');
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const safeName = (displayNameFor(uid)||'tierlist').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+    a.href = url;
+    a.download = `tierlist-${safeName||'usuario'}.png`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=> URL.revokeObjectURL(url), 4000);
+  }catch(err){
+    console.error('Erro ao gerar imagem da tierlist:', err);
+    alert('Não foi possível gerar a imagem. Isso pode acontecer se alguma capa vier de um servidor que bloqueia exportação — tente novamente ou troque a capa por uma manual.');
+  }finally{
+    btn.disabled = false; btn.textContent = originalText;
+  }
+});
 </script>
 </body>
 </html>
