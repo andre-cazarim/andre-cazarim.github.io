@@ -208,6 +208,42 @@
     color:var(--accent-ink); background:var(--accent); padding:3px 9px; border-radius:100px; font-weight:700;
   }
 
+  /* ============ TIERLIST ============ */
+  .tierlist-board{
+    display:flex; flex-direction:column; gap:2px; border-radius:14px; overflow:hidden;
+    border:1px solid var(--line-strong);
+  }
+  .tier-row{ display:flex; min-height:110px; background:var(--bg-card); }
+  .tier-label{
+    width:90px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-title); font-weight:800; font-size:26px; color:#111;
+    text-shadow:0 1px 0 rgba(255,255,255,.25);
+  }
+  .tier-items{
+    flex:1; display:flex; flex-wrap:wrap; align-content:flex-start; gap:8px; padding:10px;
+    background:var(--code-bg); min-height:110px; transition:background .12s ease;
+  }
+  .tier-items.drag-over{ background:var(--bg-card-hover); }
+  .tier-chip{
+    width:72px; cursor:grab; user-select:none; text-align:center;
+  }
+  .tier-chip:active{ cursor:grabbing; }
+  .tier-chip img, .tier-chip .cover-ph{
+    width:72px; height:72px; border-radius:8px; object-fit:cover; display:block;
+    border:1px solid var(--line); background:var(--bg-card);
+  }
+  .tier-chip .cover-ph{ display:flex; align-items:center; justify-content:center; color:var(--ink-faint); font-size:9px; text-transform:uppercase; }
+  .tier-chip .tc-name{
+    font-size:10px; color:var(--ink-soft); margin-top:4px; line-height:1.25;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+  }
+  .tier-chip.dragging{ opacity:.35; }
+  .tier-pool{
+    display:flex; flex-wrap:wrap; gap:12px; padding:16px; background:var(--bg-card);
+    border:1px dashed var(--line-strong); border-radius:16px; min-height:100px;
+  }
+  .tier-pool.drag-over{ border-color:var(--accent); }
+
   .empty-state{
     padding:60px 20px; text-align:center; color:var(--ink-faint); font-size:14px;
     border:1px dashed var(--line-strong); border-radius:16px;
@@ -300,6 +336,21 @@
   .rate-album-head img{ width:64px; height:64px; border-radius:8px; object-fit:cover; }
   .rate-album-head .rah-title{ font-size:16px; font-weight:700; }
   .rate-album-head .rah-sub{ font-size:12.5px; color:var(--ink-faint); }
+
+  .cover-rate-row{
+    display:flex; gap:14px; align-items:flex-start; background:var(--code-bg);
+    border:1px solid var(--line); border-radius:14px; padding:14px;
+  }
+  .cover-rate-row img, .cover-rate-ph{
+    width:76px; height:76px; border-radius:10px; object-fit:cover; flex-shrink:0;
+  }
+  .cover-rate-ph{
+    background:var(--bg-card); display:flex; align-items:center; justify-content:center;
+    color:var(--ink-faint); font-size:10px; text-transform:uppercase; text-align:center; padding:4px;
+  }
+  .cover-rate-field{ flex:1; display:flex; flex-direction:column; gap:8px; }
+  .cover-rate-question{ font-size:13px; font-weight:600; color:var(--ink); }
+  .cover-rate-field textarea{ min-height:60px; }
 
   .field-label{
     font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft);
@@ -420,6 +471,7 @@
     <button class="topnav-item" data-section="playlist">Playlist</button>
     <button class="topnav-item" data-section="avaliacoes">Avaliações</button>
     <button class="topnav-item" data-section="listas">Listas</button>
+    <button class="topnav-item" data-section="tierlist">Tierlist</button>
     <div class="topnav-spacer"></div>
     <button class="user-pill" id="userPill"><span id="userPillAvatarWrap"><span class="dot"></span></span><span id="userPillName">—</span></button>
   </div>
@@ -548,6 +600,24 @@
         <button class="btn" id="newListBtn">+ Nova lista</button>
       </div>
       <div class="users-grid" id="listsGrid"></div>
+    </section>
+  </div>
+</div>
+
+<!-- ============ TIERLIST ============ -->
+<div class="section-page" id="sec-tierlist">
+  <div class="wrap">
+    <header class="hero">
+      <div class="eyebrow">Sua tierlist</div>
+      <h1 class="title">Tierlist</h1>
+      <p class="lede">Arraste os álbuns pra fileira que eles merecem. Cada pessoa tem a sua própria tierlist.</p>
+    </header>
+    <section class="section">
+      <div class="tierlist-board" id="tierlistBoard"></div>
+      <div class="section-row" style="margin-top:32px;">
+        <span class="field-label" style="margin:0;">Álbuns pra classificar</span>
+      </div>
+      <div class="tier-pool" id="tierPool"></div>
     </section>
   </div>
 </div>
@@ -686,6 +756,7 @@ const ratingsCol = collection(db, "ratings");
 const usersCol = collection(db, "users");
 const listenLaterCol = collection(db, "listenLater");
 const listsCol = collection(db, "lists");
+const tierlistsCol = collection(db, "tierlists");
 
 /* ============================================================
    EMAILJS — notificações por email quando o parceiro
@@ -989,8 +1060,16 @@ onSnapshot(listenLaterCol, snap=>{
   renderQueue();
 }, err=> console.error('listenLater onSnapshot error', err));
 
+let tierlists = {}; // uid -> { S:[], A:[], B:[], C:[], D:[], F:[] }
+onSnapshot(tierlistsCol, snap=>{
+  tierlists = {};
+  snap.docs.forEach(d=>{ tierlists[d.id] = d.data(); });
+  renderTierlist();
+}, err=> console.error('tierlists onSnapshot error', err));
+
 function renderAll(){
   if(!currentUID) return;
+  renderTierlist();
   renderPending();
   renderRecent();
   renderHistorico();
@@ -1218,6 +1297,16 @@ function openRateModal(albumId, albumDataFallback){
       <span class="field-label">Comentário (opcional)</span>
       <textarea id="commentInput" placeholder="O que achou desse álbum?"></textarea>
     </div>
+    <div class="form-block cover-rate-block">
+      <span class="field-label">A capa</span>
+      <div class="cover-rate-row">
+        ${album.coverUrl ? `<img src="${album.coverUrl}" alt="" onerror="this.style.visibility='hidden'">` : `<div class="cover-rate-ph">Sem capa</div>`}
+        <div class="cover-rate-field">
+          <span class="cover-rate-question">O que achou da capa?</span>
+          <textarea id="coverCommentInput" placeholder="Escreva aqui..."></textarea>
+        </div>
+      </div>
+    </div>
     <div class="form-block">
       <span class="field-label">Foto (opcional)</span>
       <label class="rating-img-upload" id="ratingImgLabel">
@@ -1236,6 +1325,7 @@ function openRateModal(albumId, albumDataFallback){
     rateFormBody.querySelector('#bestTrackInput').value = existing.bestTrack || '';
     rateFormBody.querySelector('#worstTrackInput').value = existing.worstTrack || '';
     rateFormBody.querySelector('#commentInput').value = existing.comment || '';
+    rateFormBody.querySelector('#coverCommentInput').value = existing.coverComment || '';
     if(existing.imageBase64){
       const prev = rateFormBody.querySelector('#ratingImgPreview');
       const placeholder = rateFormBody.querySelector('#ratingImgPlaceholder');
@@ -1298,6 +1388,7 @@ document.getElementById('rateSaveBtn').addEventListener('click', async ()=>{
   const playlistPicks = Array.from(rateFormBody.querySelectorAll('.playlist-track-input'))
     .map(i=>i.value.trim()).filter(Boolean).slice(0,3);
   const comment = rateFormBody.querySelector('#commentInput').value.trim();
+  const coverComment = rateFormBody.querySelector('#coverCommentInput').value.trim();
 
   // imagem: redimensiona pra max 800px e comprime pra JPEG antes de salvar
   const imgPreviewEl = rateFormBody.querySelector('#ratingImgPreview');
@@ -1325,7 +1416,7 @@ document.getElementById('rateSaveBtn').addEventListener('click', async ()=>{
     const ratingId = `${rateTargetAlbum.id}_${currentUID}`;
     const ratingData = {
       albumId: rateTargetAlbum.id, uid: currentUID, userName: currentUser, stars: rateStars,
-      bestTrack, worstTrack, playlistPicks, comment,
+      bestTrack, worstTrack, playlistPicks, comment, coverComment,
       ratedAt: serverTimestamp()
     };
     if(imageBase64 !== null) ratingData.imageBase64 = imageBase64;
@@ -1522,6 +1613,7 @@ function openDetailModal(albumId){
         ${r.worstTrack ? `<div class="rb-row">Pior faixa: <b>${escapeHtml(r.worstTrack)}</b></div>` : ''}
         ${r.playlistPicks && r.playlistPicks.length ? `<div class="rb-row">Playlist: <b>${r.playlistPicks.map(escapeHtml).join(', ')}</b></div>` : ''}
         ${r.comment ? `<div class="rb-comment">"${escapeHtml(r.comment)}"</div>` : ''}
+        ${r.coverComment ? `<div class="rb-row" style="margin-top:6px;">Sobre a capa: <b>${escapeHtml(r.coverComment)}</b></div>` : ''}
         ${r.imageBase64 ? `<img src="${r.imageBase64}" alt="Foto da avaliação" style="margin-top:12px; width:100%; border-radius:10px; max-height:260px; object-fit:cover;">` : ''}
       `;
     } else {
@@ -1917,6 +2009,98 @@ document.getElementById('deleteListBtn').addEventListener('click', async ()=>{
     closeListModal();
   }catch(e){ alert('Erro ao excluir: '+(e.message||e)); }
 });
+
+/* ============================================================
+   TIERLIST
+============================================================ */
+const TIERS = [
+  {key:'S', color:'#ff7f7f'},
+  {key:'A', color:'#ffbf7f'},
+  {key:'B', color:'#ffdf7f'},
+  {key:'C', color:'#ffff7f'},
+  {key:'D', color:'#bfff7f'},
+  {key:'F', color:'#7fff7f'}
+];
+
+function myTierData(){
+  const d = (currentUID && tierlists[currentUID]) || {};
+  return { S:d.S||[], A:d.A||[], B:d.B||[], C:d.C||[], D:d.D||[], F:d.F||[] };
+}
+
+function renderTierlist(){
+  const board = document.getElementById('tierlistBoard');
+  const pool = document.getElementById('tierPool');
+  if(!board || !pool || !currentUID) return;
+  const data = myTierData();
+  const placed = new Set([].concat(data.S, data.A, data.B, data.C, data.D, data.F));
+
+  board.innerHTML = '';
+  TIERS.forEach(t=>{
+    const row = document.createElement('div');
+    row.className = 'tier-row';
+    row.innerHTML = `<div class="tier-label" style="background:${t.color};">${t.key}</div>`;
+    const itemsEl = document.createElement('div');
+    itemsEl.className = 'tier-items';
+    data[t.key].forEach(albumId=>{
+      const a = albums.find(x=>x.id===albumId);
+      if(a) itemsEl.appendChild(tierChip(a));
+    });
+    setupDropZone(itemsEl, t.key);
+    row.appendChild(itemsEl);
+    board.appendChild(row);
+  });
+
+  pool.innerHTML = '';
+  const unranked = albums.filter(a=>!placed.has(a.id));
+  if(!unranked.length){
+    pool.innerHTML = `<div class="empty-state" style="width:100%;">Todos os álbuns já estão classificados.</div>`;
+  } else {
+    unranked.forEach(a=> pool.appendChild(tierChip(a)));
+  }
+  setupDropZone(pool, null);
+}
+
+function tierChip(a){
+  const chip = document.createElement('div');
+  chip.className = 'tier-chip';
+  chip.draggable = true;
+  chip.dataset.albumId = a.id;
+  chip.innerHTML = `
+    ${a.coverUrl ? `<img src="${a.coverUrl}" alt="" loading="lazy" onerror="this.outerHTML='<div class=&quot;cover-ph&quot;>Sem capa</div>'">` : `<div class="cover-ph">Sem capa</div>`}
+    <div class="tc-name">${escapeHtml(a.title||'')}</div>
+  `;
+  chip.addEventListener('dragstart', e=>{
+    e.dataTransfer.setData('text/plain', a.id);
+    e.dataTransfer.effectAllowed = 'move';
+    setTimeout(()=> chip.classList.add('dragging'), 0);
+  });
+  chip.addEventListener('dragend', ()=> chip.classList.remove('dragging'));
+  return chip;
+}
+
+function setupDropZone(el, tierKey){
+  el.addEventListener('dragover', e=>{ e.preventDefault(); el.classList.add('drag-over'); });
+  el.addEventListener('dragleave', ()=> el.classList.remove('drag-over'));
+  el.addEventListener('drop', async e=>{
+    e.preventDefault();
+    el.classList.remove('drag-over');
+    const albumId = e.dataTransfer.getData('text/plain');
+    if(!albumId || !currentUID) return;
+    await moveAlbumToTier(albumId, tierKey);
+  });
+}
+
+async function moveAlbumToTier(albumId, tierKey){
+  const data = myTierData();
+  const next = { S:[...data.S], A:[...data.A], B:[...data.B], C:[...data.C], D:[...data.D], F:[...data.F] };
+  Object.keys(next).forEach(k=>{ next[k] = next[k].filter(id=>id!==albumId); });
+  if(tierKey) next[tierKey].push(albumId);
+  tierlists[currentUID] = next; // atualização otimista local
+  renderTierlist();
+  try{
+    await setDoc(doc(tierlistsCol, currentUID), next);
+  }catch(e){ console.error('Erro ao salvar tierlist:', e); }
+}
 </script>
 </body>
 </html>
